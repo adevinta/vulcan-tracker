@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/adevinta/vulcan-jira-api/pkg/api"
-	mddleware "github.com/adevinta/vulcan-jira-api/pkg/api/middleware"
 	"github.com/adevinta/vulcan-jira-api/pkg/issues/jira"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -48,7 +47,6 @@ func main() {
 	}))
 
 	e.Use(middleware.Recover())
-	e.Use(mddleware.Authorization(mddleware.NewTagAuthorizer(is, e.Logger)))
 	e.Pre(middleware.RemoveTrailingSlash())
 
 	// e.GET("/issues", a.ListIssues)
