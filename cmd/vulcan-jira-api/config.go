@@ -7,6 +7,7 @@ package main
 import (
 	"io"
 	"os"
+	"strconv"
 
 	"github.com/BurntSushi/toml"
 	"github.com/adevinta/vulcan-jira-api/pkg/issues/jira"
@@ -22,6 +23,7 @@ type config struct {
 type apiConfig struct {
 	MaxSize     int `toml:"max_size"`
 	DefaultSize int `toml:"default_size"`
+	Port        int `toml:"port"`
 }
 
 type logConfig struct {
@@ -43,6 +45,14 @@ func parseConfig(cfgFilePath string) (*config, error) {
 	var conf config
 	if _, err := toml.Decode(string(cfgData[:]), &conf); err != nil {
 		return nil, err
+	}
+
+	if envVar := os.Getenv("PORT"); envVar != "" {
+		entVarInt, err := strconv.Atoi(envVar)
+		if err != nil {
+			return nil, err
+		}
+		conf.API.Port = entVarInt
 	}
 
 	if envVar := os.Getenv("JIRA_URL"); envVar != "" {

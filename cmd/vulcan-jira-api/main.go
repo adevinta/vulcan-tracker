@@ -6,6 +6,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"strings"
 
@@ -54,6 +55,7 @@ func main() {
 	e.POST("/issues", a.CreateIssue)
 	e.POST("/issues/:id/fixed", a.FixIssue)
 
-	e.Logger.Fatal(e.Start(":8084"))
+	address := fmt.Sprintf(":%d", config.API.Port)
+	e.Logger.Fatal(e.Start(address))
 
 }
