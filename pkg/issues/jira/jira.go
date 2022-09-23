@@ -5,14 +5,14 @@ Copyright 2022 Adevinta
 package jira
 
 import (
-	issue_tracking "github.com/adevinta/vulcan-jira-api/pkg/issue-tracking"
+	"github.com/adevinta/vulcan-jira-api/pkg/issues"
 	gojira "github.com/andygrunwald/go-jira"
 	"github.com/labstack/echo/v4"
 )
 
 type (
 	IS struct {
-		Client                 issue_tracking.IssueTrackingClient
+		Client                 issues.IssueTrackingClient
 		VulnerabilityIssueType string
 		Project                string
 		IssueWorkflow          []string

@@ -7,11 +7,11 @@ package api
 import (
 	"errors"
 
-	issue_tracking "github.com/adevinta/vulcan-jira-api/pkg/issue-tracking"
+	"github.com/adevinta/vulcan-jira-api/pkg/issues"
 )
 
 type API struct {
-	issueTracking issue_tracking.IssueTracking
+	issueTracking issues.IssueTracking
 	Options       Options
 }
 
@@ -51,7 +51,7 @@ var (
 )
 
 // New instantiates a new API.
-func New(issueTracking issue_tracking.IssueTracking, options Options) *API {
+func New(issueTracking issues.IssueTracking, options Options) *API {
 	return &API{
 		issueTracking: issueTracking,
 		Options:       options,

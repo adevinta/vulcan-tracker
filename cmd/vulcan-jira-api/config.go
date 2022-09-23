@@ -9,7 +9,7 @@ import (
 	"os"
 
 	"github.com/BurntSushi/toml"
-	"github.com/adevinta/vulcan-jira-api/pkg/issue-tracking/jira"
+	"github.com/adevinta/vulcan-jira-api/pkg/issues/jira"
 	"github.com/labstack/gommon/log"
 )
 

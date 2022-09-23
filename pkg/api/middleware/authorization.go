@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"strings"
 
-	issue_tracking "github.com/adevinta/vulcan-jira-api/pkg/issue-tracking"
+	"github.com/adevinta/vulcan-jira-api/pkg/issues"
 	echo "github.com/labstack/echo/v4"
 )
 
@@ -49,7 +49,7 @@ type Authorizer interface {
 // TagAuthorizer performs authorization based
 // on the TAG scheme for the authorization header.
 type TagAuthorizer struct {
-	issueTracking issue_tracking.IssueTracking
+	issueTracking issues.IssueTracking
 	log           echo.Logger
 }
 
@@ -57,7 +57,7 @@ type TagAuthorizer struct {
 // This type of authorizer matches the tag passed in through
 // the authorization header against the tag associated with the
 // resource that the request tries to modify.
-func NewTagAuthorizer(issueTracking issue_tracking.IssueTracking, log echo.Logger) *TagAuthorizer {
+func NewTagAuthorizer(issueTracking issues.IssueTracking, log echo.Logger) *TagAuthorizer {
 	return &TagAuthorizer{
 		issueTracking,
 		log,

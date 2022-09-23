@@ -11,7 +11,7 @@ import (
 
 	"github.com/adevinta/vulcan-jira-api/pkg/api"
 	mddleware "github.com/adevinta/vulcan-jira-api/pkg/api/middleware"
-	"github.com/adevinta/vulcan-jira-api/pkg/issue-tracking/jira"
+	"github.com/adevinta/vulcan-jira-api/pkg/issues/jira"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )

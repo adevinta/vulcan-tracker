@@ -7,12 +7,12 @@ package api
 import (
 	"net/http"
 
-	issue_tracking "github.com/adevinta/vulcan-jira-api/pkg/issue-tracking"
+	"github.com/adevinta/vulcan-jira-api/pkg/issues"
 	"github.com/adevinta/vulcan-jira-api/pkg/model"
 	"github.com/labstack/echo/v4"
 )
 
-func response(c echo.Context, httpStatus int, data interface{}, dataType string, p ...issue_tracking.Pagination) error {
+func response(c echo.Context, httpStatus int, data interface{}, dataType string, p ...issues.Pagination) error {
 	if data == nil {
 		return c.NoContent(http.StatusNoContent)
 	}

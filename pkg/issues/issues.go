@@ -2,7 +2,7 @@
 Copyright 2022 Adevinta
 */
 
-package issue_tracking
+package issues
 
 import (
 	"github.com/adevinta/vulcan-jira-api/pkg/model"
