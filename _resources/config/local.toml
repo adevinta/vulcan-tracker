@@ -1,0 +1,6 @@
+[api]
+max_size = 100
+default_size = 20
+
+[log]
+level = "DEBUG"
