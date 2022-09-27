@@ -1,0 +1,14 @@
+[api]
+max_size = 100
+default_size = 20
+port = $PORT
+
+[log]
+level = "$LOG_LEVEL"
+
+[jira]
+url = "$JIRA_URL"
+user = "$JIRA_USER"
+token = "$JIRA_TOKEN"
+vulnerability_issue_type = "$JIRA_VULNERABILITY_ISSUE_TYPE"
+project = "$JIRA_PROJECT"

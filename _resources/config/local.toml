@@ -1,0 +1,7 @@
+[api]
+max_size = 100
+default_size = 20
+port = 8080
+
+[log]
+level = "DEBUG"
