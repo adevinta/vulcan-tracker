@@ -70,8 +70,8 @@ func (jc JiraClient) CreateIssue(issue *model.Issue, issueType string) (*model.I
 }
 
 // GetIssueTransitions retrieves a list of all available transitions of an issue.
-func (js JiraClient) GetIssueTransitions(id string) (*[]model.Transition, error) {
-	transitions, _, err := js.Client.Issue.GetTransitions(id)
+func (jc JiraClient) GetIssueTransitions(id string) (*[]model.Transition, error) {
+	transitions, _, err := jc.Client.Issue.GetTransitions(id)
 	if err != nil {
 		return nil, err
 	}
@@ -87,8 +87,8 @@ func (js JiraClient) GetIssueTransitions(id string) (*[]model.Transition, error)
 }
 
 // DoTransition changes the state of an issue to one of the available ones.
-func (js JiraClient) DoTransition(id string, idTransition string) error {
-	_, err := js.Client.Issue.DoTransition(id, idTransition)
+func (jc JiraClient) DoTransition(id string, idTransition string) error {
+	_, err := jc.Client.Issue.DoTransition(id, idTransition)
 	if err != nil {
 		return err
 	}
