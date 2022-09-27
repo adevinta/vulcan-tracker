@@ -10,24 +10,7 @@ import (
 
 // Filter holds query filtering information.
 type Filter struct {
-	Status          string
-	Tag             string
-	Tags            string
-	Identifier      string
-	Identifiers     string
-	IdentifierMatch bool
-	MinScore        float32
-	MaxScore        float32
-	MinDate         string
-	MaxDate         string
-	AtDate          string
-	Page            int
-	Size            int
-	SortBy          SortBy
-	IssueID         string
-	TargetID        string
-	SourceID        string
-	Labels          string
+	// TODO: Not specified yet
 }
 
 // SortBy holds information for the
