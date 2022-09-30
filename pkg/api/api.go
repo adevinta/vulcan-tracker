@@ -7,12 +7,14 @@ package api
 import (
 	"errors"
 
-	"github.com/adevinta/vulcan-tracker/pkg/issues"
+	"github.com/adevinta/vulcan-tracker/pkg/storage"
+	"github.com/adevinta/vulcan-tracker/pkg/tracking"
 )
 
 type API struct {
-	issueTracking issues.IssueTracking
-	Options       Options
+	trackingServers map[string]tracking.TicketTracking
+	storage         storage.Storage
+	Options         Options
 }
 
 type Options struct {
@@ -51,9 +53,10 @@ var (
 )
 
 // New instantiates a new API.
-func New(issueTracking issues.IssueTracking, options Options) *API {
+func New(trackingServers map[string]tracking.TicketTracking, storage storage.Storage, options Options) *API {
 	return &API{
-		issueTracking: issueTracking,
-		Options:       options,
+		trackingServers: trackingServers,
+		storage:         storage,
+		Options:         options,
 	}
 }

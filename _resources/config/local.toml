@@ -5,3 +5,18 @@ port = 8080
 
 [log]
 level = "DEBUG"
+
+[servers]
+    [servers.example1]
+    url = "http://localhost:8080"
+    user = "jira_user"
+    token = "jira_token"
+    kind = "jira"
+
+[teams]
+    [teams.example1]
+    server = "example1"
+    vulnerability_issue_type = "Vulnerabitliy"
+    project = "TEST"
+    fix_workflow = ["ToDo", "In Progress", "Fixed"]
+    wontfix_workflow = ["ToDo", "In Progress", "Fixed"]
