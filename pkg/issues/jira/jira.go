@@ -5,7 +5,7 @@ Copyright 2022 Adevinta
 package jira
 
 import (
-	"github.com/adevinta/vulcan-jira-api/pkg/issues"
+	"github.com/adevinta/vulcan-tracker/pkg/issues"
 	gojira "github.com/andygrunwald/go-jira"
 	"github.com/labstack/echo/v4"
 )

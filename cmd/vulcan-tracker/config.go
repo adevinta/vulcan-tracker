@@ -10,7 +10,7 @@ import (
 	"strconv"
 
 	"github.com/BurntSushi/toml"
-	"github.com/adevinta/vulcan-jira-api/pkg/issues/jira"
+	"github.com/adevinta/vulcan-tracker/pkg/issues/jira"
 	"github.com/labstack/gommon/log"
 )
 

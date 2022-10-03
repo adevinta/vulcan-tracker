@@ -6,7 +6,8 @@
 *.dylib
 *.swp
 *.swo
-vulcan-jira-api
+vulcan-tracker
+!vulcan-tracker/
 
 # Test binary, built with `go test -c`
 *.test
@@ -23,3 +24,4 @@ out/
 dist/
 .env
 .DS_Store
+.history

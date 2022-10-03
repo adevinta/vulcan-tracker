@@ -10,8 +10,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/adevinta/vulcan-jira-api/pkg/api"
-	"github.com/adevinta/vulcan-jira-api/pkg/issues/jira"
+	"github.com/adevinta/vulcan-tracker/pkg/api"
+	"github.com/adevinta/vulcan-tracker/pkg/issues/jira"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )

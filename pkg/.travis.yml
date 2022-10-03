@@ -6,7 +6,7 @@ env:
   - CGO_ENABLED=0
   - GO111MODULE=on
 gobuild_args: -a -tags netgo -ldflags '-w'
-go_import_path: github.com/adevinta/vulcan-local-api
+go_import_path: github.com/adevinta/vulcan-tracker
 script:
   - go install ./...
   - go test -short -v $(go list ./... | grep -v /vendor/)
