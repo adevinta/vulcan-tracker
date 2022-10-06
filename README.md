@@ -1,6 +1,6 @@
-# vulcan-jira-api
+# vulcan-tracker
 
-REST API for Jira integration with Vulcan.
+Service to register tickets associated to vulnerabilities in a tracker tool.
 
 ## ⚠️ Alpha status
 

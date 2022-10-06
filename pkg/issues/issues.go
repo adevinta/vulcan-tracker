@@ -5,7 +5,7 @@ Copyright 2022 Adevinta
 package issues
 
 import (
-	"github.com/adevinta/vulcan-jira-api/pkg/model"
+	"github.com/adevinta/vulcan-tracker/pkg/model"
 )
 
 // Filter holds query filtering information.

@@ -5,4 +5,4 @@
 # Apply env variables
 envsubst < config.toml > run.toml
 
-exec ./vulcan-jira-api -c run.toml
+exec ./vulcan-tracker -c run.toml

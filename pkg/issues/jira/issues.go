@@ -5,7 +5,7 @@ Copyright 2022 Adevinta
 package jira
 
 import (
-	"github.com/adevinta/vulcan-jira-api/pkg/model"
+	"github.com/adevinta/vulcan-tracker/pkg/model"
 )
 
 // GetIssue retrieves an issue from Jira.

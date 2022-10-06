@@ -7,7 +7,7 @@ package api
 import (
 	"errors"
 
-	"github.com/adevinta/vulcan-jira-api/pkg/issues"
+	"github.com/adevinta/vulcan-tracker/pkg/issues"
 )
 
 type API struct {

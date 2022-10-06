@@ -1,7 +1,7 @@
 package jira
 
 import (
-	"github.com/adevinta/vulcan-jira-api/pkg/model"
+	"github.com/adevinta/vulcan-tracker/pkg/model"
 	gojira "github.com/andygrunwald/go-jira"
 )
 

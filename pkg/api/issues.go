@@ -7,8 +7,8 @@ package api
 import (
 	"net/http"
 
-	"github.com/adevinta/vulcan-jira-api/pkg/issues"
-	"github.com/adevinta/vulcan-jira-api/pkg/model"
+	"github.com/adevinta/vulcan-tracker/pkg/issues"
+	"github.com/adevinta/vulcan-tracker/pkg/model"
 	"github.com/labstack/echo/v4"
 )
 
