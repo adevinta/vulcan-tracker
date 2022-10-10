@@ -34,7 +34,7 @@ func main() {
 	// TODO: Decide which is the type of storage.
 	storage, err := toml.New(cfg.Servers, cfg.Teams)
 	if err != nil {
-		e.Logger.Fatal(err)
+		e.Logger.Fatalf("Error initializing storage: %w", err)
 	}
 
 	trackerServersConf, err := storage.ListTrackerServersConf()
