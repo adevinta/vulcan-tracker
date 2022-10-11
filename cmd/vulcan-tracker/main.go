@@ -65,7 +65,7 @@ func main() {
 
 	e.GET("/tickets/:id", a.GetTicket)
 	e.POST("/tickets", a.CreateTicket)
-	e.POST("/tickets/:id/fixed", a.FixTicket)
+	e.POST("/tickets/:id/fix", a.FixTicket)
 
 	address := fmt.Sprintf(":%d", cfg.API.Port)
 	e.Logger.Fatal(e.Start(address))
