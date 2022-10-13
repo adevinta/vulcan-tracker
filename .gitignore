@@ -27,5 +27,5 @@ dist/
 .history
 
 
-# local toml config
+# generated run toml config
 run.toml
