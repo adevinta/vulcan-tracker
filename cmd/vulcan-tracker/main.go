@@ -12,7 +12,7 @@ import (
 
 	"github.com/adevinta/vulcan-tracker/pkg/api"
 	"github.com/adevinta/vulcan-tracker/pkg/config"
-	"github.com/adevinta/vulcan-tracker/pkg/storage/toml"
+	"github.com/adevinta/vulcan-tracker/pkg/storage"
 	"github.com/adevinta/vulcan-tracker/pkg/tracking"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -32,18 +32,18 @@ func main() {
 	e.Logger.SetLevel(config.ParseLogLvl(cfg.Log.Level))
 
 	// TODO: Decide which is the type of storage.
-	storage, err := toml.New(cfg.Servers, cfg.Teams)
+	storage, err := storage.New(cfg.Servers, cfg.Teams)
 	if err != nil {
 		e.Logger.Fatalf("Error initializing storage: %w", err)
 	}
 
-	trackerServersConf, err := storage.ListTrackerServersConf()
+	serversConf, err := storage.ServersConf()
 	if err != nil {
 		e.Logger.Fatal(err)
 	}
 
 	// Generate a client for each type of tracker.
-	trackerServers, err := tracking.GenerateServerClients(trackerServersConf, e.Logger)
+	trackerServers, err := tracking.GenerateServerClients(serversConf, e.Logger)
 	if err != nil {
 		e.Logger.Fatal(err)
 	}

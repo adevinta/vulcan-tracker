@@ -31,8 +31,8 @@ type Pagination struct {
 	Total  int `json:"total"`
 }
 
-// TicketTracking defines the interface for high level querying data from ticket tracker.
-type TicketTracking interface {
+// TicketTracker defines the interface for high level querying data from ticket tracker.
+type TicketTracker interface {
 	GetTicket(id string) (*model.Ticket, error)
 	CreateTicket(ticket *model.Ticket) (*model.Ticket, error)
 	GetTransitions(id string) ([]model.Transition, error)
@@ -42,11 +42,11 @@ type TicketTracking interface {
 const jiraKind = "jira"
 
 // GenerateServerClients instanciates a client for every server passed as argument.
-func GenerateServerClients(serverConfs []model.TrackerServerConf, logger echo.Logger) (map[string]TicketTracking, error) {
+func GenerateServerClients(serverConfs []model.TrackerConfig, logger echo.Logger) (map[string]TicketTracker, error) {
 
-	clients := make(map[string]TicketTracking)
+	clients := make(map[string]TicketTracker)
 	for _, server := range serverConfs {
-		var client TicketTracking
+		var client TicketTracker
 		var err error
 
 		switch kind := strings.ToLower(server.Kind); kind {

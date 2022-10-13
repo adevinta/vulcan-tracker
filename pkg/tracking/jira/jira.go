@@ -16,7 +16,7 @@ type (
 	}
 )
 
-// IssueTrackingClient defines the API of the adaptar for a third-party client.
+// TicketTrackingClient defines the API of the adapter for a third-party client.
 type TicketTrackingClient interface {
 	GetTicket(id string) (*model.Ticket, error)
 	CreateTicket(ticket *model.Ticket, issueType string) (*model.Ticket, error)
@@ -25,19 +25,15 @@ type TicketTrackingClient interface {
 }
 
 // New instantiates a new Jira connection.
-func New(serverConf model.TrackerServerConf, logger echo.Logger) (*TC, error) {
+func New(serverConf model.TrackerConfig, logger echo.Logger) (*TC, error) {
 
 	jiraClient, err := NewClient(serverConf.Url, serverConf.User, serverConf.Pass)
 	if err != nil {
 		return nil, err
 	}
 
-	jc := JiraClient{
-		Client: *jiraClient,
-	}
-
 	return &TC{
-		Client: jc,
+		Client: jiraClient,
 		Logger: logger,
 	}, nil
 }

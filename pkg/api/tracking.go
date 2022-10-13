@@ -49,7 +49,7 @@ func (api *API) GetTicket(c echo.Context) error {
 	teamId := c.QueryParam("teamId")
 
 	// Get the server and the configuration for the teamId.
-	configuration, err := api.storage.GetTrackerConfiguration(teamId)
+	configuration, err := api.storage.ProjectConfig(teamId)
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ func (api *API) CreateTicket(c echo.Context) error {
 	}
 
 	// Get the server and the configuration for the teamId.
-	configuration, err := api.storage.GetTrackerConfiguration(teamId)
+	configuration, err := api.storage.ProjectConfig(teamId)
 	if err != nil {
 		return err
 	}
@@ -105,7 +105,7 @@ func (api *API) FixTicket(c echo.Context) error {
 	teamId := c.QueryParam("teamId")
 
 	// Get the server and the configuration for the teamId,
-	configuration, err := api.storage.GetTrackerConfiguration(teamId)
+	configuration, err := api.storage.ProjectConfig(teamId)
 	if err != nil {
 		return err
 	}

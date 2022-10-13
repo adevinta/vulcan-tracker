@@ -5,12 +5,12 @@ import (
 	gojira "github.com/andygrunwald/go-jira"
 )
 
-type JiraClient struct {
-	Client gojira.Client
+type Client struct {
+	c *gojira.Client
 }
 
 // NewClient instanciates a client using go-jira library.
-func NewClient(url, user, token string) (*gojira.Client, error) {
+func NewClient(url, user, token string) (*Client, error) {
 	tp := gojira.BasicAuthTransport{
 		Username: user,
 		Password: token,
@@ -19,7 +19,9 @@ func NewClient(url, user, token string) (*gojira.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return gojiraClient, nil
+	return &Client{
+		c: gojiraClient,
+	}, nil
 }
 
 // fromGoJiraToTicketModel transforms a ticket returned by go-jira into a model.Ticket.
@@ -46,9 +48,9 @@ func fromGoJiraToTransitionModel(jiraTransition gojira.Transition) *model.Transi
 }
 
 // GetTicket retrieves a ticket from Jira.
-func (jc JiraClient) GetTicket(id string) (*model.Ticket, error) {
+func (cl Client) GetTicket(id string) (*model.Ticket, error) {
 
-	jiraIssue, _, err := jc.Client.Issue.Get(id, nil)
+	jiraIssue, _, err := cl.c.Issue.Get(id, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +59,7 @@ func (jc JiraClient) GetTicket(id string) (*model.Ticket, error) {
 }
 
 // CreateTicket creates a ticket in Jira.
-func (jc JiraClient) CreateTicket(ticket *model.Ticket, issueType string) (*model.Ticket, error) {
+func (cl Client) CreateTicket(ticket *model.Ticket, issueType string) (*model.Ticket, error) {
 	newTicket := &gojira.Issue{
 		Fields: &gojira.IssueFields{
 			Description: ticket.Description,
@@ -71,12 +73,12 @@ func (jc JiraClient) CreateTicket(ticket *model.Ticket, issueType string) (*mode
 		},
 	}
 
-	gojiraIssue, _, err := jc.Client.Issue.Create(newTicket)
+	gojiraIssue, _, err := cl.c.Issue.Create(newTicket)
 	if err != nil {
 		return nil, err
 	}
 
-	createdTicket, _, err := jc.Client.Issue.Get(gojiraIssue.ID, nil)
+	createdTicket, _, err := cl.c.Issue.Get(gojiraIssue.ID, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -84,8 +86,8 @@ func (jc JiraClient) CreateTicket(ticket *model.Ticket, issueType string) (*mode
 }
 
 // GetTicketTransitions retrieves a list of all available transitions of a ticket.
-func (jc JiraClient) GetTicketTransitions(id string) ([]model.Transition, error) {
-	transitions, _, err := jc.Client.Issue.GetTransitions(id)
+func (cl Client) GetTicketTransitions(id string) ([]model.Transition, error) {
+	transitions, _, err := cl.c.Issue.GetTransitions(id)
 	if err != nil {
 		return nil, err
 	}
@@ -101,8 +103,8 @@ func (jc JiraClient) GetTicketTransitions(id string) ([]model.Transition, error)
 }
 
 // DoTransition changes the state of an issue to one of the available ones.
-func (jc JiraClient) DoTransition(id string, idTransition string) error {
-	_, err := jc.Client.Issue.DoTransition(id, idTransition)
+func (cl Client) DoTransition(id string, idTransition string) error {
+	_, err := cl.c.Issue.DoTransition(id, idTransition)
 	if err != nil {
 		return err
 	}

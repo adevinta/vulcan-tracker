@@ -21,8 +21,8 @@ type Transition struct {
 	ToName string `json:"name"`
 }
 
-// TrackerServerConf represents the configuration of a ticket tracker server.
-type TrackerServerConf struct {
+// TrackerConfig represents the configuration of a ticket tracker server.
+type TrackerConfig struct {
 	Name string
 	Url  string
 	User string
@@ -30,8 +30,8 @@ type TrackerServerConf struct {
 	Kind string
 }
 
-// TrackerConfiguration represents the configuration of a team.
-type TrackerConfiguration struct {
+// ProjectConfig represents the configuration of a team.
+type ProjectConfig struct {
 	Name                   string
 	ServerName             string
 	Project                string
