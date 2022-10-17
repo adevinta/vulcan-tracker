@@ -51,7 +51,7 @@ func GenerateServerClients(serverConfs []model.TrackerConfig, logger echo.Logger
 
 		switch kind := strings.ToLower(server.Kind); kind {
 		case jiraKind:
-			client, err = jira.New(server, logger)
+			client, err = jira.New(server.Url, server.User, server.Pass, logger)
 		}
 		// TODO: More kind of trackers coming in the future
 		if err != nil {
