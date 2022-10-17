@@ -45,8 +45,8 @@ func response(c echo.Context, httpStatus int, data interface{}, dataType string,
 
 // GetTicket returns a JSON containing a specific ticket.
 func (api *API) GetTicket(c echo.Context) error {
+	teamId := c.Param("team_id")
 	id := c.Param("id")
-	teamId := c.QueryParam("teamId")
 
 	// Get the server and the configuration for the teamId.
 	configuration, err := api.storage.ProjectConfig(teamId)
@@ -70,8 +70,8 @@ func (api *API) GetTicket(c echo.Context) error {
 
 // CreateTicket creates a ticket and returns a JSON containing the new ticket.
 func (api *API) CreateTicket(c echo.Context) error {
+	teamId := c.Param("team_id")
 	ticket := new(model.Ticket)
-	teamId := c.QueryParam("teamId")
 
 	if err := c.Bind(ticket); err != nil {
 		return c.String(http.StatusBadRequest, "bad request")
@@ -101,8 +101,8 @@ func (api *API) CreateTicket(c echo.Context) error {
 
 // FixTicket updates a ticket until a "done" state and returns a JSON containing the new ticket.
 func (api *API) FixTicket(c echo.Context) error {
+	teamId := c.Param("team_id")
 	id := c.Param("id")
-	teamId := c.QueryParam("teamId")
 
 	// Get the server and the configuration for the teamId,
 	configuration, err := api.storage.ProjectConfig(teamId)

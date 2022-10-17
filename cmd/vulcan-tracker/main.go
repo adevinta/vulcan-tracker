@@ -63,9 +63,9 @@ func main() {
 	e.Use(middleware.Recover())
 	e.Pre(middleware.RemoveTrailingSlash())
 
-	e.GET("/tickets/:id", a.GetTicket)
-	e.POST("/tickets", a.CreateTicket)
-	e.POST("/tickets/:id/fix", a.FixTicket)
+	e.GET("/:team_id/tickets/:id", a.GetTicket)
+	e.POST("/:team_id/tickets", a.CreateTicket)
+	e.POST("/:team_id/tickets/:id/fix", a.FixTicket)
 
 	address := fmt.Sprintf(":%d", cfg.API.Port)
 	e.Logger.Fatal(e.Start(address))
