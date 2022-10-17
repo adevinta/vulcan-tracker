@@ -2,7 +2,7 @@
 Copyright 2022 Adevinta
 */
 
-package main
+package config
 
 import (
 	"io"
@@ -10,14 +10,29 @@ import (
 	"strconv"
 
 	"github.com/BurntSushi/toml"
-	"github.com/adevinta/vulcan-tracker/pkg/issues/jira"
 	"github.com/labstack/gommon/log"
 )
 
-type config struct {
-	API  apiConfig    `toml:"api"`
-	Jira jira.ConnStr `toml:"jira"`
-	Log  logConfig    `toml:"log"`
+type Server struct {
+	Url   string `toml:"url"`
+	User  string `toml:"user"`
+	Token string `toml:"token"`
+	Kind  string `toml:"kind"`
+}
+
+type Team struct {
+	Server                 string   `toml:"server"`
+	Project                string   `toml:"project"`
+	VulnerabilityIssueType string   `toml:"vulnerability_issue_type"`
+	FixWorkflow            []string `toml:"fix_workflow"`
+	WontFixWorkflow        []string `toml:"wontfix_workflow"`
+}
+
+type Config struct {
+	API     apiConfig         `toml:"api"`
+	Servers map[string]Server `toml:"servers"`
+	Teams   map[string]Team   `toml:"teams"`
+	Log     logConfig         `toml:"log"`
 }
 
 type apiConfig struct {
@@ -30,7 +45,7 @@ type logConfig struct {
 	Level string `toml:"level"`
 }
 
-func parseConfig(cfgFilePath string) (*config, error) {
+func ParseConfig(cfgFilePath string) (*Config, error) {
 	cfgFile, err := os.Open(cfgFilePath)
 	if err != nil {
 		return nil, err
@@ -42,7 +57,7 @@ func parseConfig(cfgFilePath string) (*config, error) {
 		return nil, err
 	}
 
-	var conf config
+	var conf Config
 	if _, err := toml.Decode(string(cfgData[:]), &conf); err != nil {
 		return nil, err
 	}
@@ -55,30 +70,10 @@ func parseConfig(cfgFilePath string) (*config, error) {
 		conf.API.Port = entVarInt
 	}
 
-	if envVar := os.Getenv("JIRA_URL"); envVar != "" {
-		conf.Jira.Url = envVar
-	}
-
-	if envVar := os.Getenv("JIRA_USER"); envVar != "" {
-		conf.Jira.User = envVar
-	}
-
-	if envVar := os.Getenv("JIRA_TOKEN"); envVar != "" {
-		conf.Jira.Token = envVar
-	}
-
-	if envVar := os.Getenv("JIRA_VULNERABILITY_ISSUE_TYPE"); envVar != "" {
-		conf.Jira.VulnerabilityIssueType = envVar
-	}
-
-	if envVar := os.Getenv("JIRA_PROJECT"); envVar != "" {
-		conf.Jira.Project = envVar
-	}
-
 	return &conf, nil
 }
 
-func parseLogLvl(lvl string) log.Lvl {
+func ParseLogLvl(lvl string) log.Lvl {
 	switch lvl {
 	case "ERROR":
 		return log.ERROR

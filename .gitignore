@@ -25,3 +25,7 @@ dist/
 .env
 .DS_Store
 .history
+
+
+# generated run toml config
+run.toml
