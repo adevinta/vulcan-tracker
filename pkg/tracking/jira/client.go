@@ -1,8 +1,11 @@
 package jira
 
 import (
+	"fmt"
+
 	"github.com/adevinta/vulcan-tracker/pkg/model"
 	gojira "github.com/andygrunwald/go-jira"
+	"github.com/trivago/tgo/tcontainer"
 )
 
 type Client struct {
@@ -58,18 +61,84 @@ func (cl *Client) GetTicket(id string) (*model.Ticket, error) {
 
 }
 
+func contains(elems []string, v string) bool {
+	for _, s := range elems {
+		if v == s {
+			return true
+		}
+	}
+	return false
+}
+
 // CreateTicket creates a ticket in Jira.
-func (cl *Client) CreateTicket(ticket *model.Ticket, issueType string) (*model.Ticket, error) {
+func (cl *Client) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
+
+	queryOptions := &gojira.GetQueryOptions{
+		ProjectKeys: ticket.Project,
+		Expand:      "projects.issuetypes.fields",
+	}
+
+	// Retrieve the metadata needed to create a ticket.
+	createMetaInfo, _, err := cl.c.Issue.GetCreateMetaWithOptions(queryOptions)
+	if err != nil {
+		return nil, err
+	}
+
+	metaProject := createMetaInfo.GetProjectWithKey(ticket.Project)
+	metaIssueType := metaProject.GetIssueTypeWithName(ticket.TicketType)
+	mandatoryFields, err := metaIssueType.GetMandatoryFields()
+	if err != nil {
+		return nil, err
+	}
+
+	customfields := tcontainer.NewMarshalMap()
+
+	for _, field := range mandatoryFields {
+		// We already have the values for this fields.
+		if contains([]string{"summary", "issuetype", "components", "project", "reporter"}, field) {
+			continue
+		}
+
+		required, err := metaIssueType.Fields.Bool(field + "/required")
+		if err != nil {
+			return nil, err
+		}
+		hasDefaultValue, err := metaIssueType.Fields.Bool(field + "/hasDefaultValue")
+		if err != nil {
+			return nil, err
+		}
+
+		//We only have to manage the required fields without default value.
+		if required && !hasDefaultValue {
+
+			fieldType, exists := metaIssueType.Fields.Value(field + "/schema/type")
+			if !exists {
+				return nil, fmt.Errorf("error retrieving the type of the custom field %s", field)
+			}
+			switch fieldType {
+			case "option":
+				var firstOption interface{}
+				firstOption, exists = metaIssueType.Fields.Value(field + "/allowedValues[0]value")
+				if !exists {
+					return nil, fmt.Errorf("error retrieving the first option of the custom field %s", field)
+				}
+				customfields[field] = map[string]string{"value": firstOption.(string)}
+			}
+		}
+
+	}
+
 	newTicket := &gojira.Issue{
 		Fields: &gojira.IssueFields{
 			Description: ticket.Description,
 			Summary:     ticket.Summary,
 			Type: gojira.IssueType{
-				Name: issueType,
+				Name: ticket.TicketType,
 			},
 			Project: gojira.Project{
 				Key: ticket.Project,
 			},
+			Unknowns: customfields,
 		},
 	}
 
