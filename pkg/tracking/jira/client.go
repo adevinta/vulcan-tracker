@@ -71,7 +71,7 @@ func contains(elems []string, v string) bool {
 }
 
 // CreateTicket creates a ticket in Jira.
-func (cl *Client) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
+func (cl *Client) CreateTicket(ticket *model.Ticket, issueType string) (*model.Ticket, error) {
 
 	queryOptions := &gojira.GetQueryOptions{
 		ProjectKeys: ticket.Project,
@@ -133,7 +133,7 @@ func (cl *Client) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
 			Description: ticket.Description,
 			Summary:     ticket.Summary,
 			Type: gojira.IssueType{
-				Name: ticket.TicketType,
+				Name: issueType,
 			},
 			Project: gojira.Project{
 				Key: ticket.Project,
