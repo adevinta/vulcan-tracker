@@ -122,3 +122,28 @@ func (api *API) FixTicket(c echo.Context) error {
 
 	return response(c, http.StatusOK, ticket, "ticket")
 }
+
+// FixTicket updates a ticket until a "done" state and returns a JSON containing the new ticket.
+func (api *API) WontFixTicket(c echo.Context) error {
+	teamId := c.Param("team_id")
+	id := c.Param("id")
+	reason := c.FormValue("reason")
+
+	// Get the server and the configuration for the teamId,
+	configuration, err := api.storage.ProjectConfig(teamId)
+	if err != nil {
+		return err
+	}
+
+	serverName := configuration.ServerName
+
+	ticket, err := api.trackingServers[serverName].WontFixTicket(id, configuration.WontFixWorkflow, reason)
+	if err != nil {
+		return err
+	}
+	if ticket.ID == "" {
+		return echo.NewHTTPError(http.StatusNotFound)
+	}
+
+	return response(c, http.StatusOK, ticket, "ticket")
+}

@@ -37,6 +37,7 @@ type TicketTracker interface {
 	CreateTicket(ticket *model.Ticket) (*model.Ticket, error)
 	GetTransitions(id string) ([]model.Transition, error)
 	FixTicket(id string, workflow []string) (*model.Ticket, error)
+	WontFixTicket(id string, workflow []string, reason string) (*model.Ticket, error)
 }
 
 const jiraKind = "jira"

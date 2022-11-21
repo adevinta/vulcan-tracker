@@ -38,7 +38,7 @@ func (mj MockJiraClient) GetTicket(id string) (*model.Ticket, error) {
 	}
 	return nil, fmt.Errorf("Key %s not found.", id)
 }
-func (mj MockJiraClient) CreateTicket(ticket *model.Ticket, issueType string) (*model.Ticket, error) {
+func (mj MockJiraClient) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
 
 	ticket.Key = fmt.Sprintf("%s-%d", ticket.Project, len(mj.tickets)+1)
 	ticket.ID = fmt.Sprintf("%d", 1000+len(mj.tickets)+1)
