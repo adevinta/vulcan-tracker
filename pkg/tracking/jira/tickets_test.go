@@ -15,7 +15,7 @@ import (
 const (
 	ToDo       string = "To Do"
 	InProgress string = "In Progress"
-	Fixed      string = "Fixed"
+	Resolved   string = "Resolved"
 )
 
 type MockJiraClient struct {
@@ -61,7 +61,7 @@ func (mj MockJiraClient) GetTicketTransitions(id string) ([]model.Transition, er
 	return nil, fmt.Errorf("Transitions for %s not found.", id)
 
 }
-func (mj MockJiraClient) DoTransition(id string, idTransition string) error {
+func (mj MockJiraClient) DoTransition(id, idTransition string) error {
 
 	ticket, err := mj.GetTicket(id)
 	if err != nil {
@@ -75,6 +75,26 @@ func (mj MockJiraClient) DoTransition(id string, idTransition string) error {
 	for _, transition := range transitions {
 		if transition.ID == idTransition {
 			ticket.Status = transition.ToName
+			break
+		}
+	}
+	return nil
+}
+func (mj MockJiraClient) DoTransitionWithResolution(id, idTransition, resolution string) error {
+
+	ticket, err := mj.GetTicket(id)
+	if err != nil {
+		return err
+	}
+	transitions, ok := mj.transitions[ticket.Status]
+	if !ok {
+		return fmt.Errorf("Transitions for %s not found.", id)
+	}
+
+	for _, transition := range transitions {
+		if transition.ID == idTransition {
+			ticket.Status = transition.ToName
+			ticket.Resolution = resolution
 			break
 		}
 	}
@@ -110,8 +130,6 @@ func setupSubTest(t *testing.T) {
 		TicketType:  "Vulnerability",
 	}
 
-	// transitions := make(map[string]map[string][]model.Transition)
-
 	transitions := map[string][]model.Transition{
 		ToDo: {
 			{
@@ -122,7 +140,7 @@ func setupSubTest(t *testing.T) {
 		InProgress: {
 			{
 				ID:     "1002",
-				ToName: Fixed,
+				ToName: Resolved,
 			},
 			{
 				ID:     "1000",
@@ -280,7 +298,7 @@ func TestFixTicket(t *testing.T) {
 			name:     "HappyPath",
 			ticketId: "TEST-1",
 			fixedWorkflow: []string{
-				ToDo, InProgress, Fixed,
+				ToDo, InProgress, Resolved,
 			},
 			want: &model.Ticket{
 				ID:          "1000",
@@ -288,8 +306,9 @@ func TestFixTicket(t *testing.T) {
 				Summary:     "Summary TEST-1",
 				Description: "Description TEST-1",
 				Project:     "TEST",
-				Status:      Fixed,
+				Status:      Resolved,
 				TicketType:  "Vulnerability",
+				Resolution:  "Done",
 			},
 			wantErr: nil,
 		},
@@ -297,7 +316,7 @@ func TestFixTicket(t *testing.T) {
 			name:     "FixInProgressTicket",
 			ticketId: "TEST-2",
 			fixedWorkflow: []string{
-				ToDo, InProgress, Fixed,
+				ToDo, InProgress, Resolved,
 			},
 			want: &model.Ticket{
 				ID:          "1001",
@@ -305,8 +324,9 @@ func TestFixTicket(t *testing.T) {
 				Summary:     "Summary TEST-2",
 				Description: "Description TEST-2",
 				Project:     "TEST",
-				Status:      Fixed,
+				Status:      Resolved,
 				TicketType:  "Vulnerability",
+				Resolution:  "Done",
 			},
 			wantErr: nil,
 		},
@@ -317,6 +337,69 @@ func TestFixTicket(t *testing.T) {
 			setupSubTest(t)
 
 			got, err := tc.FixTicket(tt.ticketId, tt.fixedWorkflow)
+			if errToStr(err) != errToStr(tt.wantErr) {
+				t.Fatal(err)
+			}
+			diff := cmp.Diff(got, tt.want)
+			if diff != "" {
+				t.Errorf("%v\n", diff)
+			}
+		})
+	}
+}
+
+func TestWontFixTicket(t *testing.T) {
+
+	tests := []struct {
+		name          string
+		ticketId      string
+		fixedWorkflow []string
+		want          *model.Ticket
+		wantErr       error
+	}{
+		{
+			name:     "HappyPath",
+			ticketId: "TEST-1",
+			fixedWorkflow: []string{
+				ToDo, InProgress, Resolved,
+			},
+			want: &model.Ticket{
+				ID:          "1000",
+				Key:         "TEST-1",
+				Summary:     "Summary TEST-1",
+				Description: "Description TEST-1",
+				Project:     "TEST",
+				Status:      Resolved,
+				TicketType:  "Vulnerability",
+				Resolution:  "Decision Taken",
+			},
+			wantErr: nil,
+		},
+		{
+			name:     "FixInProgressTicket",
+			ticketId: "TEST-2",
+			fixedWorkflow: []string{
+				ToDo, InProgress, Resolved,
+			},
+			want: &model.Ticket{
+				ID:          "1001",
+				Key:         "TEST-2",
+				Summary:     "Summary TEST-2",
+				Description: "Description TEST-2",
+				Project:     "TEST",
+				Status:      Resolved,
+				TicketType:  "Vulnerability",
+				Resolution:  "Decision Taken",
+			},
+			wantErr: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			setupSubTest(t)
+
+			got, err := tc.WontFixTicket(tt.ticketId, tt.fixedWorkflow, "Decision Taken")
 			if errToStr(err) != errToStr(tt.wantErr) {
 				t.Fatal(err)
 			}

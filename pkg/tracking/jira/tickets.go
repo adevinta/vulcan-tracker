@@ -69,7 +69,12 @@ func (tc TC) FixTicket(id string, workflow []string) (*model.Ticket, error) {
 
 		for _, transition := range transitions {
 			if transition.ToName == transitionName {
-				err := tc.Client.DoTransition(id, transition.ID)
+				var err error
+				if transitionName == lastState {
+					err = tc.Client.DoTransitionWithResolution(id, transition.ID, "Done")
+				} else {
+					err = tc.Client.DoTransition(id, transition.ID)
+				}
 				if err != nil {
 					return nil, err
 				}
@@ -119,7 +124,12 @@ func (tc TC) WontFixTicket(id string, workflow []string, reason string) (*model.
 
 		for _, transition := range transitions {
 			if transition.ToName == transitionName {
-				err := tc.Client.DoTransition(id, transition.ID)
+				var err error
+				if transitionName == lastState {
+					err = tc.Client.DoTransitionWithResolution(id, transition.ID, reason)
+				} else {
+					err = tc.Client.DoTransition(id, transition.ID)
+				}
 				if err != nil {
 					return nil, err
 				}

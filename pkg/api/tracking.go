@@ -123,11 +123,19 @@ func (api *API) FixTicket(c echo.Context) error {
 	return response(c, http.StatusOK, ticket, "ticket")
 }
 
+type WontFixForm struct {
+	Reason string `json:"reason"`
+}
+
 // FixTicket updates a ticket until a "done" state and returns a JSON containing the new ticket.
 func (api *API) WontFixTicket(c echo.Context) error {
 	teamId := c.Param("team_id")
 	id := c.Param("id")
-	reason := c.FormValue("reason")
+	form := new(WontFixForm)
+
+	if err := c.Bind(form); err != nil {
+		return c.String(http.StatusBadRequest, "bad request")
+	}
 
 	// Get the server and the configuration for the teamId,
 	configuration, err := api.storage.ProjectConfig(teamId)
@@ -137,7 +145,7 @@ func (api *API) WontFixTicket(c echo.Context) error {
 
 	serverName := configuration.ServerName
 
-	ticket, err := api.trackingServers[serverName].WontFixTicket(id, configuration.WontFixWorkflow, reason)
+	ticket, err := api.trackingServers[serverName].WontFixTicket(id, configuration.WontFixWorkflow, form.Reason)
 	if err != nil {
 		return err
 	}

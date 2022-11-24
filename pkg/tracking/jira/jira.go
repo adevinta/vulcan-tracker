@@ -21,7 +21,8 @@ type TicketTrackingClient interface {
 	GetTicket(id string) (*model.Ticket, error)
 	CreateTicket(ticket *model.Ticket) (*model.Ticket, error)
 	GetTicketTransitions(id string) ([]model.Transition, error)
-	DoTransition(id string, idTransition string) error
+	DoTransition(id, idTransition string) error
+	DoTransitionWithResolution(id, idTransition, resolution string) error
 }
 
 // New instantiates a new Jira connection.
