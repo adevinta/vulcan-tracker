@@ -32,7 +32,6 @@ func (mis *MockIssueService) Create(issue *gojira.Issue) (*gojira.Issue, *gojira
 	issue.Key = fmt.Sprintf("%s-%d", issue.Fields.Project.Key, len(mis.tickets)+1)
 	issue.ID = fmt.Sprintf("%d", 1000+len(mis.tickets)+1)
 	issue.Fields.Status = &gojira.Status{Name: ToDo}
-
 	mis.tickets[issue.Key] = *issue
 
 	return issue, nil, nil
@@ -176,7 +175,6 @@ func TestClient_Create(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 // TODO: Pending more testing
