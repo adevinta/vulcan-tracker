@@ -127,7 +127,8 @@ type WontFixForm struct {
 	Reason string `json:"reason"`
 }
 
-// FixTicket updates a ticket until a "done" state and returns a JSON containing the new ticket.
+// WontFixTicket updates a ticket until a "done" but with a won't fix reason state
+// and returns a JSON containing the new ticket.
 func (api *API) WontFixTicket(c echo.Context) error {
 	teamId := c.Param("team_id")
 	id := c.Param("id")
