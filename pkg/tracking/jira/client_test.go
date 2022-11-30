@@ -10,32 +10,17 @@ import (
 )
 
 type MockIssueService struct {
-	tickets map[string]*gojira.Issue
+	Issuer
+	tickets map[string]gojira.Issue
 }
 
 // Get retrieves a tikcet by issueID
 func (mis *MockIssueService) Get(issueID string, options *gojira.GetQueryOptions) (*gojira.Issue, *gojira.Response, error) {
 	value, ok := mis.tickets[issueID]
 	if ok {
-		return value, nil, nil
+		return &value, nil, nil
 	}
 	return nil, nil, fmt.Errorf("key %s not found. Status code: 404", issueID)
-}
-
-func (mis *MockIssueService) Create(issue *gojira.Issue) (*gojira.Issue, *gojira.Response, error) {
-	return &gojira.Issue{}, nil, nil
-}
-
-func (mis *MockIssueService) GetTransitions(id string) ([]gojira.Transition, *gojira.Response, error) {
-	return []gojira.Transition{}, nil, nil
-}
-
-func (mis *MockIssueService) DoTransition(ticketID, transitionID string) (*gojira.Response, error) {
-	return nil, nil
-}
-
-func (mis *MockIssueService) DoTransitionWithPayload(ticketID, payload interface{}) (*gojira.Response, error) {
-	return nil, nil
 }
 
 var jiraClient *Client
@@ -43,8 +28,8 @@ var jiraClient *Client
 func setupSubTestClient(t *testing.T) {
 	t.Log("setup sub test jira client")
 
-	tickets := make(map[string]*gojira.Issue)
-	tickets["TEST-1"] = &gojira.Issue{
+	tickets := make(map[string]gojira.Issue)
+	tickets["TEST-1"] = gojira.Issue{
 		ID:  "1000",
 		Key: "TEST-1",
 		Fields: &gojira.IssueFields{
@@ -61,7 +46,7 @@ func setupSubTestClient(t *testing.T) {
 			},
 		},
 	}
-	tickets["TEST-2"] = &gojira.Issue{
+	tickets["TEST-2"] = gojira.Issue{
 		ID:  "1001",
 		Key: "TEST-2",
 		Fields: &gojira.IssueFields{
