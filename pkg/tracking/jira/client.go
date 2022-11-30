@@ -38,7 +38,6 @@ func NewClient(url, user, token string) (*Client, error) {
 
 // fromGoJiraToTicketModel transforms a ticket returned by go-jira into a model.Ticket.
 func fromGoJiraToTicketModel(jiraIssue gojira.Issue) *model.Ticket {
-
 	ticket := &model.Ticket{
 		ID:          jiraIssue.ID,
 		Key:         jiraIssue.Key,
@@ -59,7 +58,6 @@ func fromGoJiraToTicketModel(jiraIssue gojira.Issue) *model.Ticket {
 
 // fromGoJiraToTransitionModel transforms a transition returned by go-jira into a model.Transition.
 func fromGoJiraToTransitionModel(jiraTransition gojira.Transition) *model.Transition {
-
 	return &model.Transition{
 		ID:     jiraTransition.ID,
 		ToName: jiraTransition.To.Name,
@@ -69,7 +67,6 @@ func fromGoJiraToTransitionModel(jiraTransition gojira.Transition) *model.Transi
 // GetTicket retrieves a ticket from Jira.
 // Return an empty ticket if not found.
 func (cl *Client) GetTicket(id string) (*model.Ticket, error) {
-
 	jiraIssue, resp, err := cl.Issuer.Get(id, nil)
 	if err != nil {
 		err = gojira.NewJiraError(resp, err)
@@ -141,7 +138,6 @@ func (cl *Client) DoTransition(id, idTransition string) error {
 
 // DoTransitionWithResolution changes the state of an issue to a resolved one and set the resolution field.
 func (cl *Client) DoTransitionWithResolution(id, idTransition, resolution string) error {
-
 	customPayload := map[string]interface{}{
 		"transition": gojira.TransitionPayload{
 			ID: idTransition,

@@ -27,7 +27,6 @@ type TicketTrackingClient interface {
 
 // New instantiates a new Jira connection.
 func New(url, user, pass string, logger echo.Logger) (*TC, error) {
-
 	jiraClient, err := NewClient(url, user, pass)
 	if err != nil {
 		return nil, err

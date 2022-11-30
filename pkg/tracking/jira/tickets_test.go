@@ -38,7 +38,6 @@ func (mj MockJiraClient) GetTicket(id string) (*model.Ticket, error) {
 	return &model.Ticket{}, nil
 }
 func (mj MockJiraClient) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
-
 	ticket.Key = fmt.Sprintf("%s-%d", ticket.Project, len(mj.tickets)+1)
 	ticket.ID = fmt.Sprintf("%d", 1000+len(mj.tickets)+1)
 	ticket.Status = ToDo
@@ -61,7 +60,6 @@ func (mj MockJiraClient) GetTicketTransitions(id string) ([]model.Transition, er
 
 }
 func (mj MockJiraClient) DoTransition(id, idTransition string) error {
-
 	ticket, err := mj.GetTicket(id)
 	if err != nil {
 		return err
@@ -80,7 +78,6 @@ func (mj MockJiraClient) DoTransition(id, idTransition string) error {
 	return nil
 }
 func (mj MockJiraClient) DoTransitionWithResolution(id, idTransition, resolution string) error {
-
 	ticket, err := mj.GetTicket(id)
 	if err != nil {
 		return err
@@ -160,7 +157,6 @@ func setupSubTest(t *testing.T) {
 }
 
 func TestGetTicket(t *testing.T) {
-
 	tests := []struct {
 		name     string
 		ticketId string
@@ -285,7 +281,6 @@ func TestCreateTicket(t *testing.T) {
 }
 
 func TestFixTicket(t *testing.T) {
-
 	tests := []struct {
 		name          string
 		ticketId      string
@@ -357,7 +352,6 @@ func TestFixTicket(t *testing.T) {
 }
 
 func TestWontFixTicket(t *testing.T) {
-
 	tests := []struct {
 		name          string
 		ticketId      string

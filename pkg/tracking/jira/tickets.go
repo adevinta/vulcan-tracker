@@ -23,7 +23,6 @@ func (tc TC) GetTicket(id string) (*model.Ticket, error) {
 
 // CreateTicket creates an ticket in Jira.
 func (tc TC) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
-
 	createdTicket, err := tc.Client.CreateTicket(ticket)
 	if err != nil {
 		return nil, err
@@ -47,7 +46,6 @@ func (tc TC) GetTransitions(id string) ([]model.Transition, error) {
 // get a successful final state.
 // Return an empty ticket if not found.
 func (tc TC) FixTicket(id string, workflow []string) (*model.Ticket, error) {
-
 	// First, check if the ticket exists.
 	ticket, err := tc.Client.GetTicket(id)
 	if err != nil {
@@ -107,7 +105,6 @@ func (tc TC) FixTicket(id string, workflow []string) (*model.Ticket, error) {
 // get a successful final state.
 // Return an empty ticket if not found.
 func (tc TC) WontFixTicket(id string, workflow []string, reason string) (*model.Ticket, error) {
-
 	// First, check if the ticket exists.
 	ticket, err := tc.Client.GetTicket(id)
 	if err != nil {

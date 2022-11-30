@@ -90,7 +90,6 @@ func setupSubTestClient(t *testing.T) {
 }
 
 func TestClient_Get(t *testing.T) {
-
 	tests := []struct {
 		name     string
 		ticketId string
