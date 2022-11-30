@@ -191,11 +191,11 @@ func TestGetTicket(t *testing.T) {
 
 			got, err := tc.GetTicket(tt.ticketId)
 			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatal(err)
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(got, tt.want)
 			if diff != "" {
-				t.Errorf("%v\n", diff)
+				t.Fatalf("ticket does not match expected one. diff: %s\n", diff)
 			}
 		})
 	}
@@ -227,11 +227,11 @@ func TestGetTicketTransition(t *testing.T) {
 
 			got, err := tc.GetTransitions(tt.ticketId)
 			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatal(err)
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(got, tt.want)
 			if diff != "" {
-				t.Errorf("%v\n", diff)
+				t.Fatalf("transition does not match expected one. diff: %s\n", diff)
 			}
 		})
 	}
@@ -269,11 +269,11 @@ func TestCreateTicket(t *testing.T) {
 
 			got, err := tc.CreateTicket(&tt.newTicket)
 			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatal(err)
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(got, tt.want, cmpopts.IgnoreFields(model.Ticket{}, "ID", "Key"))
 			if diff != "" {
-				t.Errorf("%v\n", diff)
+				t.Fatalf("ticket does not match expected one. diff: %s\n", diff)
 			}
 		})
 	}
@@ -341,11 +341,11 @@ func TestFixTicket(t *testing.T) {
 
 			got, err := tc.FixTicket(tt.ticketId, tt.fixedWorkflow)
 			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatal(err)
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(got, tt.want)
 			if diff != "" {
-				t.Errorf("%v\n", diff)
+				t.Fatalf("ticket does not match expected one. diff: %s\n", diff)
 			}
 		})
 	}
@@ -412,11 +412,11 @@ func TestWontFixTicket(t *testing.T) {
 
 			got, err := tc.WontFixTicket(tt.ticketId, tt.fixedWorkflow, "Decision Taken")
 			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatal(err)
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(got, tt.want)
 			if diff != "" {
-				t.Errorf("%v\n", diff)
+				t.Fatalf("ticket does not match expected one. diff: %s\n", diff)
 			}
 		})
 	}

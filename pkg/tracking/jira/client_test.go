@@ -109,11 +109,11 @@ func TestClient_Get(t *testing.T) {
 
 			got, err := jiraClient.GetTicket(tt.ticketId)
 			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatal(err)
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(got, tt.want)
 			if diff != "" {
-				t.Errorf("%v\n", diff)
+				t.Fatalf("ticket does not match expected one. diff: %s\n", diff)
 			}
 		})
 	}
