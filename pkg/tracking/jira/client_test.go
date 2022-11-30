@@ -19,7 +19,7 @@ func (mis *MockIssueService) Get(issueID string, options *gojira.GetQueryOptions
 	if ok {
 		return value, nil, nil
 	}
-	return nil, nil, fmt.Errorf("Key %s not found. Status code: 404", issueID)
+	return nil, nil, fmt.Errorf("key %s not found. Status code: 404", issueID)
 }
 
 func (mis *MockIssueService) Create(issue *gojira.Issue) (*gojira.Issue, *gojira.Response, error) {
