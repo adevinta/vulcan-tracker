@@ -1,6 +1,8 @@
 package jira
 
 import (
+	"strings"
+
 	"github.com/adevinta/vulcan-tracker/pkg/model"
 	gojira "github.com/andygrunwald/go-jira"
 )
@@ -65,11 +67,15 @@ func fromGoJiraToTransitionModel(jiraTransition gojira.Transition) *model.Transi
 }
 
 // GetTicket retrieves a ticket from Jira.
+// Return an empty ticket if not found.
 func (cl *Client) GetTicket(id string) (*model.Ticket, error) {
 
 	jiraIssue, resp, err := cl.Issuer.Get(id, nil)
 	if err != nil {
 		err = gojira.NewJiraError(resp, err)
+		if strings.Contains(err.Error(), "404") {
+			return &model.Ticket{}, nil
+		}
 		return nil, err
 	}
 	return fromGoJiraToTicketModel(*jiraIssue), nil

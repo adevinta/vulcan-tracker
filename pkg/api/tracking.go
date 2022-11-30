@@ -92,9 +92,6 @@ func (api *API) CreateTicket(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	if ticket.ID == "" {
-		return echo.NewHTTPError(http.StatusNotFound)
-	}
 
 	return response(c, http.StatusOK, ticket, "ticket")
 }

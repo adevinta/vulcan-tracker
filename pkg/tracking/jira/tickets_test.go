@@ -1,7 +1,6 @@
 package jira
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 
@@ -36,7 +35,7 @@ func (mj MockJiraClient) GetTicket(id string) (*model.Ticket, error) {
 	if ok {
 		return value, nil
 	}
-	return nil, fmt.Errorf("Key %s not found.", id)
+	return &model.Ticket{}, nil
 }
 func (mj MockJiraClient) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
 
@@ -185,8 +184,8 @@ func TestGetTicket(t *testing.T) {
 		{
 			name:     "KeyNotFound",
 			ticketId: "NOTFOUND",
-			want:     nil,
-			wantErr:  errors.New("Key NOTFOUND not found."),
+			want:     &model.Ticket{},
+			wantErr:  nil,
 		},
 	}
 
@@ -330,6 +329,15 @@ func TestFixTicket(t *testing.T) {
 			},
 			wantErr: nil,
 		},
+		{
+			name:     "FixTicketNotFound",
+			ticketId: "NOTFOUND",
+			fixedWorkflow: []string{
+				ToDo, InProgress, Resolved,
+			},
+			want:    &model.Ticket{},
+			wantErr: nil,
+		},
 	}
 
 	for _, tt := range tests {
@@ -376,7 +384,7 @@ func TestWontFixTicket(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:     "FixInProgressTicket",
+			name:     "WontFixInProgressTicket",
 			ticketId: "TEST-2",
 			fixedWorkflow: []string{
 				ToDo, InProgress, Resolved,
@@ -391,6 +399,15 @@ func TestWontFixTicket(t *testing.T) {
 				TicketType:  "Vulnerability",
 				Resolution:  "Decision Taken",
 			},
+			wantErr: nil,
+		},
+		{
+			name:     "WontFixInProgressTicket",
+			ticketId: "NOTFOUND",
+			fixedWorkflow: []string{
+				ToDo, InProgress, Resolved,
+			},
+			want:    &model.Ticket{},
 			wantErr: nil,
 		},
 	}

@@ -11,6 +11,7 @@ import (
 )
 
 // GetTicket retrieves a ticket from Jira.
+// Return an empty ticket if not found.
 func (tc TC) GetTicket(id string) (*model.Ticket, error) {
 	ticket, err := tc.Client.GetTicket(id)
 	if err != nil {
@@ -44,12 +45,17 @@ func (tc TC) GetTransitions(id string) ([]model.Transition, error) {
 // FixTicket transits a ticket until a "done" state.
 // The states stored in workflow argument has to be in the order necessary to
 // get a successful final state.
+// Return an empty ticket if not found.
 func (tc TC) FixTicket(id string, workflow []string) (*model.Ticket, error) {
 
 	// First, check if the ticket exists.
 	ticket, err := tc.Client.GetTicket(id)
 	if err != nil {
 		return nil, err
+	}
+
+	if ticket.ID == "" {
+		return ticket, nil
 	}
 
 	lastState := workflow[len(workflow)-1]
@@ -99,12 +105,17 @@ func (tc TC) FixTicket(id string, workflow []string) (*model.Ticket, error) {
 // WontFixTicket transits a ticket until a "done" state.
 // The states stored in workflow argument has to be in the order necessary to
 // get a successful final state.
+// Return an empty ticket if not found.
 func (tc TC) WontFixTicket(id string, workflow []string, reason string) (*model.Ticket, error) {
 
 	// First, check if the ticket exists.
 	ticket, err := tc.Client.GetTicket(id)
 	if err != nil {
 		return nil, err
+	}
+
+	if ticket.ID == "" {
+		return ticket, nil
 	}
 
 	lastState := workflow[len(workflow)-1]

@@ -1,7 +1,6 @@
 package jira
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 
@@ -21,7 +20,7 @@ func (mis *MockIssueService) Get(issueID string, options *gojira.GetQueryOptions
 	if ok {
 		return value, nil, nil
 	}
-	return nil, nil, fmt.Errorf("Key %s not found.", issueID)
+	return nil, nil, fmt.Errorf("Key %s not found. Status code: 404", issueID)
 }
 
 func (mis *MockIssueService) Create(issue *gojira.Issue) (*gojira.Issue, *gojira.Response, error) {
@@ -116,8 +115,8 @@ func TestClient_Get(t *testing.T) {
 		{
 			name:     "KeyNotFound",
 			ticketId: "NOTFOUND",
-			want:     nil,
-			wantErr:  errors.New("No response returned: Key NOTFOUND not found."),
+			want:     &model.Ticket{},
+			wantErr:  nil,
 		},
 	}
 
