@@ -13,9 +13,8 @@ type MockIssueService struct {
 	tickets map[string]*gojira.Issue
 }
 
-// Get wraps GetWithContext using the background context.
+// Get retrieves a tikcet by issueID
 func (mis *MockIssueService) Get(issueID string, options *gojira.GetQueryOptions) (*gojira.Issue, *gojira.Response, error) {
-
 	value, ok := mis.tickets[issueID]
 	if ok {
 		return value, nil, nil
