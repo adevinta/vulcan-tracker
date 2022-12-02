@@ -41,6 +41,17 @@ func (tc TC) GetTransitions(id string) ([]model.Transition, error) {
 	return transitions, nil
 }
 
+// getSubWorkflow returns a subslice starting by state.
+func getSubWorkflow(workflow []string, state string) []string {
+	for i, wState := range workflow {
+		if wState == state {
+			return workflow[i:]
+		}
+	}
+	return []string{}
+
+}
+
 // FixTicket transits a ticket until a "done" state.
 // The states stored in workflow argument has to be in the order necessary to
 // get a successful final state.
@@ -61,6 +72,11 @@ func (tc TC) FixTicket(id string, workflow []string) (*model.Ticket, error) {
 	//The ticket already has a "done" state.
 	if ticket.Status == lastState {
 		return ticket, nil
+	}
+
+	//Start the workflow from the current ticket status.
+	if len(workflow) > 1 {
+		workflow = getSubWorkflow(workflow, ticket.Status)
 	}
 
 	for _, transitionName := range workflow {
@@ -120,6 +136,11 @@ func (tc TC) WontFixTicket(id string, workflow []string, reason string) (*model.
 	//The ticket already has a "won't fix" state.
 	if ticket.Status == lastState {
 		return ticket, nil
+	}
+
+	//Start the workflow from the current ticket status.
+	if len(workflow) > 1 {
+		workflow = getSubWorkflow(workflow, ticket.Status)
 	}
 
 	for _, transitionName := range workflow {
