@@ -1,7 +1,6 @@
 /*
 Copyright 2022 Adevinta
 */
-
 package jira
 
 import (

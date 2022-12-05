@@ -1,6 +1,10 @@
+/*
+Copyright 2022 Adevinta
+*/
 package jira
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -14,7 +18,7 @@ type MockIssueService struct {
 	tickets map[string]gojira.Issue
 }
 
-// Get retrieves a tikcet by issueID
+// Get retrieves a tikcet by issueID.
 func (mis *MockIssueService) Get(issueID string, options *gojira.GetQueryOptions) (*gojira.Issue, *gojira.Response, error) {
 	value, ok := mis.tickets[issueID]
 	if ok {
@@ -98,8 +102,8 @@ func TestClient_Get(t *testing.T) {
 		{
 			name:     "KeyNotFound",
 			ticketId: "NOTFOUND",
-			want:     &model.Ticket{},
-			wantErr:  nil,
+			want:     nil,
+			wantErr:  errors.New("ticket NOTFOUND not found in Jira"),
 		},
 	}
 

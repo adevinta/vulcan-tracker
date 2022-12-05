@@ -1,7 +1,6 @@
 /*
 Copyright 2022 Adevinta
 */
-
 package jira
 
 import (
@@ -18,7 +17,6 @@ func (tc TC) GetTicket(id string) (*model.Ticket, error) {
 		return nil, err
 	}
 	return ticket, nil
-
 }
 
 // CreateTicket creates an ticket in Jira.
