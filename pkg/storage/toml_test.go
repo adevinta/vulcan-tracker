@@ -9,12 +9,12 @@ import (
 
 	"github.com/adevinta/vulcan-tracker/pkg/config"
 	"github.com/adevinta/vulcan-tracker/pkg/model"
-	testutil "github.com/adevinta/vulcan-tracker/pkg/testutils"
+	"github.com/adevinta/vulcan-tracker/pkg/testutils"
 	"github.com/google/go-cmp/cmp"
 )
 
 func errToStr(err error) string {
-	return testutil.ErrToStr(err)
+	return testutils.ErrToStr(err)
 }
 
 func TestServersConf(t *testing.T) {

@@ -16,6 +16,7 @@ import (
 
 type Issuer interface {
 	Get(issueID string, options *gojira.GetQueryOptions) (*gojira.Issue, *gojira.Response, error)
+	Search(jql string, options *gojira.SearchOptions) ([]gojira.Issue, *gojira.Response, error)
 	Create(issue *gojira.Issue) (*gojira.Issue, *gojira.Response, error)
 	GetTransitions(id string) ([]gojira.Transition, *gojira.Response, error)
 	DoTransition(ticketID, transitionID string) (*gojira.Response, error)
@@ -88,7 +89,29 @@ func (cl *Client) GetTicket(id string) (*model.Ticket, error) {
 		return nil, err
 	}
 	return fromGoJiraToTicketModel(*jiraIssue), nil
+}
 
+// FindTicket search tickets and return the first one if it exists.
+// The arguments needed to search a ticke are the project key, the issue
+// type and a text that have o be present on the ticket description.
+// Return a nil ticket if not found.
+func (cl *Client) FindTicket(projectKey, vulnerabilityIssueType, text string) (*model.Ticket, error) {
+
+	jql := fmt.Sprintf("project=%s AND type=%s AND description~%s",
+		projectKey, vulnerabilityIssueType, text)
+
+	searchOptions := &gojira.SearchOptions{
+		MaxResults: 1,
+	}
+	tickets, resp, err := cl.Issuer.Search(jql, searchOptions)
+	if err != nil {
+		err = gojira.NewJiraError(resp, err)
+		return nil, err
+	}
+	if len(tickets) == 0 {
+		return nil, nil
+	}
+	return fromGoJiraToTicketModel(tickets[0]), nil
 }
 
 // CreateTicket creates a ticket in Jira.

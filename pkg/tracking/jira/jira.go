@@ -18,6 +18,7 @@ type (
 // TicketTrackingClient defines the API of the adapter for a third-party client.
 type TicketTrackingClient interface {
 	GetTicket(id string) (*model.Ticket, error)
+	FindTicket(projectKey, vulnerabilityIssueType, text string) (*model.Ticket, error)
 	CreateTicket(ticket *model.Ticket) (*model.Ticket, error)
 	GetTicketTransitions(id string) ([]model.Transition, error)
 	DoTransition(id, idTransition string) error

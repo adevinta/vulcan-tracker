@@ -24,6 +24,7 @@ const (
 )
 
 type MockJiraClient struct {
+	TicketTrackingClient
 	tickets     map[string]*model.Ticket
 	transitions map[string][]model.Transition
 }

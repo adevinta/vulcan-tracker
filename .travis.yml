@@ -7,6 +7,13 @@ env:
   - GO111MODULE=on
 gobuild_args: -a -tags netgo -ldflags '-w'
 go_import_path: github.com/adevinta/vulcan-tracker
-script:
-  - go install ./...
-  - go test -short -v $(go list ./... | grep -v /vendor/)
+
+jobs:
+  include:
+    # "test" stage.
+    - stage: "test"
+      name: "test"
+      script: ./_script/test -cover ./...
+      # script:
+      #   - go install ./...
+      #   - go test -short -v $(go list ./... | grep -v /vendor/)

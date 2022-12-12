@@ -19,6 +19,7 @@ require (
 require (
 	github.com/BurntSushi/toml v1.2.0
 	github.com/andygrunwald/go-jira v1.16.0
+	github.com/confluentinc/confluent-kafka-go v1.9.2
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/google/go-cmp v0.5.9
 	github.com/labstack/gommon v0.3.1
