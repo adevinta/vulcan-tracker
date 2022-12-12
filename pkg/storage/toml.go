@@ -23,7 +23,6 @@ func New(servers map[string]config.Server, teams map[string]config.Team) (*TOMLS
 
 // ServersConf retrieves a list of all server configurations declared in the toml file.
 func (ts *TOMLStore) ServersConf() ([]model.TrackerConfig, error) {
-
 	var trackerConfigs []model.TrackerConfig
 
 	for serverName, server := range ts.servers {
@@ -42,7 +41,6 @@ func (ts *TOMLStore) ServersConf() ([]model.TrackerConfig, error) {
 
 // ProjectsConfig retrieves a list of all team configurations declared in the toml file.
 func (ts *TOMLStore) ProjectsConfig() ([]model.ProjectConfig, error) {
-
 	var projectConfigs []model.ProjectConfig
 
 	for teamName, team := range ts.teams {
@@ -63,7 +61,6 @@ func (ts *TOMLStore) ProjectsConfig() ([]model.ProjectConfig, error) {
 
 // ProjectConfig retrieves the configuration for the team teamId.
 func (ts *TOMLStore) ProjectConfig(teamId string) (*model.ProjectConfig, error) {
-
 	team, ok := ts.teams[teamId]
 	if !ok {
 		return nil, fmt.Errorf("team %s not found in toml configuration", teamId)

@@ -13,6 +13,7 @@ type Ticket struct {
 	Project     string `json:"project"`
 	Status      string `json:"status"`
 	TicketType  string `json:"ticket_type"`
+	Resolution  string `json:"resolution"`
 }
 
 // Transition represents a state change of a ticket.

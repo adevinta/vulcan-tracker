@@ -1,7 +1,6 @@
 /*
 Copyright 2022 Adevinta
 */
-
 package tracking
 
 import (
@@ -37,13 +36,13 @@ type TicketTracker interface {
 	CreateTicket(ticket *model.Ticket) (*model.Ticket, error)
 	GetTransitions(id string) ([]model.Transition, error)
 	FixTicket(id string, workflow []string) (*model.Ticket, error)
+	WontFixTicket(id string, workflow []string, reason string) (*model.Ticket, error)
 }
 
 const jiraKind = "jira"
 
 // GenerateServerClients instanciates a client for every server passed as argument.
 func GenerateServerClients(serverConfs []model.TrackerConfig, logger echo.Logger) (map[string]TicketTracker, error) {
-
 	clients := make(map[string]TicketTracker)
 	for _, server := range serverConfs {
 		var client TicketTracker

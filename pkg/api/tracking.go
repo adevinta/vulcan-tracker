@@ -1,12 +1,13 @@
 /*
 Copyright 2002 Adevinta
 */
-
 package api
 
 import (
+	"errors"
 	"net/http"
 
+	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
 	"github.com/adevinta/vulcan-tracker/pkg/model"
 	"github.com/adevinta/vulcan-tracker/pkg/tracking"
 	"github.com/labstack/echo/v4"
@@ -43,6 +44,16 @@ func response(c echo.Context, httpStatus int, data interface{}, dataType string,
 	return c.JSON(httpStatus, resp)
 }
 
+// reponseError proccess an error response
+func responseError(err error) error {
+	var vterror *vterrors.TrackingError
+
+	if errors.As(err, &vterror) {
+		return echo.NewHTTPError(vterror.HttpStatusCode, vterror.Err.Error())
+	}
+	return err
+}
+
 // GetTicket returns a JSON containing a specific ticket.
 func (api *API) GetTicket(c echo.Context) error {
 	teamId := c.Param("team_id")
@@ -58,11 +69,7 @@ func (api *API) GetTicket(c echo.Context) error {
 
 	ticket, err := api.trackingServers[serverName].GetTicket(id)
 	if err != nil {
-		return err
-	}
-
-	if ticket.ID == "" {
-		return echo.NewHTTPError(http.StatusNotFound)
+		return responseError(err)
 	}
 
 	return response(c, http.StatusOK, ticket, "ticket")
@@ -90,10 +97,7 @@ func (api *API) CreateTicket(c echo.Context) error {
 
 	ticket, err = api.trackingServers[serverName].CreateTicket(ticket)
 	if err != nil {
-		return err
-	}
-	if ticket.ID == "" {
-		return echo.NewHTTPError(http.StatusNotFound)
+		return responseError(err)
 	}
 
 	return response(c, http.StatusOK, ticket, "ticket")
@@ -114,10 +118,38 @@ func (api *API) FixTicket(c echo.Context) error {
 
 	ticket, err := api.trackingServers[serverName].FixTicket(id, configuration.FixedWorkflow)
 	if err != nil {
+		return responseError(err)
+	}
+
+	return response(c, http.StatusOK, ticket, "ticket")
+}
+
+type WontFixForm struct {
+	Reason string `json:"reason"`
+}
+
+// WontFixTicket updates a ticket until a "done" but with a won't fix reason state
+// and returns a JSON containing the new ticket.
+func (api *API) WontFixTicket(c echo.Context) error {
+	teamId := c.Param("team_id")
+	id := c.Param("id")
+	form := new(WontFixForm)
+
+	if err := c.Bind(form); err != nil {
+		return c.String(http.StatusBadRequest, "bad request")
+	}
+
+	// Get the server and the configuration for the teamId,
+	configuration, err := api.storage.ProjectConfig(teamId)
+	if err != nil {
 		return err
 	}
-	if ticket.ID == "" {
-		return echo.NewHTTPError(http.StatusNotFound)
+
+	serverName := configuration.ServerName
+
+	ticket, err := api.trackingServers[serverName].WontFixTicket(id, configuration.WontFixWorkflow, form.Reason)
+	if err != nil {
+		return responseError(err)
 	}
 
 	return response(c, http.StatusOK, ticket, "ticket")

@@ -1,7 +1,6 @@
 /*
 Copyright 2022 Adevinta
 */
-
 package jira
 
 import (
@@ -19,14 +18,14 @@ type (
 // TicketTrackingClient defines the API of the adapter for a third-party client.
 type TicketTrackingClient interface {
 	GetTicket(id string) (*model.Ticket, error)
-	CreateTicket(ticket *model.Ticket, issueType string) (*model.Ticket, error)
+	CreateTicket(ticket *model.Ticket) (*model.Ticket, error)
 	GetTicketTransitions(id string) ([]model.Transition, error)
-	DoTransition(id string, idTransition string) error
+	DoTransition(id, idTransition string) error
+	DoTransitionWithResolution(id, idTransition, resolution string) error
 }
 
 // New instantiates a new Jira connection.
 func New(url, user, pass string, logger echo.Logger) (*TC, error) {
-
 	jiraClient, err := NewClient(url, user, pass)
 	if err != nil {
 		return nil, err

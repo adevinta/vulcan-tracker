@@ -14,9 +14,9 @@ level = "DEBUG"
     kind = "jira"
 
 [teams]
-    [teams.example1]
+    [teams.example_team]
     server = "example1"
-    vulnerability_issue_type = "Vulnerabitliy"
+    vulnerability_issue_type = "Vulnerability"
     project = "TEST"
-    fix_workflow = ["ToDo", "In Progress", "Fixed"]
-    wontfix_workflow = ["ToDo", "In Progress", "Fixed"]
+    fix_workflow = ["ToDo", "In Progress", "Under Review", "Fixed"]
+    wontfix_workflow = ["Won't Fix"]

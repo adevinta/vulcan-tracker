@@ -1,10 +1,15 @@
+/*
+Copyright 2022 Adevinta
+*/
 package jira
 
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"testing"
 
+	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
 	"github.com/adevinta/vulcan-tracker/pkg/model"
 	testutil "github.com/adevinta/vulcan-tracker/pkg/testutils"
 	"github.com/google/go-cmp/cmp"
@@ -15,7 +20,7 @@ import (
 const (
 	ToDo       string = "To Do"
 	InProgress string = "In Progress"
-	Fixed      string = "Fixed"
+	Resolved   string = "Resolved"
 )
 
 type MockJiraClient struct {
@@ -36,10 +41,12 @@ func (mj MockJiraClient) GetTicket(id string) (*model.Ticket, error) {
 	if ok {
 		return value, nil
 	}
-	return nil, fmt.Errorf("Key %s not found.", id)
+	return nil, &vterrors.TrackingError{
+		Msg:            fmt.Sprintf("Ticket %s not found", id),
+		HttpStatusCode: http.StatusNotFound,
+	}
 }
-func (mj MockJiraClient) CreateTicket(ticket *model.Ticket, issueType string) (*model.Ticket, error) {
-
+func (mj MockJiraClient) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
 	ticket.Key = fmt.Sprintf("%s-%d", ticket.Project, len(mj.tickets)+1)
 	ticket.ID = fmt.Sprintf("%d", 1000+len(mj.tickets)+1)
 	ticket.Status = ToDo
@@ -61,8 +68,7 @@ func (mj MockJiraClient) GetTicketTransitions(id string) ([]model.Transition, er
 	return nil, fmt.Errorf("Transitions for %s not found.", id)
 
 }
-func (mj MockJiraClient) DoTransition(id string, idTransition string) error {
-
+func (mj MockJiraClient) DoTransition(id, idTransition string) error {
 	ticket, err := mj.GetTicket(id)
 	if err != nil {
 		return err
@@ -75,6 +81,27 @@ func (mj MockJiraClient) DoTransition(id string, idTransition string) error {
 	for _, transition := range transitions {
 		if transition.ID == idTransition {
 			ticket.Status = transition.ToName
+			transitionsDone = append(transitionsDone, ticket.Status)
+			break
+		}
+	}
+	return nil
+}
+func (mj MockJiraClient) DoTransitionWithResolution(id, idTransition, resolution string) error {
+	ticket, err := mj.GetTicket(id)
+	if err != nil {
+		return err
+	}
+	transitions, ok := mj.transitions[ticket.Status]
+	if !ok {
+		return fmt.Errorf("Transitions for %s not found.", id)
+	}
+
+	for _, transition := range transitions {
+		if transition.ID == idTransition {
+			ticket.Status = transition.ToName
+			ticket.Resolution = resolution
+			transitionsDone = append(transitionsDone, ticket.Status)
 			break
 		}
 	}
@@ -85,9 +112,52 @@ func errToStr(err error) string {
 	return testutil.ErrToStr(err)
 }
 
-var tc *TC
+var (
+	tc              *TC
+	transitionsDone []string
+	transitions     map[string][]model.Transition = map[string][]model.Transition{
+		ToDo: {
+			{
+				ID:     "1001",
+				ToName: InProgress,
+			},
+		},
+		InProgress: {
+			{
+				ID:     "1002",
+				ToName: Resolved,
+			},
+			{
+				ID:     "1000",
+				ToName: ToDo,
+			},
+		},
+	}
+	trResolveFromAnyStatus map[string][]model.Transition = map[string][]model.Transition{
+		ToDo: {
+			{
+				ID:     "1001",
+				ToName: InProgress,
+			},
+			{
+				ID:     "1002",
+				ToName: Resolved,
+			},
+		},
+		InProgress: {
+			{
+				ID:     "1002",
+				ToName: Resolved,
+			},
+			{
+				ID:     "1000",
+				ToName: ToDo,
+			},
+		},
+	}
+)
 
-func setupSubTest(t *testing.T) {
+func setupSubTest(t *testing.T, transitions map[string][]model.Transition) {
 	t.Log("setup sub test")
 
 	tickets := make(map[string]*model.Ticket)
@@ -110,27 +180,6 @@ func setupSubTest(t *testing.T) {
 		TicketType:  "Vulnerability",
 	}
 
-	// transitions := make(map[string]map[string][]model.Transition)
-
-	transitions := map[string][]model.Transition{
-		ToDo: {
-			{
-				ID:     "1001",
-				ToName: InProgress,
-			},
-		},
-		InProgress: {
-			{
-				ID:     "1002",
-				ToName: Fixed,
-			},
-			{
-				ID:     "1000",
-				ToName: ToDo,
-			},
-		},
-	}
-
 	jiraClient := MockJiraClient{
 		tickets:     tickets,
 		transitions: transitions,
@@ -139,11 +188,11 @@ func setupSubTest(t *testing.T) {
 		Client: jiraClient,
 		Logger: &mockLogger{},
 	}
+	transitionsDone = []string{}
 
 }
 
 func TestGetTicket(t *testing.T) {
-
 	tests := []struct {
 		name     string
 		ticketId string
@@ -168,21 +217,21 @@ func TestGetTicket(t *testing.T) {
 			name:     "KeyNotFound",
 			ticketId: "NOTFOUND",
 			want:     nil,
-			wantErr:  errors.New("Key NOTFOUND not found."),
+			wantErr:  errors.New("Ticket NOTFOUND not found"),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			setupSubTest(t)
+			setupSubTest(t, transitions)
 
 			got, err := tc.GetTicket(tt.ticketId)
 			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatal(err)
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(got, tt.want)
 			if diff != "" {
-				t.Errorf("%v\n", diff)
+				t.Fatalf("ticket does not match expected one. diff: %s\n", diff)
 			}
 		})
 	}
@@ -210,15 +259,15 @@ func TestGetTicketTransition(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			setupSubTest(t)
+			setupSubTest(t, transitions)
 
 			got, err := tc.GetTransitions(tt.ticketId)
 			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatal(err)
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(got, tt.want)
 			if diff != "" {
-				t.Errorf("%v\n", diff)
+				t.Fatalf("transition does not match expected one. diff: %s\n", diff)
 			}
 		})
 	}
@@ -252,15 +301,15 @@ func TestCreateTicket(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			setupSubTest(t)
+			setupSubTest(t, transitions)
 
 			got, err := tc.CreateTicket(&tt.newTicket)
 			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatal(err)
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(got, tt.want, cmpopts.IgnoreFields(model.Ticket{}, "ID", "Key"))
 			if diff != "" {
-				t.Errorf("%v\n", diff)
+				t.Fatalf("ticket does not match expected one. diff: %s\n", diff)
 			}
 		})
 	}
@@ -268,61 +317,238 @@ func TestCreateTicket(t *testing.T) {
 }
 
 func TestFixTicket(t *testing.T) {
-
 	tests := []struct {
-		name          string
-		ticketId      string
-		fixedWorkflow []string
-		want          *model.Ticket
-		wantErr       error
+		name            string
+		ticketId        string
+		fixedWorkflow   []string
+		transitions     map[string][]model.Transition
+		wantTicket      *model.Ticket
+		wantTransitions []string
+		wantErr         error
 	}{
 		{
-			name:     "HappyPath",
+			name:     "ResolveFromTodo",
 			ticketId: "TEST-1",
 			fixedWorkflow: []string{
-				ToDo, InProgress, Fixed,
+				ToDo, InProgress, Resolved,
 			},
-			want: &model.Ticket{
+			transitions: transitions,
+			wantTicket: &model.Ticket{
 				ID:          "1000",
 				Key:         "TEST-1",
 				Summary:     "Summary TEST-1",
 				Description: "Description TEST-1",
 				Project:     "TEST",
-				Status:      Fixed,
+				Status:      Resolved,
 				TicketType:  "Vulnerability",
+				Resolution:  "Done",
 			},
-			wantErr: nil,
+			wantTransitions: []string{InProgress, Resolved},
+			wantErr:         nil,
 		},
 		{
-			name:     "FixInProgressTicket",
+			name:     "FixInProgress",
 			ticketId: "TEST-2",
 			fixedWorkflow: []string{
-				ToDo, InProgress, Fixed,
+				ToDo, InProgress, Resolved,
 			},
-			want: &model.Ticket{
+			transitions: transitions,
+			wantTicket: &model.Ticket{
 				ID:          "1001",
 				Key:         "TEST-2",
 				Summary:     "Summary TEST-2",
 				Description: "Description TEST-2",
 				Project:     "TEST",
-				Status:      Fixed,
+				Status:      Resolved,
 				TicketType:  "Vulnerability",
+				Resolution:  "Done",
 			},
-			wantErr: nil,
+			wantTransitions: []string{Resolved},
+			wantErr:         nil,
+		},
+		{
+			name:          "ResolveFromToDoClassicWorkflow",
+			ticketId:      "TEST-1",
+			fixedWorkflow: []string{Resolved},
+			transitions:   trResolveFromAnyStatus,
+			wantTicket: &model.Ticket{
+				ID:          "1000",
+				Key:         "TEST-1",
+				Summary:     "Summary TEST-1",
+				Description: "Description TEST-1",
+				Project:     "TEST",
+				Status:      Resolved,
+				TicketType:  "Vulnerability",
+				Resolution:  "Done",
+			},
+			wantTransitions: []string{Resolved},
+			wantErr:         nil,
+		},
+		{
+			name:          "ResolveFromInProgressClassicWorkflow",
+			ticketId:      "TEST-2",
+			fixedWorkflow: []string{Resolved},
+			transitions:   trResolveFromAnyStatus,
+			wantTicket: &model.Ticket{
+				ID:          "1001",
+				Key:         "TEST-2",
+				Summary:     "Summary TEST-2",
+				Description: "Description TEST-2",
+				Project:     "TEST",
+				Status:      Resolved,
+				TicketType:  "Vulnerability",
+				Resolution:  "Done",
+			},
+			wantTransitions: []string{Resolved},
+			wantErr:         nil,
+		},
+		{
+			name:     "FixTicketNotFound",
+			ticketId: "NOTFOUND",
+			fixedWorkflow: []string{
+				ToDo, InProgress, Resolved,
+			},
+			transitions:     transitions,
+			wantTicket:      nil,
+			wantTransitions: []string{},
+			wantErr:         errors.New("Ticket NOTFOUND not found"),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			setupSubTest(t)
+			setupSubTest(t, tt.transitions)
 
 			got, err := tc.FixTicket(tt.ticketId, tt.fixedWorkflow)
 			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatal(err)
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
-			diff := cmp.Diff(got, tt.want)
+			diff := cmp.Diff(got, tt.wantTicket)
 			if diff != "" {
-				t.Errorf("%v\n", diff)
+				t.Fatalf("ticket does not match expected one. diff: %s\n", diff)
+			}
+			diff = cmp.Diff(transitionsDone, tt.wantTransitions)
+			if diff != "" {
+				t.Fatalf("transitions does not match expected ones. diff: %s\n", diff)
+			}
+		})
+	}
+}
+
+func TestWontFixTicket(t *testing.T) {
+	tests := []struct {
+		name              string
+		ticketId          string
+		wontfixedWorkflow []string
+		transitions       map[string][]model.Transition
+		wantTicket        *model.Ticket
+		wantTransitions   []string
+		wantErr           error
+	}{
+		{
+			name:     "WontFixFromToDo",
+			ticketId: "TEST-1",
+			wontfixedWorkflow: []string{
+				ToDo, InProgress, Resolved,
+			},
+			transitions: transitions,
+			wantTicket: &model.Ticket{
+				ID:          "1000",
+				Key:         "TEST-1",
+				Summary:     "Summary TEST-1",
+				Description: "Description TEST-1",
+				Project:     "TEST",
+				Status:      Resolved,
+				TicketType:  "Vulnerability",
+				Resolution:  "Decision Taken",
+			},
+			wantTransitions: []string{InProgress, Resolved},
+			wantErr:         nil,
+		},
+		{
+			name:     "WontFixInProgress",
+			ticketId: "TEST-2",
+			wontfixedWorkflow: []string{
+				ToDo, InProgress, Resolved,
+			},
+			transitions: transitions,
+			wantTicket: &model.Ticket{
+				ID:          "1001",
+				Key:         "TEST-2",
+				Summary:     "Summary TEST-2",
+				Description: "Description TEST-2",
+				Project:     "TEST",
+				Status:      Resolved,
+				TicketType:  "Vulnerability",
+				Resolution:  "Decision Taken",
+			},
+			wantTransitions: []string{Resolved},
+			wantErr:         nil,
+		},
+		{
+			name:              "WontFixFromToDoClassicWorkflow",
+			ticketId:          "TEST-1",
+			wontfixedWorkflow: []string{Resolved},
+			transitions:       trResolveFromAnyStatus,
+			wantTicket: &model.Ticket{
+				ID:          "1000",
+				Key:         "TEST-1",
+				Summary:     "Summary TEST-1",
+				Description: "Description TEST-1",
+				Project:     "TEST",
+				Status:      Resolved,
+				TicketType:  "Vulnerability",
+				Resolution:  "Decision Taken",
+			},
+			wantTransitions: []string{Resolved},
+			wantErr:         nil,
+		},
+		{
+			name:              "WontFixInProgressClassicWorkflow",
+			ticketId:          "TEST-2",
+			wontfixedWorkflow: []string{Resolved},
+			transitions:       trResolveFromAnyStatus,
+			wantTicket: &model.Ticket{
+				ID:          "1001",
+				Key:         "TEST-2",
+				Summary:     "Summary TEST-2",
+				Description: "Description TEST-2",
+				Project:     "TEST",
+				Status:      Resolved,
+				TicketType:  "Vulnerability",
+				Resolution:  "Decision Taken",
+			},
+			wantTransitions: []string{Resolved},
+			wantErr:         nil,
+		},
+		{
+			name:     "WontFixInProgressTicket",
+			ticketId: "NOTFOUND",
+			wontfixedWorkflow: []string{
+				ToDo, InProgress, Resolved,
+			},
+			transitions:     transitions,
+			wantTicket:      nil,
+			wantTransitions: []string{},
+			wantErr:         errors.New("Ticket NOTFOUND not found"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			setupSubTest(t, tt.transitions)
+
+			got, err := tc.WontFixTicket(tt.ticketId, tt.wontfixedWorkflow, "Decision Taken")
+			if errToStr(err) != errToStr(tt.wantErr) {
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
+			}
+			diff := cmp.Diff(got, tt.wantTicket)
+			if diff != "" {
+				t.Fatalf("ticket does not match expected one. diff: %s\n", diff)
+			}
+			diff = cmp.Diff(transitionsDone, tt.wantTransitions)
+			if diff != "" {
+				t.Fatalf("transitions does not match expected ones. diff: %s\n", diff)
 			}
 		})
 	}
