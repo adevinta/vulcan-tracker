@@ -54,6 +54,7 @@ func fromGoJiraToTicketModel(jiraIssue gojira.Issue) *model.Ticket {
 		Status:      jiraIssue.Fields.Status.Name,
 		TicketType:  jiraIssue.Fields.Type.Name,
 		Resolution:  "",
+		Labels:      jiraIssue.Fields.Labels,
 	}
 
 	if jiraIssue.Fields.Resolution != nil {
@@ -72,6 +73,7 @@ func fromGoJiraToTransitionModel(jiraTransition gojira.Transition) *model.Transi
 }
 
 // GetTicket retrieves a ticket from Jira.
+// Return an empty ticket if not found.
 func (cl *Client) GetTicket(id string) (*model.Ticket, error) {
 	jiraIssue, resp, err := cl.Issuer.Get(id, nil)
 	if err != nil {
@@ -101,6 +103,7 @@ func (cl *Client) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
 			Project: gojira.Project{
 				Key: ticket.Project,
 			},
+			Labels: ticket.Labels,
 		},
 	}
 
@@ -110,7 +113,7 @@ func (cl *Client) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
 		return nil, err
 	}
 
-	createdTicket, resp, err := cl.Issuer.Get(gojiraIssue.ID, nil)
+	createdTicket, resp, err := cl.Issuer.Get(gojiraIssue.Key, nil)
 	if err != nil {
 		err = gojira.NewJiraError(resp, err)
 		return nil, err

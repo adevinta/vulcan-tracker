@@ -6,14 +6,15 @@ package model
 
 // Ticket represents a vulnerability in a ticket tracker.
 type Ticket struct {
-	ID          string `json:"id"`
-	Key         string `json:"key"`
-	Summary     string `json:"summary"`
-	Description string `json:"description"`
-	Project     string `json:"project"`
-	Status      string `json:"status"`
-	TicketType  string `json:"ticket_type"`
-	Resolution  string `json:"resolution"`
+	ID          string   `json:"id"`
+	Key         string   `json:"key"`
+	Summary     string   `json:"summary"`
+	Description string   `json:"description"`
+	Project     string   `json:"project"`
+	Status      string   `json:"status"`
+	TicketType  string   `json:"ticket_type"`
+	Resolution  string   `json:"resolution"`
+	Labels      []string `json:"labels"`
 }
 
 // Transition represents a state change of a ticket.
