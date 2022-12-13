@@ -25,14 +25,14 @@ func errToStr(err error) string {
 func TestGenerateServerClients(t *testing.T) {
 	logger := &mockLogger{}
 	tests := []struct {
-		name    string
-		input   []model.TrackerConfig
-		want    map[string]TicketTracker
-		wantErr error
+		name          string
+		trackerConfig []model.TrackerConfig
+		want          map[string]TicketTracker
+		wantErr       error
 	}{
 		{
 			name: "HappyPath",
-			input: []model.TrackerConfig{
+			trackerConfig: []model.TrackerConfig{
 				{
 					Name: "JiraServer",
 					Url:  "http://example.com",
@@ -54,17 +54,17 @@ func TestGenerateServerClients(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			got, err := GenerateServerClients(tt.input, logger)
+			got, err := GenerateServerClients(tt.trackerConfig, logger)
 
 			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatal(err)
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(got, tt.want, cmpopts.IgnoreUnexported(jira.TC{}),
 				cmpopts.IgnoreUnexported(jira.Client{}),
 				cmpopts.IgnoreInterfaces(struct{ jira.Issuer }{}),
 			)
 			if diff != "" {
-				t.Errorf("%v\n", diff)
+				t.Fatalf("the generated servers do not match expected ones. diff: %v\n", diff)
 			}
 		})
 	}

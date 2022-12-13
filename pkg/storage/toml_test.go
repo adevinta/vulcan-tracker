@@ -21,20 +21,18 @@ func TestServersConf(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		input   TOMLStore
+		servers map[string]config.Server
 		want    []model.TrackerConfig
 		wantErr error
 	}{
 		{
 			name: "HappyPath",
-			input: TOMLStore{
-				servers: map[string]config.Server{
-					"example1": {
-						Url:   "http://localhost:8080",
-						User:  "jira_user",
-						Token: "jira_token",
-						Kind:  "jira",
-					},
+			servers: map[string]config.Server{
+				"example1": {
+					Url:   "http://localhost:8080",
+					User:  "jira_user",
+					Token: "jira_token",
+					Kind:  "jira",
 				},
 			},
 			want: []model.TrackerConfig{
@@ -54,14 +52,15 @@ func TestServersConf(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			got, err := tt.input.ServersConf()
+			tc := TOMLStore{servers: tt.servers}
+			got, err := tc.ServersConf()
 
 			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatal(err)
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(got, tt.want)
 			if diff != "" {
-				t.Errorf("%v\n", diff)
+				t.Fatalf("the servers do not match expected ones. diff: %v\n", diff)
 			}
 		})
 	}
@@ -70,21 +69,19 @@ func TestServersConf(t *testing.T) {
 func TestProjectsConfig(t *testing.T) {
 	tests := []struct {
 		name    string
-		input   TOMLStore
+		teams   map[string]config.Team
 		want    []model.ProjectConfig
 		wantErr error
 	}{
 		{
 			name: "HappyPath",
-			input: TOMLStore{
-				teams: map[string]config.Team{
-					"example_team": {
-						Server:                 "example1",
-						Project:                "TEST",
-						VulnerabilityIssueType: "Vulnerability",
-						FixWorkflow:            []string{"ToDo", "In Progress", "Under Review", "Fixed"},
-						WontFixWorkflow:        []string{"Won't Fix"},
-					},
+			teams: map[string]config.Team{
+				"example_team": {
+					Server:                 "example1",
+					Project:                "TEST",
+					VulnerabilityIssueType: "Vulnerability",
+					FixWorkflow:            []string{"ToDo", "In Progress", "Under Review", "Fixed"},
+					WontFixWorkflow:        []string{"Won't Fix"},
 				},
 			},
 			want: []model.ProjectConfig{
@@ -104,15 +101,15 @@ func TestProjectsConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
-			got, err := tt.input.ProjectsConfig()
+			tc := TOMLStore{teams: tt.teams}
+			got, err := tc.ProjectsConfig()
 
 			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatal(err)
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(got, tt.want)
 			if diff != "" {
-				t.Errorf("%v\n", diff)
+				t.Fatalf("the teams do not match expected ones. diff: %v\n", diff)
 			}
 		})
 	}
@@ -120,15 +117,13 @@ func TestProjectsConfig(t *testing.T) {
 }
 
 func TestProjectConfig(t *testing.T) {
-	input := TOMLStore{
-		teams: map[string]config.Team{
-			"example_team": {
-				Server:                 "example1",
-				Project:                "TEST",
-				VulnerabilityIssueType: "Vulnerability",
-				FixWorkflow:            []string{"ToDo", "In Progress", "Under Review", "Fixed"},
-				WontFixWorkflow:        []string{"Won't Fix"},
-			},
+	teams := map[string]config.Team{
+		"example_team": {
+			Server:                 "example1",
+			Project:                "TEST",
+			VulnerabilityIssueType: "Vulnerability",
+			FixWorkflow:            []string{"ToDo", "In Progress", "Under Review", "Fixed"},
+			WontFixWorkflow:        []string{"Won't Fix"},
 		},
 	}
 
@@ -142,7 +137,6 @@ func TestProjectConfig(t *testing.T) {
 			name:   "HappyPath",
 			teamId: "example_team",
 			want: &model.ProjectConfig{
-
 				Name:                   "example_team",
 				ServerName:             "example1",
 				Project:                "TEST",
@@ -163,14 +157,17 @@ func TestProjectConfig(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			got, err := input.ProjectConfig(tt.teamId)
+			tc := TOMLStore{
+				teams: teams,
+			}
+			got, err := tc.ProjectConfig(tt.teamId)
 
 			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatal(err)
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(got, tt.want)
 			if diff != "" {
-				t.Errorf("%v\n", diff)
+				t.Fatalf("the team does not match expected one. diff: %v\n", diff)
 			}
 		})
 	}
