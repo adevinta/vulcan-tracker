@@ -2,7 +2,7 @@
 Copyright 2022 Adevinta
 */
 
-package testutil
+package testutils
 
 func ErrToStr(err error) string {
 	result := ""

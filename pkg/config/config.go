@@ -1,13 +1,14 @@
 /*
 Copyright 2022 Adevinta
 */
-
 package config
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/BurntSushi/toml"
 	"github.com/labstack/gommon/log"
@@ -26,12 +27,23 @@ type Team struct {
 	VulnerabilityIssueType string   `toml:"vulnerability_issue_type"`
 	FixWorkflow            []string `toml:"fix_workflow"`
 	WontFixWorkflow        []string `toml:"wontfix_workflow"`
+	AutoCreate             bool     `toml:"auto_create"` // create tickets automatically from a stream
+
+}
+
+type KafkaConfig struct {
+	RetryDuration time.Duration `toml:"retry_duration"`
+	KafkaBroker   string        `toml:"broker"`
+	KafkaGroupID  string        `toml:"group_id"`
+	KafkaUsername string        `toml:"username"`
+	KafkaPassword string        `toml:"password"`
 }
 
 type Config struct {
 	API     apiConfig         `toml:"api"`
 	Servers map[string]Server `toml:"servers"`
 	Teams   map[string]Team   `toml:"teams"`
+	Kafka   KafkaConfig       `toml:"kafka"`
 	Log     logConfig         `toml:"log"`
 }
 
@@ -63,11 +75,34 @@ func ParseConfig(cfgFilePath string) (*Config, error) {
 	}
 
 	if envVar := os.Getenv("PORT"); envVar != "" {
-		entVarInt, err := strconv.Atoi(envVar)
+		envVarInt, err := strconv.Atoi(envVar)
 		if err != nil {
 			return nil, err
 		}
-		conf.API.Port = entVarInt
+		conf.API.Port = envVarInt
+	}
+
+	if envVar := os.Getenv("KAFKA_BROKER"); envVar != "" {
+		conf.Kafka.KafkaBroker = envVar
+	}
+
+	if envVar := os.Getenv("RETRY_DURATION"); envVar != "" {
+		conf.Kafka.RetryDuration, err = time.ParseDuration(envVar)
+		if err != nil {
+			return nil, fmt.Errorf("invalid retry duration: %w", err)
+		}
+	}
+
+	if envVar := os.Getenv("KAFKA_GROUP_ID"); envVar != "" {
+		conf.Kafka.KafkaGroupID = envVar
+	}
+
+	if envVar := os.Getenv("KAFKA_USERNAME"); envVar != "" {
+		conf.Kafka.KafkaUsername = envVar
+	}
+
+	if envVar := os.Getenv("KAFKA_PASSWORD"); envVar != "" {
+		conf.Kafka.KafkaPassword = envVar
 	}
 
 	return &conf, nil

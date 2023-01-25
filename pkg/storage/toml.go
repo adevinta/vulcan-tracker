@@ -1,3 +1,6 @@
+/*
+Copyright 2022 Adevinta
+*/
 package storage
 
 import (
@@ -51,6 +54,7 @@ func (ts *TOMLStore) ProjectsConfig() ([]model.ProjectConfig, error) {
 			VulnerabilityIssueType: team.VulnerabilityIssueType,
 			FixedWorkflow:          team.FixWorkflow,
 			WontFixWorkflow:        team.WontFixWorkflow,
+			AutoCreate:             team.AutoCreate,
 		}
 		projectConfigs = append(projectConfigs, teamConfig)
 	}
@@ -73,6 +77,7 @@ func (ts *TOMLStore) ProjectConfig(teamId string) (*model.ProjectConfig, error) 
 		VulnerabilityIssueType: team.VulnerabilityIssueType,
 		FixedWorkflow:          team.FixWorkflow,
 		WontFixWorkflow:        team.WontFixWorkflow,
+		AutoCreate:             team.AutoCreate,
 	}
 
 	return projectConfig, nil

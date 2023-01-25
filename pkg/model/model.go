@@ -40,4 +40,5 @@ type ProjectConfig struct {
 	VulnerabilityIssueType string
 	FixedWorkflow          []string
 	WontFixWorkflow        []string
+	AutoCreate             bool
 }

@@ -33,3 +33,21 @@ For running the component locally, clone and run at the root of the repo the fol
 ```sh
 go install ./...
 ```
+
+## Test
+
+Execute the tests:
+
+```
+_script/test -cover ./...
+```
+
+`_script/test` makes sure the testing infrastructure is up and running and then
+runs `go test` with the provided arguments. It also disables test caching and
+avoids running multiple test programs in parallel.
+
+Stop the testing infrastructure:
+
+```
+_script/clean
+```

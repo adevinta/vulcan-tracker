@@ -1,0 +1,49 @@
+version: "2.4"
+
+services:
+  setup:
+    image: busybox
+    depends_on:
+      # The service_healthy condition is not honored by "docker-compose run" in
+      # all docker-compose versions, but it is respected if the condition is in
+      # a transitive dependency. Thus, we have created an intermediate
+      # dependency with all the required conditions.
+      - healthchecks
+    entrypoint: ["echo", "setup done"]
+
+  healthchecks:
+    image: busybox
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: ["echo", "healthchecks done"]
+
+  kafka:
+    image: confluentinc/cp-kafka:7.2.2
+    ports:
+      - 127.0.0.1:9092:9092
+    expose:
+      - 29092
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:29092,PLAINTEXT_HOST://127.0.0.1:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+    healthcheck:
+      test: ["CMD", "nc", "-z", "kafka", "9092"]
+      interval: 5s
+      timeout: 10s
+      retries: 6
+    depends_on:
+      zookeeper:
+        condition: service_started
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.2.2
+    expose:
+      - 2181
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - ZOOKEEPER_TICK_TIME=2000

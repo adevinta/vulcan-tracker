@@ -6,6 +6,14 @@ port = 8080
 [log]
 level = "DEBUG"
 
+[kafka]
+user = "user"
+pass = "supersecret"
+broker = "localhost:9092"
+# Time between retries on failure (0 means no retries).
+retry_duration="5s"
+topics = {assets = "test-topic"}
+
 [servers]
     [servers.example1]
     url = "http://localhost:8080"
@@ -20,3 +28,5 @@ level = "DEBUG"
     project = "TEST"
     fix_workflow = ["ToDo", "In Progress", "Under Review", "Fixed"]
     wontfix_workflow = ["Won't Fix"]
+
+

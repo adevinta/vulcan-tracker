@@ -1,0 +1,49 @@
+[
+  {
+  "id": "2172c7d2-4cee-4eee-9573-9a8300d6657e",
+  "affected_resource": "onetimesecret.mpi-internal.com",
+  "score": 3.9,
+  "status": "FIXED",
+  "details": "",
+  "impact_details": "",
+  "issue": {
+    "id": "b4de81a0-f446-4f4a-9d58-40e161d6cd9d",
+    "summary": "HTTP Content Security Policy Not Implemented",
+    "cwe_id": 358,
+    "description": "Content Security Policy (CSP) is an HTTP header that allows site operators fine-grained control over where resources on their site can be loaded from. The use of this header is the best method to prevent cross-site scripting (XSS) vulnerabilities. Due to the difficulty in retrofitting CSP into existing websites, CSP is mandatory for all new websites and is strongly recommended for all existing high-risk sites.",
+    "recommendations": [
+      "Implement a well-formed and correct CSP policy for this site.",
+      "The policy should not contain unsafe directive for anything but style.",
+      "The policy should not allow to load content from an insecure scheme (only https)."
+    ],
+    "reference_links": [
+      "https://wiki.mozilla.org/Security/Guidelines/Web_Security#Content_Security_Policy",
+      "https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP",
+      "https://content-security-policy.com/",
+      "https://observatory.mozilla.org/"
+    ],
+    "labels": [
+      "http",
+      "issue"
+    ]
+  },
+  "target": {
+    "id": "ef395371-b7bd-4dfd-9ebf-d32156945fc2",
+    "identifier": "onetimesecret.mpi-internal.com",
+    "teams": [
+      "1c8a9935-9422-47d1-9bf6-72dde721c49f",
+      "2af823c1-b029-4c62-9d31-3be1d18a14d5",
+      "9f6b3510-4cf4-4408-b063-86a75119128e"
+    ]
+  },
+  "source": {
+    "id": "e72a908f-194e-4496-afa8-df509bb2c1a1",
+    "instance": "4febf6fd-b01c-11ec-82a8-f2c663317896",
+    "options": "{\"security_level\":2}",
+    "time": "2022-03-30T11:32:02Z",
+    "name": "vulcan",
+    "component": "vulcan-http-headers"
+  },
+  "resources": [],
+  "total_exposure": 0
+

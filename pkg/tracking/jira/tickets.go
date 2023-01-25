@@ -19,6 +19,17 @@ func (tc TC) GetTicket(id string) (*model.Ticket, error) {
 	return ticket, nil
 }
 
+// FindTicketByFindingID retrieves a ticket from Jira using the findingID.
+// Return an empty ticket if not found.
+func (tc TC) FindTicketByFindingID(projectKey, vulnerabilityIssueType, findingID string) (*model.Ticket, error) {
+
+	ticket, err := tc.Client.FindTicket(projectKey, vulnerabilityIssueType, findingID)
+	if err != nil {
+		return nil, err
+	}
+	return ticket, nil
+}
+
 // CreateTicket creates an ticket in Jira.
 func (tc TC) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
 	createdTicket, err := tc.Client.CreateTicket(ticket)
@@ -76,6 +87,9 @@ func (tc TC) FixTicket(id string, workflow []string) (*model.Ticket, error) {
 	if len(workflow) > 1 {
 		workflow = getSubWorkflow(workflow, ticket.Status)
 	}
+
+	// TODO: When we can to transit from any state to a fixed state we need a list of valid states to do this.
+	// For example. If the ticket is in a CLOSED state we don't want acidentally go back to RESOLVED.
 
 	for _, transitionName := range workflow {
 

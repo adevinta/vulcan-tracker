@@ -1,3 +1,6 @@
+/*
+Copyright 2022 Adevinta
+*/
 package storage
 
 import "github.com/adevinta/vulcan-tracker/pkg/model"

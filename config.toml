@@ -12,3 +12,9 @@ user = "$JIRA_USER"
 token = "$JIRA_TOKEN"
 vulnerability_issue_type = "$JIRA_VULNERABILITY_ISSUE_TYPE"
 project = "$JIRA_PROJECT"
+
+[kafka]
+user = "user"
+pass = "supersecret"
+broker = "localhost:9092"
+topic = "findings-v0"
