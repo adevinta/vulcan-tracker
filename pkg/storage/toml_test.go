@@ -17,58 +17,7 @@ func errToStr(err error) string {
 	return testutils.ErrToStr(err)
 }
 
-func TestServersConf(t *testing.T) {
-
-	tests := []struct {
-		name    string
-		servers map[string]config.Server
-		want    []model.TrackerConfig
-		wantErr error
-	}{
-		{
-			name: "HappyPath",
-			servers: map[string]config.Server{
-				"example1_id": {
-					Name:  "example1",
-					URL:   "http://localhost:8080",
-					User:  "jira_user",
-					Token: "jira_token",
-					Kind:  "jira",
-				},
-			},
-			want: []model.TrackerConfig{
-				{
-					ID:   "example1_id",
-					Name: "example1",
-					URL:  "http://localhost:8080",
-					User: "jira_user",
-					Pass: "jira_token",
-					Kind: "jira",
-				},
-			},
-
-			wantErr: nil,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-
-			tc := TOMLStore{servers: tt.servers}
-			got, err := tc.ServersConf()
-
-			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
-			}
-			diff := cmp.Diff(got, tt.want)
-			if diff != "" {
-				t.Fatalf("the servers do not match expected ones. diff: %v\n", diff)
-			}
-		})
-	}
-}
-
-func TestProjectConfig(t *testing.T) {
+func TestProjectConfigByTeamID(t *testing.T) {
 	projects := map[string]config.Project{
 		"example_project_id": {
 			ServerID:               "example_server_id",
@@ -115,7 +64,7 @@ func TestProjectConfig(t *testing.T) {
 			tc := TOMLStore{
 				projects: projects,
 			}
-			got, err := tc.ProjectConfigByTeamID(tt.teamID)
+			got, err := tc.FindProjectConfigByTeamID(tt.teamID)
 
 			if errToStr(err) != errToStr(tt.wantErr) {
 				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)

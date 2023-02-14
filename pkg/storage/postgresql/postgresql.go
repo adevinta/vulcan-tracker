@@ -15,8 +15,8 @@ import (
 )
 
 type (
-	// DB holds the database connection.
-	DB struct {
+	// PostgresStore holds the database connection.
+	PostgresStore struct {
 		DB     *sqlx.DB
 		Logger echo.Logger
 	}
@@ -33,7 +33,7 @@ type (
 )
 
 // NewDB instantiates a new PostgreSQL connection.
-func NewDB(cs ConnStr, logger echo.Logger) (*DB, error) {
+func NewDB(cs ConnStr, logger echo.Logger) (*PostgresStore, error) {
 	if cs.SSLMode == "" {
 		cs.SSLMode = "disable"
 	}
@@ -44,7 +44,7 @@ func NewDB(cs ConnStr, logger echo.Logger) (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &DB{DB: db, Logger: logger}, nil
+	return &PostgresStore{DB: db, Logger: logger}, nil
 }
 
 func logQuery(logger echo.Logger, name, query string, args ...interface{}) {

@@ -55,7 +55,7 @@ func (api *API) GetTicket(c echo.Context) error {
 	id := c.Param("id")
 
 	// Get a ticket tracker client.
-	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServerStorage, teamID, c.Logger())
+	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServer, teamID, c.Logger())
 	if err != nil {
 		return responseError(err)
 	}
@@ -78,9 +78,9 @@ func (api *API) CreateTicket(c echo.Context) error {
 	}
 
 	// Get the server and the configuration for the teamID.
-	configuration, err := api.ticketServerStorage.ProjectConfigByTeamID(teamID)
+	configuration, err := api.ticketServer.ProjectConfigByTeamID(teamID)
 	if err != nil {
-		return err
+		return responseError(err)
 	}
 
 	// Retrieve the necessary values to create a ticket.
@@ -95,7 +95,7 @@ func (api *API) CreateTicket(c echo.Context) error {
 	}
 
 	// Get a ticket tracker client.
-	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServerStorage, teamID, c.Logger())
+	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServer, teamID, c.Logger())
 	if err != nil {
 		return responseError(err)
 	}
@@ -121,13 +121,13 @@ func (api *API) FixTicket(c echo.Context) error {
 	id := c.Param("id")
 
 	// Get the server and the configuration for the teamID.
-	configuration, err := api.ticketServerStorage.ProjectConfigByTeamID(teamID)
+	configuration, err := api.ticketServer.ProjectConfigByTeamID(teamID)
 	if err != nil {
-		return err
+		return responseError(err)
 	}
 
 	// Get a ticket tracker client.
-	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServerStorage, teamID, c.Logger())
+	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServer, teamID, c.Logger())
 	if err != nil {
 		return responseError(err)
 	}
@@ -157,13 +157,13 @@ func (api *API) WontFixTicket(c echo.Context) error {
 	}
 
 	// Get the server and the configuration for the teamID.
-	configuration, err := api.ticketServerStorage.ProjectConfigByTeamID(teamID)
+	configuration, err := api.ticketServer.ProjectConfigByTeamID(teamID)
 	if err != nil {
-		return err
+		return responseError(err)
 	}
 
 	// Get a ticket tracker client.
-	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServerStorage, teamID, c.Logger())
+	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServer, teamID, c.Logger())
 	if err != nil {
 		return responseError(err)
 	}

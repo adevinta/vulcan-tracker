@@ -5,9 +5,7 @@ package jira
 
 import (
 	"fmt"
-	"net/http"
 
-	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
 	"github.com/adevinta/vulcan-tracker/pkg/model"
 )
 
@@ -53,17 +51,6 @@ func (tc *TC) FindTicketByFindingAndTeam(projectKey, vulnerabilityIssueType, fin
 
 // CreateTicket creates a ticket in Jira.
 func (tc *TC) CreateTicket(ticket model.Ticket) (model.Ticket, error) {
-
-	ticketInJira, err := tc.FindTicketByFindingAndTeam(ticket.Project, ticket.TicketType, ticket.FindingID, ticket.TeamID)
-	if err != nil {
-		return model.Ticket{}, err
-	}
-	if ticketInJira.ID != "" {
-		return model.Ticket{}, &vterrors.TrackingError{
-			Msg:            "the ticket already exists in the Jira server",
-			HTTPStatusCode: http.StatusConflict,
-		}
-	}
 
 	ticket.Description = GenerateDescriptionText(ticket.Description, ticket.FindingID, ticket.TeamID)
 

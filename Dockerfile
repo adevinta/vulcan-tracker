@@ -1,6 +1,6 @@
 # Copyright 2023 Adevinta
 
-FROM golang:1.19.3-alpine3.15 as builder
+FROM golang:1.20.2-alpine3.17 as builder
 
 ARG ARCH=amd64
 

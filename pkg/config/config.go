@@ -15,7 +15,7 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-// Server represents the credentials to access a ticket tracker server.
+// Server represents the credentials to access to a ticket tracker server.
 type Server struct {
 	Name  string `toml:"name"`
 	URL   string `toml:"url"`

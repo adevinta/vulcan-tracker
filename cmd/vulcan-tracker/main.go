@@ -15,7 +15,7 @@ import (
 
 	"github.com/adevinta/vulcan-tracker/pkg/api"
 	"github.com/adevinta/vulcan-tracker/pkg/config"
-	"github.com/adevinta/vulcan-tracker/pkg/storage"
+	"github.com/adevinta/vulcan-tracker/pkg/secrets"
 	"github.com/adevinta/vulcan-tracker/pkg/storage/postgresql"
 	"github.com/adevinta/vulcan-tracker/pkg/tracking"
 )
@@ -33,12 +33,6 @@ func main() {
 
 	e.Logger.SetLevel(config.ParseLogLvl(cfg.Log.Level))
 
-	// TODO: Decide which is the type of storage for servers configurations.
-	ticketServerStorage, err := storage.New(cfg.Servers, cfg.Projects)
-	if err != nil {
-		e.Logger.Fatalf("Error initializing storage: %w", err)
-	}
-
 	// Database connection.
 	cfgPSQL := cfg.PSQL
 	db, err := postgresql.NewDB(cfgPSQL, e.Logger)
@@ -46,10 +40,15 @@ func main() {
 		e.Logger.Fatal(err)
 	}
 
+	ticketServer, err := tracking.New(db, &secrets.AWSSecrets{Logger: e.Logger}, e.Logger)
+	if err != nil {
+		e.Logger.Fatal(err)
+	}
+
 	// Builder for the ticket tracker clients.
 	ticketTrackerBuilder := &tracking.TTBuilder{}
 
-	a := api.New(ticketServerStorage, ticketTrackerBuilder, db, api.Options{
+	a := api.New(ticketServer, ticketTrackerBuilder, db, api.Options{
 		MaxSize:     cfg.API.MaxSize,
 		DefaultSize: cfg.API.DefaultSize,
 	})
