@@ -1,10 +1,18 @@
 [api]
-max_size = 100
-default_size = 20
-port = 8080
+    max_size = 100
+    default_size = 20
+    port = 8080
 
 [log]
-level = "DEBUG"
+    level = "DEBUG"
+
+[postgresql]
+    host = "localhost"
+    port = "5439"
+    user = "vultrackerdb"
+    pass = "vultrackerdb"
+    db = "vultrackerdb"
+
 
 [servers]
     [servers.example1]

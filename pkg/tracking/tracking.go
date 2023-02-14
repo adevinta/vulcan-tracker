@@ -33,6 +33,7 @@ type Pagination struct {
 // TicketTracker defines the interface for high level querying data from ticket tracker.
 type TicketTracker interface {
 	GetTicket(id string) (*model.Ticket, error)
+	FindTicketByFindingAndTeam(projectKey, vulnerabilityIssueType, findingID string, teamID string) (*model.Ticket, error)
 	CreateTicket(ticket *model.Ticket) (*model.Ticket, error)
 	GetTransitions(id string) ([]model.Transition, error)
 	FixTicket(id string, workflow []string) (*model.Ticket, error)

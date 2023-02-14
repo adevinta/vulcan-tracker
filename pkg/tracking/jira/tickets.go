@@ -9,6 +9,21 @@ import (
 	"github.com/adevinta/vulcan-tracker/pkg/model"
 )
 
+// generateIdentificationText generate the part of the description that contains the identifiers.
+func generateIdentificationText(findingID, teamID string) string {
+	return fmt.Sprintf("FindingID: %s\nTeamID: %s", findingID, teamID)
+}
+
+// generateDescriptionText generate description using the original description and the finding and team identifiers.
+func generateDescriptionText(ticketDescription, findingID, teamID string) string {
+	beginAutomaticText := "======= BEGINNING OF THE CONTENT AUTOMATICALLY INSERTED ======\n"
+	dontRemoveText := "======= PLEASE, DON'T REMOVE THE TEXT BETWEEN THESE MARKS =====\n"
+	endAutomaticText := "======= END OF THE CONTENT AUTOMATICALLY INSERTED ============\n"
+	ticketIdentificationText := generateIdentificationText(findingID, teamID)
+	return fmt.Sprintf("\n%s\n%s%s%s\n%s",
+		ticketDescription, beginAutomaticText, dontRemoveText, ticketIdentificationText, endAutomaticText)
+}
+
 // GetTicket retrieves a ticket from Jira.
 // Return an empty ticket if not found.
 func (tc TC) GetTicket(id string) (*model.Ticket, error) {
@@ -16,15 +31,40 @@ func (tc TC) GetTicket(id string) (*model.Ticket, error) {
 	if err != nil {
 		return nil, err
 	}
+	ticket.URLTracker = fmt.Sprintf("%s/browse/%s", tc.URL, ticket.Key)
+
 	return ticket, nil
 }
 
-// CreateTicket creates an ticket in Jira.
+// FindTicketByFindingAndTeam retrieves a ticket from Jira using the project key, the vulnerability issue type,
+// the finding ID and the team ID.
+// Return an empty ticket if not found.
+func (tc TC) FindTicketByFindingAndTeam(projectKey, vulnerabilityIssueType, findingID string, teamID string) (*model.Ticket, error) {
+	text := generateIdentificationText(findingID, teamID)
+
+	ticket, err := tc.Client.FindTicket(projectKey, vulnerabilityIssueType, text)
+	if err != nil {
+		return nil, err
+	}
+	return ticket, nil
+}
+
+// CreateTicket creates a ticket in Jira.
 func (tc TC) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
+
+	ticketInJira, err := tc.FindTicketByFindingAndTeam(ticket.Project, ticket.TicketType, ticket.FindingID, ticket.TeamID)
+	if ticketInJira != nil {
+		return nil, fmt.Errorf("the ticket already exists in the Jira server")
+	}
+
+	ticket.Description = generateDescriptionText(ticket.Description, ticket.FindingID, ticket.TeamID)
+
 	createdTicket, err := tc.Client.CreateTicket(ticket)
 	if err != nil {
 		return nil, err
 	}
+
+	createdTicket.URLTracker = fmt.Sprintf("%s/browse/%s", tc.URL, createdTicket.Key)
 
 	return createdTicket, nil
 }
@@ -76,6 +116,9 @@ func (tc TC) FixTicket(id string, workflow []string) (*model.Ticket, error) {
 	if len(workflow) > 1 {
 		workflow = getSubWorkflow(workflow, ticket.Status)
 	}
+
+	// TODO: When we can to transit from any state to a fixed state we need a list of valid states to do this.
+	// For example. If the ticket is in a CLOSED state we don't want acidentally go back to RESOLVED.
 
 	for _, transitionName := range workflow {
 

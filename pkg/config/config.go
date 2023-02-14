@@ -5,6 +5,7 @@ Copyright 2022 Adevinta
 package config
 
 import (
+	"github.com/adevinta/vulcan-tracker/pkg/storage/postgresql"
 	"io"
 	"os"
 	"strconv"
@@ -29,10 +30,12 @@ type Team struct {
 }
 
 type Config struct {
-	API     apiConfig         `toml:"api"`
-	Servers map[string]Server `toml:"servers"`
-	Teams   map[string]Team   `toml:"teams"`
-	Log     logConfig         `toml:"log"`
+	API      apiConfig          `toml:"api"`
+	Servers  map[string]Server  `toml:"servers"`
+	Teams    map[string]Team    `toml:"teams"`
+	Log      logConfig          `toml:"log"`
+	PSQL     postgresql.ConnStr `toml:"postgresql"`
+	PSQLRead postgresql.ConnStr `toml:"postgresql_read"`
 }
 
 type apiConfig struct {
@@ -70,6 +73,21 @@ func ParseConfig(cfgFilePath string) (*Config, error) {
 		conf.API.Port = entVarInt
 	}
 
+	if envVar := os.Getenv("VULCANTRACKER_DB_HOST"); envVar != "" {
+		conf.PSQL.Host = envVar
+	}
+
+	if envVar := os.Getenv("VULCANTRACKER_DB_PORT"); envVar != "" {
+		conf.PSQL.Port = envVar
+	}
+
+	if envVar := os.Getenv("VULCANTRACKER_DB_USER"); envVar != "" {
+		conf.PSQL.User = envVar
+	}
+
+	if envVar := os.Getenv("VULCANTRACKER_DB_NAME"); envVar != "" {
+		conf.PSQL.DB = envVar
+	}
 	return &conf, nil
 }
 

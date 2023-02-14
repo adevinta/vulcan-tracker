@@ -16,6 +16,7 @@ import (
 
 type Issuer interface {
 	Get(issueID string, options *gojira.GetQueryOptions) (*gojira.Issue, *gojira.Response, error)
+	Search(jql string, options *gojira.SearchOptions) ([]gojira.Issue, *gojira.Response, error)
 	Create(issue *gojira.Issue) (*gojira.Issue, *gojira.Response, error)
 	GetTransitions(id string) ([]gojira.Transition, *gojira.Response, error)
 	DoTransition(ticketID, transitionID string) (*gojira.Response, error)
@@ -27,7 +28,7 @@ type Client struct {
 	Issuer
 }
 
-// NewClient instanciates a client using go-jira library.
+// NewClient instantiates a client using go-jira library.
 func NewClient(url, user, token string) (*Client, error) {
 	tp := gojira.BasicAuthTransport{
 		Username: user,
@@ -44,24 +45,21 @@ func NewClient(url, user, token string) (*Client, error) {
 }
 
 // fromGoJiraToTicketModel transforms a ticket returned by go-jira into a model.Ticket.
-func fromGoJiraToTicketModel(jiraIssue gojira.Issue) *model.Ticket {
-	ticket := &model.Ticket{
-		ID:          jiraIssue.ID,
-		Key:         jiraIssue.Key,
-		Summary:     jiraIssue.Fields.Summary,
-		Description: jiraIssue.Fields.Description,
-		Project:     jiraIssue.Fields.Project.Key,
-		Status:      jiraIssue.Fields.Status.Name,
-		TicketType:  jiraIssue.Fields.Type.Name,
-		Resolution:  "",
-		Labels:      jiraIssue.Fields.Labels,
-	}
+func fromGoJiraToTicketModel(jiraIssue gojira.Issue, ticket *model.Ticket) {
+
+	ticket.ID = jiraIssue.ID
+	ticket.Key = jiraIssue.Key
+	ticket.Summary = jiraIssue.Fields.Summary
+	ticket.Description = jiraIssue.Fields.Description
+	ticket.Project = jiraIssue.Fields.Project.Key
+	ticket.Status = jiraIssue.Fields.Status.Name
+	ticket.TicketType = jiraIssue.Fields.Type.Name
+	ticket.Resolution = ""
+	ticket.Labels = jiraIssue.Fields.Labels
 
 	if jiraIssue.Fields.Resolution != nil {
 		ticket.Resolution = jiraIssue.Fields.Resolution.Name
 	}
-
-	return ticket
 }
 
 // fromGoJiraToTransitionModel transforms a transition returned by go-jira into a model.Transition.
@@ -87,8 +85,35 @@ func (cl *Client) GetTicket(id string) (*model.Ticket, error) {
 		}
 		return nil, err
 	}
-	return fromGoJiraToTicketModel(*jiraIssue), nil
+	var ticket model.Ticket
+	fromGoJiraToTicketModel(*jiraIssue, &ticket)
+	return &ticket, nil
 
+}
+
+// FindTicket search tickets and return the first one if it exists.
+// The arguments needed to search a ticket are the project key, the issue
+// type and a text that have to be present on the ticket description.
+// Return a nil ticket if not found.
+func (cl *Client) FindTicket(projectKey, vulnerabilityIssueType, text string) (*model.Ticket, error) {
+
+	jql := fmt.Sprintf("project=%s AND type=%s AND description~%s",
+		projectKey, vulnerabilityIssueType, text)
+
+	searchOptions := &gojira.SearchOptions{
+		MaxResults: 1,
+	}
+	tickets, resp, err := cl.Issuer.Search(jql, searchOptions)
+	if err != nil {
+		err = gojira.NewJiraError(resp, err)
+		return nil, err
+	}
+	if len(tickets) == 0 {
+		return nil, nil
+	}
+	var ticket model.Ticket
+	fromGoJiraToTicketModel(tickets[0], &ticket)
+	return &ticket, nil
 }
 
 // CreateTicket creates a ticket in Jira.
@@ -118,7 +143,9 @@ func (cl *Client) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
 		err = gojira.NewJiraError(resp, err)
 		return nil, err
 	}
-	return fromGoJiraToTicketModel(*createdTicket), nil
+
+	fromGoJiraToTicketModel(*createdTicket, ticket)
+	return ticket, nil
 }
 
 // GetTicketTransitions retrieves a list of all available transitions of a ticket.

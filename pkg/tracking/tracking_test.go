@@ -45,6 +45,7 @@ func TestGenerateServerClients(t *testing.T) {
 				"JiraServer": &jira.TC{
 					Client: &jira.Client{},
 					Logger: logger,
+					URL:    "http://example.com",
 				},
 			},
 			wantErr: nil,

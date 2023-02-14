@@ -7,6 +7,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/adevinta/vulcan-tracker/pkg/storage/postgresql"
 	"log"
 	"strings"
 
@@ -32,12 +33,12 @@ func main() {
 	e.Logger.SetLevel(config.ParseLogLvl(cfg.Log.Level))
 
 	// TODO: Decide which is the type of storage.
-	storage, err := storage.New(cfg.Servers, cfg.Teams)
+	ticketServerStorage, err := storage.New(cfg.Servers, cfg.Teams)
 	if err != nil {
 		e.Logger.Fatalf("Error initializing storage: %w", err)
 	}
 
-	serversConf, err := storage.ServersConf()
+	serversConf, err := ticketServerStorage.ServersConf()
 	if err != nil {
 		e.Logger.Fatal(err)
 	}
@@ -48,7 +49,18 @@ func main() {
 		e.Logger.Fatal(err)
 	}
 
-	a := api.New(trackerServers, storage, api.Options{
+	cfgPSQL := cfg.PSQL
+	cfgPSQLRead := cfg.PSQLRead
+	// If we don't have defined the read replica we use the read write one.
+	if cfgPSQLRead.Host == "" {
+		cfgPSQLRead = cfgPSQL
+	}
+	db, err := postgresql.NewDB(cfgPSQL, cfgPSQLRead, e.Logger)
+	if err != nil {
+		e.Logger.Fatal(err)
+	}
+
+	a := api.New(trackerServers, ticketServerStorage, db, api.Options{
 		MaxSize:     cfg.API.MaxSize,
 		DefaultSize: cfg.API.DefaultSize,
 	})
@@ -68,6 +80,7 @@ func main() {
 	e.POST("/:team_id/tickets/:id/fix", a.FixTicket)
 	e.POST("/:team_id/tickets/:id/wontfix", a.WontFixTicket)
 
+	e.GET("/:team_id/tickets/findings/:finding_id", a.GetFindingTicket)
 	address := fmt.Sprintf(":%d", cfg.API.Port)
 	e.Logger.Fatal(e.Start(address))
 

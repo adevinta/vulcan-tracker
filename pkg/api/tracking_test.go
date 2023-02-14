@@ -34,6 +34,7 @@ var (
 		"TEST-1": {
 			ID:          "1000",
 			Key:         "TEST-1",
+			TeamID:      "test_server",
 			Summary:     "Summary TEST-1",
 			Description: "Description TEST-1",
 			Project:     "TEST",
@@ -56,7 +57,7 @@ func (mtt *mockTicketTracker) GetTicket(id string) (*model.Ticket, error) {
 }
 
 type mockStorage struct {
-	storage.Storage
+	storage.TicketServerStorage
 }
 
 func (ms *mockStorage) ProjectConfig(teamId string) (*model.ProjectConfig, error) {
@@ -77,7 +78,7 @@ func TestGetTicket(t *testing.T) {
 		trackingServers: map[string]tracking.TicketTracker{
 			"test_server": &mockTicketTracker{},
 		},
-		storage: &mockStorage{},
+		ticketServerStorage: &mockStorage{},
 	}
 
 	type ticketExpected struct {
@@ -107,7 +108,7 @@ func TestGetTicket_NotFound(t *testing.T) {
 		trackingServers: map[string]tracking.TicketTracker{
 			"test_server": &mockTicketTracker{},
 		},
-		storage: &mockStorage{},
+		ticketServerStorage: &mockStorage{},
 	}
 
 	err := h.GetTicket(c)

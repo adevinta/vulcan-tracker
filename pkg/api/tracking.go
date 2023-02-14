@@ -13,6 +13,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// responseError process an correct response.
 func response(c echo.Context, httpStatus int, data interface{}, dataType string, p ...tracking.Pagination) error {
 	if data == nil {
 		return c.NoContent(http.StatusNoContent)
@@ -44,7 +45,7 @@ func response(c echo.Context, httpStatus int, data interface{}, dataType string,
 	return c.JSON(httpStatus, resp)
 }
 
-// reponseError proccess an error response
+// responseError process an error response.
 func responseError(err error) error {
 	var vterror *vterrors.TrackingError
 
@@ -60,7 +61,7 @@ func (api *API) GetTicket(c echo.Context) error {
 	id := c.Param("id")
 
 	// Get the server and the configuration for the teamId.
-	configuration, err := api.storage.ProjectConfig(teamId)
+	configuration, err := api.ticketServerStorage.ProjectConfig(teamId)
 	if err != nil {
 		return err
 	}
@@ -71,6 +72,7 @@ func (api *API) GetTicket(c echo.Context) error {
 	if err != nil {
 		return responseError(err)
 	}
+	ticket.TeamID = teamId
 
 	return response(c, http.StatusOK, ticket, "ticket")
 }
@@ -85,17 +87,32 @@ func (api *API) CreateTicket(c echo.Context) error {
 	}
 
 	// Get the server and the configuration for the teamId.
-	configuration, err := api.storage.ProjectConfig(teamId)
+	configuration, err := api.ticketServerStorage.ProjectConfig(teamId)
 	if err != nil {
 		return err
 	}
 
-	// Retrieve the necesary values to create a ticket.
+	// Retrieve the necessary values to create a ticket.
+	ticket.TeamID = teamId
 	ticket.Project = configuration.Project
 	ticket.TicketType = configuration.VulnerabilityIssueType
 	serverName := configuration.ServerName
 
+	// Check if the ticket exists.
+	var findingTicket model.FindingTicket
+	findingTicket, err = api.storage.GetFindingTicket(ticket.FindingID, ticket.TeamID)
+	if findingTicket.ID != "" {
+		return echo.NewHTTPError(http.StatusConflict, "The ticket for this finding and team already exists.")
+	}
+
+	// Create the ticket in the tracker tool.
 	ticket, err = api.trackingServers[serverName].CreateTicket(ticket)
+	if err != nil {
+		return responseError(err)
+	}
+
+	// Store the ticket created in the database.
+	_, err = api.storage.CreateFindingTicket(*ticket)
 	if err != nil {
 		return responseError(err)
 	}
@@ -108,8 +125,8 @@ func (api *API) FixTicket(c echo.Context) error {
 	teamId := c.Param("team_id")
 	id := c.Param("id")
 
-	// Get the server and the configuration for the teamId,
-	configuration, err := api.storage.ProjectConfig(teamId)
+	// Get the server and the configuration for the teamId.
+	configuration, err := api.ticketServerStorage.ProjectConfig(teamId)
 	if err != nil {
 		return err
 	}
@@ -139,8 +156,8 @@ func (api *API) WontFixTicket(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "bad request")
 	}
 
-	// Get the server and the configuration for the teamId,
-	configuration, err := api.storage.ProjectConfig(teamId)
+	// Get the server and the configuration for the teamId.
+	configuration, err := api.ticketServerStorage.ProjectConfig(teamId)
 	if err != nil {
 		return err
 	}
@@ -153,4 +170,16 @@ func (api *API) WontFixTicket(c echo.Context) error {
 	}
 
 	return response(c, http.StatusOK, ticket, "ticket")
+}
+
+// GetFindingTicket checks if a ticket was created and retrieves it if it is found.
+func (api *API) GetFindingTicket(c echo.Context) error {
+	teamId := c.Param("team_id")
+	findingID := c.Param("finding_id")
+
+	findingTicket, err := api.storage.GetFindingTicket(findingID, teamId)
+	if err != nil {
+		return err
+	}
+	return response(c, http.StatusOK, findingTicket, "ticket")
 }

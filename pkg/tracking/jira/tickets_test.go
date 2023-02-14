@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"testing"
 
 	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
@@ -24,6 +25,7 @@ const (
 )
 
 type MockJiraClient struct {
+	TicketTrackingClient
 	tickets     map[string]*model.Ticket
 	transitions map[string][]model.Transition
 }
@@ -36,7 +38,7 @@ func (l *mockLogger) Errorf(format string, args ...interface{}) {
 	// Do nothing logger
 }
 
-func (mj MockJiraClient) GetTicket(id string) (*model.Ticket, error) {
+func (mj *MockJiraClient) GetTicket(id string) (*model.Ticket, error) {
 	value, ok := mj.tickets[id]
 	if ok {
 		return value, nil
@@ -46,7 +48,29 @@ func (mj MockJiraClient) GetTicket(id string) (*model.Ticket, error) {
 		HttpStatusCode: http.StatusNotFound,
 	}
 }
-func (mj MockJiraClient) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
+
+func (mj *MockJiraClient) FindTicket(projectKey, vulnerabilityIssueType, text string) (*model.Ticket, error) {
+
+	var ticketsFound []model.Ticket
+
+	for _, ticket := range mj.tickets {
+		if ticket.Project != projectKey {
+			continue
+		}
+		if ticket.TicketType != vulnerabilityIssueType {
+			continue
+		}
+		if strings.Contains(ticket.Description, text) {
+			ticketsFound = append(ticketsFound, *ticket)
+		}
+	}
+	if len(ticketsFound) == 0 {
+		return nil, nil
+	}
+	return &ticketsFound[0], nil
+}
+
+func (mj *MockJiraClient) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
 	ticket.Key = fmt.Sprintf("%s-%d", ticket.Project, len(mj.tickets)+1)
 	ticket.ID = fmt.Sprintf("%d", 1000+len(mj.tickets)+1)
 	ticket.Status = ToDo
@@ -56,7 +80,7 @@ func (mj MockJiraClient) CreateTicket(ticket *model.Ticket) (*model.Ticket, erro
 	return ticket, nil
 }
 
-func (mj MockJiraClient) GetTicketTransitions(id string) ([]model.Transition, error) {
+func (mj *MockJiraClient) GetTicketTransitions(id string) ([]model.Transition, error) {
 	ticket, err := mj.GetTicket(id)
 	if err != nil {
 		return nil, err
@@ -68,7 +92,7 @@ func (mj MockJiraClient) GetTicketTransitions(id string) ([]model.Transition, er
 	return nil, fmt.Errorf("Transitions for %s not found.", id)
 
 }
-func (mj MockJiraClient) DoTransition(id, idTransition string) error {
+func (mj *MockJiraClient) DoTransition(id, idTransition string) error {
 	ticket, err := mj.GetTicket(id)
 	if err != nil {
 		return err
@@ -87,7 +111,7 @@ func (mj MockJiraClient) DoTransition(id, idTransition string) error {
 	}
 	return nil
 }
-func (mj MockJiraClient) DoTransitionWithResolution(id, idTransition, resolution string) error {
+func (mj *MockJiraClient) DoTransitionWithResolution(id, idTransition, resolution string) error {
 	ticket, err := mj.GetTicket(id)
 	if err != nil {
 		return err
@@ -164,8 +188,10 @@ func setupSubTest(t *testing.T, transitions map[string][]model.Transition) {
 	tickets["TEST-1"] = &model.Ticket{
 		ID:          "1000",
 		Key:         "TEST-1",
+		TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
+		FindingID:   "4c24526d-2651-4873-8024-b27361b69723",
 		Summary:     "Summary TEST-1",
-		Description: "Description TEST-1",
+		Description: generateDescriptionText("Description TEST-1", "4c24526d-2651-4873-8024-b27361b69723", "ff9d5142-0eb3-494a-8626-a72b7182cdb2"),
 		Project:     "TEST",
 		Status:      ToDo,
 		TicketType:  "Vulnerability",
@@ -174,8 +200,10 @@ func setupSubTest(t *testing.T, transitions map[string][]model.Transition) {
 	tickets["TEST-2"] = &model.Ticket{
 		ID:          "1001",
 		Key:         "TEST-2",
+		TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
+		FindingID:   "4c24526d-2651-4873-8024-b27361b69723",
 		Summary:     "Summary TEST-2",
-		Description: "Description TEST-2",
+		Description: generateDescriptionText("Description TEST-2", "4c24526d-2651-4873-8024-b27361b69723", "ff9d5142-0eb3-494a-8626-a72b7182cdb2"),
 		Project:     "TEST",
 		Status:      InProgress,
 		TicketType:  "Vulnerability",
@@ -187,7 +215,7 @@ func setupSubTest(t *testing.T, transitions map[string][]model.Transition) {
 		transitions: transitions,
 	}
 	tc = &TC{
-		Client: jiraClient,
+		Client: &jiraClient,
 		Logger: &mockLogger{},
 	}
 	transitionsDone = []string{}
@@ -207,12 +235,15 @@ func TestGetTicket(t *testing.T) {
 			want: &model.Ticket{
 				ID:          "1000",
 				Key:         "TEST-1",
+				TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
+				FindingID:   "4c24526d-2651-4873-8024-b27361b69723",
 				Summary:     "Summary TEST-1",
-				Description: "Description TEST-1",
+				Description: generateDescriptionText("Description TEST-1", "4c24526d-2651-4873-8024-b27361b69723", "ff9d5142-0eb3-494a-8626-a72b7182cdb2"),
 				Project:     "TEST",
 				Status:      ToDo,
 				TicketType:  "Vulnerability",
 				Labels:      []string{"Vulnerability"},
+				URLTracker:  "/browse/TEST-1",
 			},
 			wantErr: nil,
 		},
@@ -286,14 +317,18 @@ func TestCreateTicket(t *testing.T) {
 		{
 			name: "HappyPath",
 			newTicket: model.Ticket{
-				Summary:     "Summary TEST-1",
-				Description: "Description TEST-1",
+				TeamID:      "11c2c999-14a4-434f-ab02-107e2cc14324",
+				FindingID:   "fcafb55e-f8d4-4a10-b073-149b84554b94",
+				Summary:     "Summary New Ticket",
+				Description: "Description New Ticket",
 				Project:     "TEST",
 				TicketType:  "Vulnerability",
 			},
 			want: &model.Ticket{
-				Summary:     "Summary TEST-1",
-				Description: "Description TEST-1",
+				TeamID:      "11c2c999-14a4-434f-ab02-107e2cc14324",
+				FindingID:   "fcafb55e-f8d4-4a10-b073-149b84554b94",
+				Summary:     "Summary New Ticket",
+				Description: generateDescriptionText("Description New Ticket", "fcafb55e-f8d4-4a10-b073-149b84554b94", "11c2c999-14a4-434f-ab02-107e2cc14324"),
 				Project:     "TEST",
 				Status:      ToDo,
 				TicketType:  "Vulnerability",
@@ -310,7 +345,7 @@ func TestCreateTicket(t *testing.T) {
 			if errToStr(err) != errToStr(tt.wantErr) {
 				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
-			diff := cmp.Diff(got, tt.want, cmpopts.IgnoreFields(model.Ticket{}, "ID", "Key"))
+			diff := cmp.Diff(got, tt.want, cmpopts.IgnoreFields(model.Ticket{}, "ID", "Key", "URLTracker"))
 			if diff != "" {
 				t.Fatalf("ticket does not match expected one. diff: %s\n", diff)
 			}
@@ -339,8 +374,10 @@ func TestFixTicket(t *testing.T) {
 			wantTicket: &model.Ticket{
 				ID:          "1000",
 				Key:         "TEST-1",
+				TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
+				FindingID:   "4c24526d-2651-4873-8024-b27361b69723",
 				Summary:     "Summary TEST-1",
-				Description: "Description TEST-1",
+				Description: generateDescriptionText("Description TEST-1", "4c24526d-2651-4873-8024-b27361b69723", "ff9d5142-0eb3-494a-8626-a72b7182cdb2"),
 				Project:     "TEST",
 				Status:      Resolved,
 				TicketType:  "Vulnerability",
@@ -360,8 +397,10 @@ func TestFixTicket(t *testing.T) {
 			wantTicket: &model.Ticket{
 				ID:          "1001",
 				Key:         "TEST-2",
+				TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
+				FindingID:   "4c24526d-2651-4873-8024-b27361b69723",
 				Summary:     "Summary TEST-2",
-				Description: "Description TEST-2",
+				Description: generateDescriptionText("Description TEST-2", "4c24526d-2651-4873-8024-b27361b69723", "ff9d5142-0eb3-494a-8626-a72b7182cdb2"),
 				Project:     "TEST",
 				Status:      Resolved,
 				TicketType:  "Vulnerability",
@@ -379,8 +418,10 @@ func TestFixTicket(t *testing.T) {
 			wantTicket: &model.Ticket{
 				ID:          "1000",
 				Key:         "TEST-1",
+				TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
+				FindingID:   "4c24526d-2651-4873-8024-b27361b69723",
 				Summary:     "Summary TEST-1",
-				Description: "Description TEST-1",
+				Description: generateDescriptionText("Description TEST-1", "4c24526d-2651-4873-8024-b27361b69723", "ff9d5142-0eb3-494a-8626-a72b7182cdb2"),
 				Project:     "TEST",
 				Status:      Resolved,
 				TicketType:  "Vulnerability",
@@ -398,8 +439,10 @@ func TestFixTicket(t *testing.T) {
 			wantTicket: &model.Ticket{
 				ID:          "1001",
 				Key:         "TEST-2",
+				TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
+				FindingID:   "4c24526d-2651-4873-8024-b27361b69723",
 				Summary:     "Summary TEST-2",
-				Description: "Description TEST-2",
+				Description: generateDescriptionText("Description TEST-2", "4c24526d-2651-4873-8024-b27361b69723", "ff9d5142-0eb3-494a-8626-a72b7182cdb2"),
 				Project:     "TEST",
 				Status:      Resolved,
 				TicketType:  "Vulnerability",
@@ -462,8 +505,10 @@ func TestWontFixTicket(t *testing.T) {
 			wantTicket: &model.Ticket{
 				ID:          "1000",
 				Key:         "TEST-1",
+				TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
+				FindingID:   "4c24526d-2651-4873-8024-b27361b69723",
 				Summary:     "Summary TEST-1",
-				Description: "Description TEST-1",
+				Description: generateDescriptionText("Description TEST-1", "4c24526d-2651-4873-8024-b27361b69723", "ff9d5142-0eb3-494a-8626-a72b7182cdb2"),
 				Project:     "TEST",
 				Status:      Resolved,
 				TicketType:  "Vulnerability",
@@ -483,8 +528,10 @@ func TestWontFixTicket(t *testing.T) {
 			wantTicket: &model.Ticket{
 				ID:          "1001",
 				Key:         "TEST-2",
+				TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
+				FindingID:   "4c24526d-2651-4873-8024-b27361b69723",
 				Summary:     "Summary TEST-2",
-				Description: "Description TEST-2",
+				Description: generateDescriptionText("Description TEST-2", "4c24526d-2651-4873-8024-b27361b69723", "ff9d5142-0eb3-494a-8626-a72b7182cdb2"),
 				Project:     "TEST",
 				Status:      Resolved,
 				TicketType:  "Vulnerability",
@@ -502,8 +549,10 @@ func TestWontFixTicket(t *testing.T) {
 			wantTicket: &model.Ticket{
 				ID:          "1000",
 				Key:         "TEST-1",
+				TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
+				FindingID:   "4c24526d-2651-4873-8024-b27361b69723",
 				Summary:     "Summary TEST-1",
-				Description: "Description TEST-1",
+				Description: generateDescriptionText("Description TEST-1", "4c24526d-2651-4873-8024-b27361b69723", "ff9d5142-0eb3-494a-8626-a72b7182cdb2"),
 				Project:     "TEST",
 				Status:      Resolved,
 				TicketType:  "Vulnerability",
@@ -521,8 +570,10 @@ func TestWontFixTicket(t *testing.T) {
 			wantTicket: &model.Ticket{
 				ID:          "1001",
 				Key:         "TEST-2",
+				TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
+				FindingID:   "4c24526d-2651-4873-8024-b27361b69723",
 				Summary:     "Summary TEST-2",
-				Description: "Description TEST-2",
+				Description: generateDescriptionText("Description TEST-2", "4c24526d-2651-4873-8024-b27361b69723", "ff9d5142-0eb3-494a-8626-a72b7182cdb2"),
 				Project:     "TEST",
 				Status:      Resolved,
 				TicketType:  "Vulnerability",
