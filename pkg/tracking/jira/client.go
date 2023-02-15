@@ -5,10 +5,11 @@ package jira
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"net/http"
 	"strings"
 
-	"github.com/adevinta/vulcan-tracker/pkg/errors"
+	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
 	"github.com/adevinta/vulcan-tracker/pkg/model"
 
 	gojira "github.com/andygrunwald/go-jira"
@@ -77,9 +78,8 @@ func (cl *Client) GetTicket(id string) (*model.Ticket, error) {
 	if err != nil {
 		err = gojira.NewJiraError(resp, err)
 		if strings.Contains(err.Error(), "404") {
-			return nil, &errors.TrackingError{
-				Err:            err,
-				Msg:            fmt.Sprintf("ticket %s not found in Jira", id),
+			return nil, &vterrors.TrackingError{
+				Err:            errors.Wrap(err, fmt.Sprintf("ticket %s not found in Jira", id)),
 				HttpStatusCode: http.StatusNotFound,
 			}
 		}

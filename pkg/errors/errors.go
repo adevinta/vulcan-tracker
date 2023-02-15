@@ -5,12 +5,11 @@ package errors
 
 type TrackingError struct {
 	Err            error
-	Msg            string
 	HttpStatusCode int
 }
 
 func (te *TrackingError) Error() string {
-	return te.Msg
+	return te.Err.Error()
 }
 
 func (te *TrackingError) Unwrap() error {

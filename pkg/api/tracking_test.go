@@ -6,7 +6,6 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -51,7 +50,6 @@ func (mtt *mockTicketTracker) GetTicket(id string) (*model.Ticket, error) {
 	}
 	return nil, &vterrors.TrackingError{
 		Err:            errors.New("ticket not found"),
-		Msg:            fmt.Sprintf("ticket %s not found", id),
 		HttpStatusCode: http.StatusNotFound,
 	}
 }

@@ -50,7 +50,7 @@ func responseError(err error) error {
 	var vterror *vterrors.TrackingError
 
 	if errors.As(err, &vterror) {
-		return echo.NewHTTPError(vterror.HttpStatusCode, vterror.Err.Error())
+		return echo.NewHTTPError(vterror.HttpStatusCode, vterror.Error())
 	}
 	return err
 }
