@@ -42,7 +42,7 @@ type TicketTracker interface {
 
 const jiraKind = "jira"
 
-// GenerateServerClients instanciates a client for every server passed as argument.
+// GenerateServerClients instantiates a client for every server passed as argument.
 func GenerateServerClients(serverConfs []model.TrackerConfig, logger echo.Logger) (map[string]TicketTracker, error) {
 	clients := make(map[string]TicketTracker)
 	for _, server := range serverConfs {

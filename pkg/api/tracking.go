@@ -1,5 +1,5 @@
 /*
-Copyright 2002 Adevinta
+Copyright 2023 Adevinta
 */
 package api
 
@@ -13,7 +13,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// responseError process an correct response.
+// responseError process a correct response.
 func response(c echo.Context, httpStatus int, data interface{}, dataType string, p ...tracking.Pagination) error {
 	if data == nil {
 		return c.NoContent(http.StatusNoContent)
@@ -56,6 +56,13 @@ func responseError(err error) error {
 }
 
 // GetTicket returns a JSON containing a specific ticket.
+// @Summary Return a ticket information.
+// @Description return a ticket information.
+// @Tags root
+// @Accept */*
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Router / [get]
 func (api *API) GetTicket(c echo.Context) error {
 	teamId := c.Param("team_id")
 	id := c.Param("id")
