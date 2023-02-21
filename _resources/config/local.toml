@@ -1,30 +1,30 @@
 [api]
-    max_size = 100
-    default_size = 20
-    port = 8080
+max_size = 100
+default_size = 20
+port = 8080
 
 [log]
-    level = "DEBUG"
+level = "DEBUG"
 
 [postgresql]
-    host = "localhost"
-    port = "5439"
-    user = "vultrackerdb"
-    pass = "vultrackerdb"
-    db = "vultrackerdb"
+host = "localhost"
+port = "5439"
+user = "vultrackerdb"
+pass = "vultrackerdb"
+db = "vultrackerdb"
 
 
 [servers]
-    [servers.example1]
-    url = "http://localhost:8080"
-    user = "jira_user"
-    token = "jira_token"
-    kind = "jira"
+[servers.example1]
+url = "http://localhost:8080"
+user = "jira_user"
+token = "jira_token"
+kind = "jira"
 
 [teams]
-    [teams.example_team]
-    server = "example1"
-    vulnerability_issue_type = "Vulnerability"
-    project = "TEST"
-    fix_workflow = ["ToDo", "In Progress", "Under Review", "Fixed"]
-    wontfix_workflow = ["Won't Fix"]
+[teams.example_team]
+server = "example1"
+vulnerability_issue_type = "Vulnerability"
+project = "TEST"
+fix_workflow = ["ToDo", "In Progress", "Under Review", "Fixed"]
+wontfix_workflow = ["Won't Fix"]
