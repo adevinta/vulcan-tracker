@@ -2,6 +2,8 @@
 
 FROM golang:1.19.3-alpine3.15 as builder
 
+ARG ARCH=amd64
+
 WORKDIR /app
 
 COPY go.mod .
@@ -11,7 +13,7 @@ RUN go mod download
 
 COPY . .
 
-RUN cd cmd/vulcan-tracker && GOOS=linux GOARCH=amd64 go build -tags musl . && cd -
+RUN cd cmd/vulcan-tracker && GOOS=linux GOARCH=$ARCH go build -tags musl . && cd -
 
 FROM alpine:3.17.0
 
@@ -19,7 +21,7 @@ WORKDIR /flyway
 
 RUN apk add --no-cache --update openjdk8-jre-base bash gettext libc6-compat
 
-ARG FLYWAY_VERSION=9.4.0
+ARG FLYWAY_VERSION=9.15.0
 
 RUN wget https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/${FLYWAY_VERSION}/flyway-commandline-${FLYWAY_VERSION}.tar.gz \
     && tar -xzf flyway-commandline-${FLYWAY_VERSION}.tar.gz --strip 1 \
