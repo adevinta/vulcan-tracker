@@ -10,12 +10,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
+
 	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
 	"github.com/adevinta/vulcan-tracker/pkg/model"
 	"github.com/adevinta/vulcan-tracker/pkg/storage"
 	"github.com/adevinta/vulcan-tracker/pkg/tracking"
-	"github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/assert"
 )
 
 const (

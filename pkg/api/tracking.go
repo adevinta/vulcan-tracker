@@ -7,10 +7,11 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/labstack/echo/v4"
+
 	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
 	"github.com/adevinta/vulcan-tracker/pkg/model"
 	"github.com/adevinta/vulcan-tracker/pkg/tracking"
-	"github.com/labstack/echo/v4"
 )
 
 // responseError process a correct response.

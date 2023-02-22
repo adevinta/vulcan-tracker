@@ -7,16 +7,17 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/adevinta/vulcan-tracker/pkg/storage/postgresql"
 	"log"
 	"strings"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 
 	"github.com/adevinta/vulcan-tracker/pkg/api"
 	"github.com/adevinta/vulcan-tracker/pkg/config"
 	"github.com/adevinta/vulcan-tracker/pkg/storage"
+	"github.com/adevinta/vulcan-tracker/pkg/storage/postgresql"
 	"github.com/adevinta/vulcan-tracker/pkg/tracking"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {

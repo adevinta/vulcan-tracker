@@ -5,10 +5,11 @@ Copyright 2022 Adevinta
 package config
 
 import (
-	"github.com/adevinta/vulcan-tracker/pkg/storage/postgresql"
 	"io"
 	"os"
 	"strconv"
+
+	"github.com/adevinta/vulcan-tracker/pkg/storage/postgresql"
 
 	"github.com/BurntSushi/toml"
 	"github.com/labstack/gommon/log"
