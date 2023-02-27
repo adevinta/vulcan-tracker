@@ -33,23 +33,13 @@ func main() {
 
 	e.Logger.SetLevel(config.ParseLogLvl(cfg.Log.Level))
 
-	// TODO: Decide which is the type of storage.
-	ticketServerStorage, err := storage.New(cfg.Servers, cfg.Teams)
+	// TODO: Decide which is the type of storage for servers configurations.
+	ticketServerStorage, err := storage.New(cfg.Servers, cfg.Projects)
 	if err != nil {
 		e.Logger.Fatalf("Error initializing storage: %w", err)
 	}
 
-	serversConf, err := ticketServerStorage.ServersConf()
-	if err != nil {
-		e.Logger.Fatal(err)
-	}
-
-	// Generate a client for each type of tracker.
-	trackerServers, err := tracking.GenerateServerClients(serversConf, e.Logger)
-	if err != nil {
-		e.Logger.Fatal(err)
-	}
-
+	// Database connection.
 	cfgPSQL := cfg.PSQL
 	cfgPSQLRead := cfg.PSQLRead
 	// If we don't have defined the read replica we use the read write one.
@@ -61,7 +51,10 @@ func main() {
 		e.Logger.Fatal(err)
 	}
 
-	a := api.New(trackerServers, ticketServerStorage, db, api.Options{
+	// Builder for the ticket tracker clients.
+	ticketTrackerBuilder := tracking.TTBuilder{}
+
+	a := api.New(ticketServerStorage, &ticketTrackerBuilder, db, api.Options{
 		MaxSize:     cfg.API.MaxSize,
 		DefaultSize: cfg.API.DefaultSize,
 	})

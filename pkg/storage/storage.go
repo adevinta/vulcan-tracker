@@ -7,8 +7,8 @@ import "github.com/adevinta/vulcan-tracker/pkg/model"
 
 type TicketServerStorage interface {
 	ServersConf() ([]model.TrackerConfig, error)
-	ProjectsConfig() ([]model.ProjectConfig, error)
-	ProjectConfig(name string) (*model.ProjectConfig, error)
+	ServerConf(serverID string) (*model.TrackerConfig, error)
+	ProjectConfigByTeamID(teamID string) (*model.ProjectConfig, error)
 }
 
 type Storage interface {

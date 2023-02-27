@@ -35,6 +35,7 @@ type Transition struct {
 
 // TrackerConfig represents the configuration of a ticket tracker server.
 type TrackerConfig struct {
+	ID   string
 	Name string
 	Url  string
 	User string
@@ -44,8 +45,10 @@ type TrackerConfig struct {
 
 // ProjectConfig represents the configuration of a team.
 type ProjectConfig struct {
+	ID                     string
 	Name                   string
-	ServerName             string
+	TeamID                 string
+	ServerID               string
 	Project                string
 	VulnerabilityIssueType string
 	FixedWorkflow          []string

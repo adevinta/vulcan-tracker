@@ -16,14 +16,17 @@ import (
 )
 
 type Server struct {
+	Name  string `toml:"name"`
 	Url   string `toml:"url"`
 	User  string `toml:"user"`
 	Token string `toml:"token"`
 	Kind  string `toml:"kind"`
 }
 
-type Team struct {
-	Server                 string   `toml:"server"`
+type Project struct {
+	Name                   string   `toml:"name"`
+	ServerID               string   `toml:"server_id"`
+	TeamID                 string   `toml:"team_id"`
 	Project                string   `toml:"project"`
 	VulnerabilityIssueType string   `toml:"vulnerability_issue_type"`
 	FixWorkflow            []string `toml:"fix_workflow"`
@@ -33,7 +36,7 @@ type Team struct {
 type Config struct {
 	API      apiConfig          `toml:"api"`
 	Servers  map[string]Server  `toml:"servers"`
-	Teams    map[string]Team    `toml:"teams"`
+	Projects map[string]Project `toml:"projects"`
 	Log      logConfig          `toml:"log"`
 	PSQL     postgresql.ConnStr `toml:"postgresql"`
 	PSQLRead postgresql.ConnStr `toml:"postgresql_read"`

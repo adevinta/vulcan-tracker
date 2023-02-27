@@ -12,10 +12,10 @@ import (
 )
 
 type API struct {
-	trackingServers     map[string]tracking.TicketTracker
-	ticketServerStorage storage.TicketServerStorage
-	storage             storage.Storage
-	Options             Options
+	ticketServerStorage  storage.TicketServerStorage
+	ticketTrackerBuilder tracking.TicketTrackerBuilder
+	storage              storage.Storage
+	Options              Options
 }
 
 type Options struct {
@@ -54,11 +54,12 @@ var (
 )
 
 // New instantiates a new API.
-func New(trackingServers map[string]tracking.TicketTracker, ticketServerStorage storage.TicketServerStorage, storage storage.Storage, options Options) *API {
+func New(ticketServerStorage storage.TicketServerStorage, ticketTrackerBuilder tracking.TicketTrackerBuilder,
+	storage storage.Storage, options Options) *API {
 	return &API{
-		trackingServers:     trackingServers,
-		ticketServerStorage: ticketServerStorage,
-		storage:             storage,
-		Options:             options,
+		ticketServerStorage:  ticketServerStorage,
+		ticketTrackerBuilder: ticketTrackerBuilder,
+		storage:              storage,
+		Options:              options,
 	}
 }

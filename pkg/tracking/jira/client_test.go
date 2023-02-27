@@ -160,6 +160,7 @@ func TestClient_Get(t *testing.T) {
 			if errToStr(err) != errToStr(tt.wantErr) {
 				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
+
 			diff := cmp.Diff(got, tt.want)
 			if diff != "" {
 				t.Fatalf("ticket does not match expected one. diff: %s\n", diff)

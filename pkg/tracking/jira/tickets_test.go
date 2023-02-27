@@ -45,7 +45,7 @@ func (mj *MockJiraClient) GetTicket(id string) (*model.Ticket, error) {
 		return value, nil
 	}
 	return nil, &vterrors.TrackingError{
-		Err:            fmt.Errorf("Ticket %s not found", id),
+		Msg:            fmt.Sprintf("ticket %s not found", id),
 		HttpStatusCode: http.StatusNotFound,
 	}
 }
@@ -119,7 +119,7 @@ func (mj *MockJiraClient) DoTransitionWithResolution(id, idTransition, resolutio
 	}
 	transitions, ok := mj.transitions[ticket.Status]
 	if !ok {
-		return fmt.Errorf("Transitions for %s not found.", id)
+		return fmt.Errorf("transitions for %s not found.", id)
 	}
 
 	for _, transition := range transitions {
@@ -252,7 +252,7 @@ func TestGetTicket(t *testing.T) {
 			name:     "KeyNotFound",
 			ticketId: "NOTFOUND",
 			want:     nil,
-			wantErr:  errors.New("Ticket NOTFOUND not found"),
+			wantErr:  errors.New("ticket NOTFOUND not found"),
 		},
 	}
 
@@ -462,7 +462,7 @@ func TestFixTicket(t *testing.T) {
 			transitions:     transitions,
 			wantTicket:      nil,
 			wantTransitions: []string{},
-			wantErr:         errors.New("Ticket NOTFOUND not found"),
+			wantErr:         errors.New("ticket NOTFOUND not found"),
 		},
 	}
 
@@ -593,7 +593,7 @@ func TestWontFixTicket(t *testing.T) {
 			transitions:     transitions,
 			wantTicket:      nil,
 			wantTransitions: []string{},
-			wantErr:         errors.New("Ticket NOTFOUND not found"),
+			wantErr:         errors.New("ticket NOTFOUND not found"),
 		},
 	}
 

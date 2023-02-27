@@ -15,15 +15,18 @@ db = "vultrackerdb"
 
 
 [servers]
-[servers.example1]
+[servers.example1_id]
+name = "example1"
 url = "http://localhost:8080"
 user = "jira_user"
 token = "jira_token"
 kind = "jira"
 
-[teams]
-[teams.example_team]
-server = "example1"
+[projects]
+[projects.example_project_id]
+name = "example_project"
+server_id = "example1ID"
+team_id = "1234-123214-12412-123421"
 vulnerability_issue_type = "Vulnerability"
 project = "TEST"
 fix_workflow = ["ToDo", "In Progress", "Under Review", "Fixed"]

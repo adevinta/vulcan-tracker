@@ -28,7 +28,8 @@ func TestServersConf(t *testing.T) {
 		{
 			name: "HappyPath",
 			servers: map[string]config.Server{
-				"example1": {
+				"example1_id": {
+					Name:  "example1",
 					Url:   "http://localhost:8080",
 					User:  "jira_user",
 					Token: "jira_token",
@@ -37,6 +38,7 @@ func TestServersConf(t *testing.T) {
 			},
 			want: []model.TrackerConfig{
 				{
+					ID:   "example1_id",
 					Name: "example1",
 					Url:  "http://localhost:8080",
 					User: "jira_user",
@@ -66,60 +68,12 @@ func TestServersConf(t *testing.T) {
 	}
 }
 
-func TestProjectsConfig(t *testing.T) {
-	tests := []struct {
-		name    string
-		teams   map[string]config.Team
-		want    []model.ProjectConfig
-		wantErr error
-	}{
-		{
-			name: "HappyPath",
-			teams: map[string]config.Team{
-				"example_team": {
-					Server:                 "example1",
-					Project:                "TEST",
-					VulnerabilityIssueType: "Vulnerability",
-					FixWorkflow:            []string{"ToDo", "In Progress", "Under Review", "Fixed"},
-					WontFixWorkflow:        []string{"Won't Fix"},
-				},
-			},
-			want: []model.ProjectConfig{
-				{
-					Name:                   "example_team",
-					ServerName:             "example1",
-					Project:                "TEST",
-					VulnerabilityIssueType: "Vulnerability",
-					FixedWorkflow:          []string{"ToDo", "In Progress", "Under Review", "Fixed"},
-					WontFixWorkflow:        []string{"Won't Fix"},
-				},
-			},
-
-			wantErr: nil,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tc := TOMLStore{teams: tt.teams}
-			got, err := tc.ProjectsConfig()
-
-			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
-			}
-			diff := cmp.Diff(got, tt.want)
-			if diff != "" {
-				t.Fatalf("the teams do not match expected ones. diff: %v\n", diff)
-			}
-		})
-	}
-
-}
-
 func TestProjectConfig(t *testing.T) {
-	teams := map[string]config.Team{
-		"example_team": {
-			Server:                 "example1",
+	projects := map[string]config.Project{
+		"example_project_id": {
+			ServerID:               "example_server_id",
+			Name:                   "example_team_name",
+			TeamID:                 "example_team",
 			Project:                "TEST",
 			VulnerabilityIssueType: "Vulnerability",
 			FixWorkflow:            []string{"ToDo", "In Progress", "Under Review", "Fixed"},
@@ -137,8 +91,9 @@ func TestProjectConfig(t *testing.T) {
 			name:   "HappyPath",
 			teamId: "example_team",
 			want: &model.ProjectConfig{
-				Name:                   "example_team",
-				ServerName:             "example1",
+				ID:                     "example_project_id",
+				Name:                   "example_team_name",
+				ServerID:               "example_server_id",
 				Project:                "TEST",
 				VulnerabilityIssueType: "Vulnerability",
 				FixedWorkflow:          []string{"ToDo", "In Progress", "Under Review", "Fixed"},
@@ -150,7 +105,7 @@ func TestProjectConfig(t *testing.T) {
 			name:    "Notfound",
 			teamId:  "noteam",
 			want:    nil,
-			wantErr: errors.New("team noteam not found in toml configuration"),
+			wantErr: errors.New("project not found in toml configuration for the team noteam"),
 		},
 	}
 
@@ -158,16 +113,16 @@ func TestProjectConfig(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			tc := TOMLStore{
-				teams: teams,
+				projects: projects,
 			}
-			got, err := tc.ProjectConfig(tt.teamId)
+			got, err := tc.ProjectConfigByTeamID(tt.teamId)
 
 			if errToStr(err) != errToStr(tt.wantErr) {
 				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(got, tt.want)
 			if diff != "" {
-				t.Fatalf("the team does not match expected one. diff: %v\n", diff)
+				t.Fatalf("the project does not match expected one. diff: %v\n", diff)
 			}
 		})
 	}

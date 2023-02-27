@@ -5,7 +5,6 @@ package jira
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"net/http"
 	"strings"
 
@@ -79,7 +78,8 @@ func (cl *Client) GetTicket(id string) (*model.Ticket, error) {
 		err = gojira.NewJiraError(resp, err)
 		if strings.Contains(err.Error(), "404") {
 			return nil, &vterrors.TrackingError{
-				Err:            errors.Wrap(err, fmt.Sprintf("ticket %s not found in Jira", id)),
+				Msg:            fmt.Sprintf("ticket %s not found in Jira", id),
+				Err:            err,
 				HttpStatusCode: http.StatusNotFound,
 			}
 		}

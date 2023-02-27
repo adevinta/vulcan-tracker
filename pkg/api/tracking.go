@@ -57,26 +57,16 @@ func responseError(err error) error {
 }
 
 // GetTicket returns a JSON containing a specific ticket.
-// @Summary Return a ticket information.
-// @Description return a ticket information.
-// @Tags root
-// @Accept */*
-// @Produce json
-// @Success 200 {object} map[string]interface{}
-// @Router / [get]
 func (api *API) GetTicket(c echo.Context) error {
 	teamId := c.Param("team_id")
 	id := c.Param("id")
 
-	// Get the server and the configuration for the teamId.
-	configuration, err := api.ticketServerStorage.ProjectConfig(teamId)
+	// Get a ticket tracker client.
+	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServerStorage, teamId, c.Logger())
 	if err != nil {
-		return err
+		return responseError(err)
 	}
-
-	serverName := configuration.ServerName
-
-	ticket, err := api.trackingServers[serverName].GetTicket(id)
+	ticket, err := ttClient.GetTicket(id)
 	if err != nil {
 		return responseError(err)
 	}
@@ -95,7 +85,7 @@ func (api *API) CreateTicket(c echo.Context) error {
 	}
 
 	// Get the server and the configuration for the teamId.
-	configuration, err := api.ticketServerStorage.ProjectConfig(teamId)
+	configuration, err := api.ticketServerStorage.ProjectConfigByTeamID(teamId)
 	if err != nil {
 		return err
 	}
@@ -104,17 +94,21 @@ func (api *API) CreateTicket(c echo.Context) error {
 	ticket.TeamID = teamId
 	ticket.Project = configuration.Project
 	ticket.TicketType = configuration.VulnerabilityIssueType
-	serverName := configuration.ServerName
 
 	// Check if the ticket exists.
-	var findingTicket model.FindingTicket
-	findingTicket, err = api.storage.GetFindingTicket(ticket.FindingID, ticket.TeamID)
+	findingTicket, err := api.storage.GetFindingTicket(ticket.FindingID, ticket.TeamID)
 	if findingTicket.ID != "" {
 		return echo.NewHTTPError(http.StatusConflict, "The ticket for this finding and team already exists.")
 	}
 
+	// Get a ticket tracker client.
+	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServerStorage, teamId, c.Logger())
+	if err != nil {
+		return responseError(err)
+	}
+
 	// Create the ticket in the tracker tool.
-	ticket, err = api.trackingServers[serverName].CreateTicket(ticket)
+	ticket, err = ttClient.CreateTicket(ticket)
 	if err != nil {
 		return responseError(err)
 	}
@@ -134,14 +128,18 @@ func (api *API) FixTicket(c echo.Context) error {
 	id := c.Param("id")
 
 	// Get the server and the configuration for the teamId.
-	configuration, err := api.ticketServerStorage.ProjectConfig(teamId)
+	configuration, err := api.ticketServerStorage.ProjectConfigByTeamID(teamId)
 	if err != nil {
 		return err
 	}
 
-	serverName := configuration.ServerName
+	// Get a ticket tracker client.
+	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServerStorage, teamId, c.Logger())
+	if err != nil {
+		return responseError(err)
+	}
 
-	ticket, err := api.trackingServers[serverName].FixTicket(id, configuration.FixedWorkflow)
+	ticket, err := ttClient.FixTicket(id, configuration.FixedWorkflow)
 	if err != nil {
 		return responseError(err)
 	}
@@ -165,14 +163,17 @@ func (api *API) WontFixTicket(c echo.Context) error {
 	}
 
 	// Get the server and the configuration for the teamId.
-	configuration, err := api.ticketServerStorage.ProjectConfig(teamId)
+	configuration, err := api.ticketServerStorage.ProjectConfigByTeamID(teamId)
 	if err != nil {
 		return err
 	}
 
-	serverName := configuration.ServerName
-
-	ticket, err := api.trackingServers[serverName].WontFixTicket(id, configuration.WontFixWorkflow, form.Reason)
+	// Get a ticket tracker client.
+	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServerStorage, teamId, c.Logger())
+	if err != nil {
+		return responseError(err)
+	}
+	ticket, err := ttClient.WontFixTicket(id, configuration.WontFixWorkflow, form.Reason)
 	if err != nil {
 		return responseError(err)
 	}

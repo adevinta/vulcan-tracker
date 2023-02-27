@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/adevinta/vulcan-tracker/pkg/model"
+	"github.com/adevinta/vulcan-tracker/pkg/storage"
 	"github.com/adevinta/vulcan-tracker/pkg/tracking/jira"
 	"github.com/labstack/echo/v4"
 )
@@ -62,4 +63,47 @@ func GenerateServerClients(serverConfs []model.TrackerConfig, logger echo.Logger
 
 	}
 	return clients, nil
+}
+
+// NewServerClient instantiates a client for every server passed as argument.
+func NewServerClient(url, user, pass, kind string, logger echo.Logger) (*TicketTracker, error) {
+	var client TicketTracker
+	var err error
+
+	switch kind := strings.ToLower(kind); kind {
+	case jiraKind:
+		client, err = jira.New(url, user, pass, logger)
+	}
+	// TODO: More kind of trackers coming in the future
+	if err != nil {
+		return nil, err
+	}
+
+	return &client, nil
+}
+
+type TicketTrackerBuilder interface {
+	GenerateTicketTrackerClient(storage storage.TicketServerStorage, teamId string, logger echo.Logger) (TicketTracker, error)
+}
+
+type TTBuilder struct {
+}
+
+func (ttb *TTBuilder) GenerateTicketTrackerClient(storage storage.TicketServerStorage, teamId string, logger echo.Logger) (TicketTracker, error) {
+	projectConfig, err := storage.ProjectConfigByTeamID(teamId)
+	if err != nil {
+		return nil, err
+	}
+	var serverConf *model.TrackerConfig
+	serverConf, err = storage.ServerConf(projectConfig.ServerID)
+	if err != nil {
+		return nil, err
+	}
+
+	var ttClient *TicketTracker
+	ttClient, err = NewServerClient(serverConf.Url, serverConf.User, serverConf.Pass, serverConf.Kind, logger)
+	if err != nil {
+		return nil, err
+	}
+	return *ttClient, nil
 }
