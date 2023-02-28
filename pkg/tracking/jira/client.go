@@ -14,6 +14,7 @@ import (
 	gojira "github.com/andygrunwald/go-jira"
 )
 
+// Issuer manages all the operations related with the ticket tracker issues.
 type Issuer interface {
 	Get(issueID string, options *gojira.GetQueryOptions) (*gojira.Issue, *gojira.Response, error)
 	Search(jql string, options *gojira.SearchOptions) ([]gojira.Issue, *gojira.Response, error)
@@ -23,6 +24,7 @@ type Issuer interface {
 	DoTransitionWithPayload(ticketID, payload interface{}) (*gojira.Response, error)
 }
 
+// Client represents a specific Jira client.
 type Client struct {
 	c *gojira.Client
 	Issuer
@@ -80,7 +82,7 @@ func (cl *Client) GetTicket(id string) (*model.Ticket, error) {
 			return nil, &vterrors.TrackingError{
 				Msg:            fmt.Sprintf("ticket %s not found in Jira", id),
 				Err:            err,
-				HttpStatusCode: http.StatusNotFound,
+				HTTPStatusCode: http.StatusNotFound,
 			}
 		}
 		return nil, err

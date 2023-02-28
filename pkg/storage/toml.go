@@ -32,7 +32,7 @@ func (ts *TOMLStore) ServersConf() ([]model.TrackerConfig, error) {
 		serverConf := model.TrackerConfig{
 			ID:   serverID,
 			Name: server.Name,
-			Url:  server.Url,
+			URL:  server.URL,
 			User: server.User,
 			Pass: server.Token,
 			Kind: server.Kind,
@@ -52,7 +52,7 @@ func (ts *TOMLStore) ServerConf(serverID string) (*model.TrackerConfig, error) {
 
 	serverConf := model.TrackerConfig{
 		Name: server.Name,
-		Url:  server.Url,
+		URL:  server.URL,
 		User: server.User,
 		Pass: server.Token,
 		Kind: server.Kind,

@@ -62,7 +62,7 @@ func (mtt *mockTicketTracker) GetTicket(id string) (*model.Ticket, error) {
 	}
 	return nil, &vterrors.TrackingError{
 		Msg:            "ticket not found",
-		HttpStatusCode: http.StatusNotFound,
+		HTTPStatusCode: http.StatusNotFound,
 	}
 }
 
@@ -70,13 +70,13 @@ type mockStorage struct {
 	storage.TicketServerStorage
 }
 
-func (ms *mockStorage) ProjectConfigByTeamID(teamId string) (*model.ProjectConfig, error) {
+func (ms *mockStorage) ProjectConfigByTeamID(_ string) (*model.ProjectConfig, error) {
 	return &model.ProjectConfig{
 		ServerID: "test_server",
 	}, nil
 }
 
-func (ms *mockStorage) ServerConf(name string) (*model.TrackerConfig, error) {
+func (ms *mockStorage) ServerConf(_ string) (*model.TrackerConfig, error) {
 	return &model.TrackerConfig{
 		ID: "ServerID",
 	}, nil
@@ -85,8 +85,8 @@ func (ms *mockStorage) ServerConf(name string) (*model.TrackerConfig, error) {
 type mockTicketTrackerBuilder struct {
 }
 
-func (mttb *mockTicketTrackerBuilder) GenerateTicketTrackerClient(storage storage.TicketServerStorage,
-	teamId string, logger echo.Logger) (tracking.TicketTracker, error) {
+func (mttb *mockTicketTrackerBuilder) GenerateTicketTrackerClient(_ storage.TicketServerStorage,
+	_ string, _ echo.Logger) (tracking.TicketTracker, error) {
 	return &mockTicketTracker{}, nil
 
 }

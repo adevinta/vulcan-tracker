@@ -15,14 +15,16 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
+// Server represents the credentials to access a ticket tracker server.
 type Server struct {
 	Name  string `toml:"name"`
-	Url   string `toml:"url"`
+	URL   string `toml:"url"`
 	User  string `toml:"user"`
 	Token string `toml:"token"`
 	Kind  string `toml:"kind"`
 }
 
+// Project represents a project in the ticket tracker tool and its relationship with a team.
 type Project struct {
 	Name                   string   `toml:"name"`
 	ServerID               string   `toml:"server_id"`
@@ -33,6 +35,7 @@ type Project struct {
 	WontFixWorkflow        []string `toml:"wontfix_workflow"`
 }
 
+// Config represents all the configuration needed to run the project.
 type Config struct {
 	API      apiConfig          `toml:"api"`
 	Servers  map[string]Server  `toml:"servers"`
@@ -51,6 +54,7 @@ type logConfig struct {
 	Level string `toml:"level"`
 }
 
+// ParseConfig parses de config file and set default values when it is needed.
 func ParseConfig(cfgFilePath string) (*Config, error) {
 	cfgFile, err := os.Open(cfgFilePath)
 	if err != nil {
@@ -94,6 +98,7 @@ func ParseConfig(cfgFilePath string) (*Config, error) {
 	return &conf, nil
 }
 
+// ParseLogLvl parses the level of a log from a string to a log.Lvl object.
 func ParseLogLvl(lvl string) log.Lvl {
 	switch lvl {
 	case "ERROR":

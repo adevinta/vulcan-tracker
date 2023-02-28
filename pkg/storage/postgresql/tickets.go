@@ -12,6 +12,7 @@ import (
 	"github.com/lib/pq"
 )
 
+// FindingTicket represents
 type FindingTicket struct {
 	model.FindingTicket
 	CreatedAt pq.NullTime `db:"created_at"`

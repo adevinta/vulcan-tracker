@@ -20,6 +20,7 @@ type Ticket struct {
 	URLTracker  string   `json:"url_tracker"`
 }
 
+// FindingTicket represents a ticket for a finding and a team.
 type FindingTicket struct {
 	ID         string `json:"id" db:"id"`
 	FindingID  string `json:"finding_id" db:"finding_id"`
@@ -37,7 +38,7 @@ type Transition struct {
 type TrackerConfig struct {
 	ID   string
 	Name string
-	Url  string
+	URL  string
 	User string
 	Pass string
 	Kind string

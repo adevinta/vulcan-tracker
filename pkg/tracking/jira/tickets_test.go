@@ -35,7 +35,7 @@ type mockLogger struct {
 	echo.Logger
 }
 
-func (l *mockLogger) Errorf(format string, args ...interface{}) {
+func (l *mockLogger) Errorf(_ string, _ ...interface{}) {
 	// Do nothing logger
 }
 
@@ -46,7 +46,7 @@ func (mj *MockJiraClient) GetTicket(id string) (*model.Ticket, error) {
 	}
 	return nil, &vterrors.TrackingError{
 		Msg:            fmt.Sprintf("ticket %s not found", id),
-		HttpStatusCode: http.StatusNotFound,
+		HTTPStatusCode: http.StatusNotFound,
 	}
 }
 
@@ -90,7 +90,7 @@ func (mj *MockJiraClient) GetTicketTransitions(id string) ([]model.Transition, e
 	if ok {
 		return transitions, nil
 	}
-	return nil, fmt.Errorf("Transitions for %s not found.", id)
+	return nil, fmt.Errorf("transitions for %s not found", id)
 
 }
 func (mj *MockJiraClient) DoTransition(id, idTransition string) error {
@@ -100,7 +100,7 @@ func (mj *MockJiraClient) DoTransition(id, idTransition string) error {
 	}
 	transitions, ok := mj.transitions[ticket.Status]
 	if !ok {
-		return fmt.Errorf("Transitions for %s not found.", id)
+		return fmt.Errorf("transitions for %s not found", id)
 	}
 
 	for _, transition := range transitions {
@@ -119,7 +119,7 @@ func (mj *MockJiraClient) DoTransitionWithResolution(id, idTransition, resolutio
 	}
 	transitions, ok := mj.transitions[ticket.Status]
 	if !ok {
-		return fmt.Errorf("transitions for %s not found.", id)
+		return fmt.Errorf("transitions for %s not found", id)
 	}
 
 	for _, transition := range transitions {
@@ -140,7 +140,7 @@ func errToStr(err error) string {
 var (
 	tc              *TC
 	transitionsDone []string
-	transitions     map[string][]model.Transition = map[string][]model.Transition{
+	transitions     = map[string][]model.Transition{
 		ToDo: {
 			{
 				ID:     "1001",
@@ -158,7 +158,7 @@ var (
 			},
 		},
 	}
-	trResolveFromAnyStatus map[string][]model.Transition = map[string][]model.Transition{
+	trResolveFromAnyStatus = map[string][]model.Transition{
 		ToDo: {
 			{
 				ID:     "1001",
@@ -226,13 +226,13 @@ func setupSubTest(t *testing.T, transitions map[string][]model.Transition) {
 func TestGetTicket(t *testing.T) {
 	tests := []struct {
 		name     string
-		ticketId string
+		ticketID string
 		want     *model.Ticket
 		wantErr  error
 	}{
 		{
 			name:     "HappyPath",
-			ticketId: "TEST-1",
+			ticketID: "TEST-1",
 			want: &model.Ticket{
 				ID:          "1000",
 				Key:         "TEST-1",
@@ -250,7 +250,7 @@ func TestGetTicket(t *testing.T) {
 		},
 		{
 			name:     "KeyNotFound",
-			ticketId: "NOTFOUND",
+			ticketID: "NOTFOUND",
 			want:     nil,
 			wantErr:  errors.New("ticket NOTFOUND not found"),
 		},
@@ -260,7 +260,7 @@ func TestGetTicket(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			setupSubTest(t, transitions)
 
-			got, err := tc.GetTicket(tt.ticketId)
+			got, err := tc.GetTicket(tt.ticketID)
 			if errToStr(err) != errToStr(tt.wantErr) {
 				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
@@ -275,13 +275,13 @@ func TestGetTicket(t *testing.T) {
 func TestGetTicketTransition(t *testing.T) {
 	tests := []struct {
 		name     string
-		ticketId string
+		ticketID string
 		want     []model.Transition
 		wantErr  error
 	}{
 		{
 			name:     "HappyPath",
-			ticketId: "TEST-1",
+			ticketID: "TEST-1",
 			want: []model.Transition{
 				{
 					ID:     "1001",
@@ -296,7 +296,7 @@ func TestGetTicketTransition(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			setupSubTest(t, transitions)
 
-			got, err := tc.GetTransitions(tt.ticketId)
+			got, err := tc.GetTransitions(tt.ticketID)
 			if errToStr(err) != errToStr(tt.wantErr) {
 				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
@@ -358,7 +358,7 @@ func TestCreateTicket(t *testing.T) {
 func TestFixTicket(t *testing.T) {
 	tests := []struct {
 		name            string
-		ticketId        string
+		ticketID        string
 		fixedWorkflow   []string
 		transitions     map[string][]model.Transition
 		wantTicket      *model.Ticket
@@ -367,7 +367,7 @@ func TestFixTicket(t *testing.T) {
 	}{
 		{
 			name:     "ResolveFromTodo",
-			ticketId: "TEST-1",
+			ticketID: "TEST-1",
 			fixedWorkflow: []string{
 				ToDo, InProgress, Resolved,
 			},
@@ -390,7 +390,7 @@ func TestFixTicket(t *testing.T) {
 		},
 		{
 			name:     "FixInProgress",
-			ticketId: "TEST-2",
+			ticketID: "TEST-2",
 			fixedWorkflow: []string{
 				ToDo, InProgress, Resolved,
 			},
@@ -413,7 +413,7 @@ func TestFixTicket(t *testing.T) {
 		},
 		{
 			name:          "ResolveFromToDoClassicWorkflow",
-			ticketId:      "TEST-1",
+			ticketID:      "TEST-1",
 			fixedWorkflow: []string{Resolved},
 			transitions:   trResolveFromAnyStatus,
 			wantTicket: &model.Ticket{
@@ -434,7 +434,7 @@ func TestFixTicket(t *testing.T) {
 		},
 		{
 			name:          "ResolveFromInProgressClassicWorkflow",
-			ticketId:      "TEST-2",
+			ticketID:      "TEST-2",
 			fixedWorkflow: []string{Resolved},
 			transitions:   trResolveFromAnyStatus,
 			wantTicket: &model.Ticket{
@@ -455,7 +455,7 @@ func TestFixTicket(t *testing.T) {
 		},
 		{
 			name:     "FixTicketNotFound",
-			ticketId: "NOTFOUND",
+			ticketID: "NOTFOUND",
 			fixedWorkflow: []string{
 				ToDo, InProgress, Resolved,
 			},
@@ -470,7 +470,7 @@ func TestFixTicket(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			setupSubTest(t, tt.transitions)
 
-			got, err := tc.FixTicket(tt.ticketId, tt.fixedWorkflow)
+			got, err := tc.FixTicket(tt.ticketID, tt.fixedWorkflow)
 			if errToStr(err) != errToStr(tt.wantErr) {
 				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
@@ -489,7 +489,7 @@ func TestFixTicket(t *testing.T) {
 func TestWontFixTicket(t *testing.T) {
 	tests := []struct {
 		name              string
-		ticketId          string
+		ticketID          string
 		wontfixedWorkflow []string
 		transitions       map[string][]model.Transition
 		wantTicket        *model.Ticket
@@ -498,7 +498,7 @@ func TestWontFixTicket(t *testing.T) {
 	}{
 		{
 			name:     "WontFixFromToDo",
-			ticketId: "TEST-1",
+			ticketID: "TEST-1",
 			wontfixedWorkflow: []string{
 				ToDo, InProgress, Resolved,
 			},
@@ -521,7 +521,7 @@ func TestWontFixTicket(t *testing.T) {
 		},
 		{
 			name:     "WontFixInProgress",
-			ticketId: "TEST-2",
+			ticketID: "TEST-2",
 			wontfixedWorkflow: []string{
 				ToDo, InProgress, Resolved,
 			},
@@ -544,7 +544,7 @@ func TestWontFixTicket(t *testing.T) {
 		},
 		{
 			name:              "WontFixFromToDoClassicWorkflow",
-			ticketId:          "TEST-1",
+			ticketID:          "TEST-1",
 			wontfixedWorkflow: []string{Resolved},
 			transitions:       trResolveFromAnyStatus,
 			wantTicket: &model.Ticket{
@@ -565,7 +565,7 @@ func TestWontFixTicket(t *testing.T) {
 		},
 		{
 			name:              "WontFixInProgressClassicWorkflow",
-			ticketId:          "TEST-2",
+			ticketID:          "TEST-2",
 			wontfixedWorkflow: []string{Resolved},
 			transitions:       trResolveFromAnyStatus,
 			wantTicket: &model.Ticket{
@@ -586,7 +586,7 @@ func TestWontFixTicket(t *testing.T) {
 		},
 		{
 			name:     "WontFixInProgressTicket",
-			ticketId: "NOTFOUND",
+			ticketID: "NOTFOUND",
 			wontfixedWorkflow: []string{
 				ToDo, InProgress, Resolved,
 			},
@@ -601,7 +601,7 @@ func TestWontFixTicket(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			setupSubTest(t, tt.transitions)
 
-			got, err := tc.WontFixTicket(tt.ticketId, tt.wontfixedWorkflow, "Decision Taken")
+			got, err := tc.WontFixTicket(tt.ticketID, tt.wontfixedWorkflow, "Decision Taken")
 			if errToStr(err) != errToStr(tt.wantErr) {
 				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}

@@ -21,7 +21,7 @@ type MockIssueService struct {
 }
 
 // Get retrieves a ticket by issueID.
-func (mis *MockIssueService) Get(issueID string, options *gojira.GetQueryOptions) (*gojira.Issue, *gojira.Response, error) {
+func (mis *MockIssueService) Get(issueID string, _ *gojira.GetQueryOptions) (*gojira.Issue, *gojira.Response, error) {
 	value, ok := mis.tickets[issueID]
 	if ok {
 		return &value, nil, nil
@@ -30,7 +30,7 @@ func (mis *MockIssueService) Get(issueID string, options *gojira.GetQueryOptions
 }
 
 // Search tries to find a ticket.
-func (mis *MockIssueService) Search(jql string, options *gojira.SearchOptions) ([]gojira.Issue, *gojira.Response, error) {
+func (mis *MockIssueService) Search(jql string, _ *gojira.SearchOptions) ([]gojira.Issue, *gojira.Response, error) {
 
 	splitted := strings.Split(jql, " ")
 	project := strings.Split(splitted[0], "=")[1]
@@ -126,13 +126,13 @@ func setupSubTestClient(t *testing.T) {
 func TestClient_Get(t *testing.T) {
 	tests := []struct {
 		name     string
-		ticketId string
+		ticketID string
 		want     *model.Ticket
 		wantErr  error
 	}{
 		{
 			name:     "HappyPath",
-			ticketId: "TEST-1",
+			ticketID: "TEST-1",
 			want: &model.Ticket{
 				ID:          "1000",
 				Key:         "TEST-1",
@@ -146,7 +146,7 @@ func TestClient_Get(t *testing.T) {
 		},
 		{
 			name:     "KeyNotFound",
-			ticketId: "NOTFOUND",
+			ticketID: "NOTFOUND",
 			want:     nil,
 			wantErr:  errors.New("ticket NOTFOUND not found in Jira"),
 		},
@@ -156,7 +156,7 @@ func TestClient_Get(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			setupSubTestClient(t)
 
-			got, err := jiraClient.GetTicket(tt.ticketId)
+			got, err := jiraClient.GetTicket(tt.ticketID)
 			if errToStr(err) != errToStr(tt.wantErr) {
 				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}

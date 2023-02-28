@@ -8,13 +8,12 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type (
-	TC struct {
-		Client TicketTrackingClient
-		Logger echo.Logger
-		URL    string
-	}
-)
+// TC represents a ticket tracker client.
+type TC struct {
+	Client TicketTrackingClient
+	Logger echo.Logger
+	URL    string
+}
 
 // TicketTrackingClient defines the API of the adapter for a third-party client.
 type TicketTrackingClient interface {

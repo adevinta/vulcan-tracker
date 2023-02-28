@@ -44,7 +44,7 @@ func (tc TC) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
 	if ticketInJira != nil {
 		return nil, &vterrors.TrackingError{
 			Msg:            "the ticket already exists in the Jira server",
-			HttpStatusCode: http.StatusConflict,
+			HTTPStatusCode: http.StatusConflict,
 		}
 	}
 

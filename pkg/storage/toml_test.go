@@ -30,7 +30,7 @@ func TestServersConf(t *testing.T) {
 			servers: map[string]config.Server{
 				"example1_id": {
 					Name:  "example1",
-					Url:   "http://localhost:8080",
+					URL:   "http://localhost:8080",
 					User:  "jira_user",
 					Token: "jira_token",
 					Kind:  "jira",
@@ -40,7 +40,7 @@ func TestServersConf(t *testing.T) {
 				{
 					ID:   "example1_id",
 					Name: "example1",
-					Url:  "http://localhost:8080",
+					URL:  "http://localhost:8080",
 					User: "jira_user",
 					Pass: "jira_token",
 					Kind: "jira",
@@ -83,13 +83,13 @@ func TestProjectConfig(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		teamId  string
+		teamID  string
 		want    *model.ProjectConfig
 		wantErr error
 	}{
 		{
 			name:   "HappyPath",
-			teamId: "example_team",
+			teamID: "example_team",
 			want: &model.ProjectConfig{
 				ID:                     "example_project_id",
 				Name:                   "example_team_name",
@@ -103,7 +103,7 @@ func TestProjectConfig(t *testing.T) {
 		},
 		{
 			name:    "Notfound",
-			teamId:  "noteam",
+			teamID:  "noteam",
 			want:    nil,
 			wantErr: errors.New("project not found in toml configuration for the team noteam"),
 		},
@@ -115,7 +115,7 @@ func TestProjectConfig(t *testing.T) {
 			tc := TOMLStore{
 				projects: projects,
 			}
-			got, err := tc.ProjectConfigByTeamID(tt.teamId)
+			got, err := tc.ProjectConfigByTeamID(tt.teamID)
 
 			if errToStr(err) != errToStr(tt.wantErr) {
 				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)

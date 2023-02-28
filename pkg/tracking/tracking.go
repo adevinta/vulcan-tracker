@@ -52,7 +52,7 @@ func GenerateServerClients(serverConfs []model.TrackerConfig, logger echo.Logger
 
 		switch kind := strings.ToLower(server.Kind); kind {
 		case jiraKind:
-			client, err = jira.New(server.Url, server.User, server.Pass, logger)
+			client, err = jira.New(server.URL, server.User, server.Pass, logger)
 		}
 		// TODO: More kind of trackers coming in the future
 		if err != nil {
@@ -65,8 +65,8 @@ func GenerateServerClients(serverConfs []model.TrackerConfig, logger echo.Logger
 	return clients, nil
 }
 
-// NewServerClient instantiates a client for every server passed as argument.
-func NewServerClient(url, user, pass, kind string, logger echo.Logger) (*TicketTracker, error) {
+// newServerClient instantiates a client for every server passed as argument.
+func newServerClient(url, user, pass, kind string, logger echo.Logger) (*TicketTracker, error) {
 	var client TicketTracker
 	var err error
 
@@ -82,15 +82,18 @@ func NewServerClient(url, user, pass, kind string, logger echo.Logger) (*TicketT
 	return &client, nil
 }
 
+// TicketTrackerBuilder builds clients to access ticket trackers.
 type TicketTrackerBuilder interface {
-	GenerateTicketTrackerClient(storage storage.TicketServerStorage, teamId string, logger echo.Logger) (TicketTracker, error)
+	GenerateTicketTrackerClient(storage storage.TicketServerStorage, teamID string, logger echo.Logger) (TicketTracker, error)
 }
 
+// TTBuilder represents a builder of clients to access ticket trackers.
 type TTBuilder struct {
 }
 
-func (ttb *TTBuilder) GenerateTicketTrackerClient(storage storage.TicketServerStorage, teamId string, logger echo.Logger) (TicketTracker, error) {
-	projectConfig, err := storage.ProjectConfigByTeamID(teamId)
+// GenerateTicketTrackerClient generates a ticket tracker client.
+func (ttb *TTBuilder) GenerateTicketTrackerClient(storage storage.TicketServerStorage, teamID string, logger echo.Logger) (TicketTracker, error) {
+	projectConfig, err := storage.ProjectConfigByTeamID(teamID)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +104,7 @@ func (ttb *TTBuilder) GenerateTicketTrackerClient(storage storage.TicketServerSt
 	}
 
 	var ttClient *TicketTracker
-	ttClient, err = NewServerClient(serverConf.Url, serverConf.User, serverConf.Pass, serverConf.Kind, logger)
+	ttClient, err = newServerClient(serverConf.URL, serverConf.User, serverConf.Pass, serverConf.Kind, logger)
 	if err != nil {
 		return nil, err
 	}
