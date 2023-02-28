@@ -10,5 +10,3 @@ CREATE TABLE finding_tickets (
      updated_at TIMESTAMP WITH TIME ZONE,
      UNIQUE (team_id, finding_id)
 );
-
-CREATE INDEX idx_finding_tickets_finding_id ON finding_tickets (finding_id);

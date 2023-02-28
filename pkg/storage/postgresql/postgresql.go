@@ -71,13 +71,15 @@ func buildQueryWithArgs(query string, args []interface{}) string {
 			value := fmt.Sprintf("%v", v)
 			query = strings.ReplaceAll(query, tag, value)
 		}
-	} else {
-		// args as variadic args list
-		for i, v := range args {
-			tag := fmt.Sprintf("$%d", i+1)
-			value := fmt.Sprintf("%v", v)
-			query = strings.Replace(query, tag, value, 1)
-		}
+
+		return query
+	}
+
+	// args as variadic args list
+	for i, v := range args {
+		tag := fmt.Sprintf("$%d", i+1)
+		value := fmt.Sprintf("%v", v)
+		query = strings.Replace(query, tag, value, 1)
 	}
 
 	return query

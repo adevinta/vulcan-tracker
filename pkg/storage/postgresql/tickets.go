@@ -5,7 +5,6 @@ Copyright 2023 Adevinta
 package postgresql
 
 import (
-	"context"
 	"database/sql"
 
 	"github.com/adevinta/vulcan-tracker/pkg/model"
@@ -21,34 +20,14 @@ type FindingTicket struct {
 
 // CreateFindingTicket inserts a row in the database to store the relation between a finding, a team and a ticket.
 func (db DB) CreateFindingTicket(t model.Ticket) (model.FindingTicket, error) {
-	tx, err := db.DB.BeginTxx(context.Background(), nil)
-	if err != nil {
-		return model.FindingTicket{}, err
-	}
-
 	query := `
-	WITH ticket_exists AS (
-		SELECT *
-		FROM finding_tickets t
-		WHERE t.finding_id = $1 and t.team_id = $2
-	),
-	creation_query AS (
 	    INSERT INTO finding_tickets (finding_id, team_id, url_tracker, created_at)
-			SELECT $1, $2, $3, now()
-    	WHERE NOT EXISTS (SELECT 1 FROM ticket_exists)
-	    RETURNING *	    
-	)
-	SELECT * FROM ticket_exists
-    	UNION ALL
-	SELECT * FROM creation_query`
+			SELECT $1, $2, $3, now() RETURNING *
+			`
+	result := db.DB.QueryRow(query, t.FindingID, t.TeamID, t.URLTracker)
 
-	r := tx.QueryRowContext(context.Background(), query, t.FindingID, t.TeamID, t.URLTracker)
-	if err != nil {
-		tx.Rollback()
-		return model.FindingTicket{}, err
-	}
 	var created FindingTicket
-	err = r.Scan(&created.ID, &created.FindingID, &created.TeamID, &created.URLTracker, &created.CreatedAt, &created.UpdatedAt)
+	err := result.Scan(&created.ID, &created.FindingID, &created.TeamID, &created.URLTracker, &created.CreatedAt, &created.UpdatedAt)
 	if err != nil {
 		return model.FindingTicket{}, err
 	}
@@ -57,7 +36,7 @@ func (db DB) CreateFindingTicket(t model.Ticket) (model.FindingTicket, error) {
 		FindingID:  created.FindingID,
 		TeamID:     created.TeamID,
 		URLTracker: created.URLTracker,
-	}, tx.Commit()
+	}, nil
 }
 
 // GetFindingTicket retrieves a row from the database that contains the link to the ticket tracker for a specific
