@@ -7,10 +7,24 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/adevinta/vulcan-tracker/pkg/common"
 	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
 	"github.com/adevinta/vulcan-tracker/pkg/model"
 )
+
+// GenerateIdentificationText generate the part of the description that contains the identifiers.
+func GenerateIdentificationText(findingID, teamID string) string {
+	return fmt.Sprintf("FindingID: %s\nTeamID: %s", findingID, teamID)
+}
+
+// GenerateDescriptionText generate description using the original description and the finding and team identifiers.
+func GenerateDescriptionText(ticketDescription, findingID, teamID string) string {
+	beginAutomaticText := "======= BEGINNING OF THE CONTENT AUTOMATICALLY INSERTED ======\n"
+	dontRemoveText := "======= PLEASE, DON'T REMOVE THE TEXT BETWEEN THESE MARKS =====\n"
+	endAutomaticText := "======= END OF THE CONTENT AUTOMATICALLY INSERTED ============\n"
+	ticketIdentificationText := GenerateIdentificationText(findingID, teamID)
+	return fmt.Sprintf("\n%s\n\n%s%s%s\n%s",
+		ticketDescription, beginAutomaticText, dontRemoveText, ticketIdentificationText, endAutomaticText)
+}
 
 // GetTicket retrieves a ticket from Jira.
 // Return an empty ticket if not found.
@@ -28,7 +42,7 @@ func (tc TC) GetTicket(id string) (*model.Ticket, error) {
 // the finding ID and the team ID.
 // Return an empty ticket if not found.
 func (tc TC) FindTicketByFindingAndTeam(projectKey, vulnerabilityIssueType, findingID string, teamID string) (*model.Ticket, error) {
-	text := fmt.Sprintf("\"%s\"", common.GenerateIdentificationText(findingID, teamID))
+	text := fmt.Sprintf("\"%s\"", GenerateIdentificationText(findingID, teamID))
 
 	ticket, err := tc.Client.FindTicket(projectKey, vulnerabilityIssueType, text)
 	if err != nil {
@@ -48,7 +62,7 @@ func (tc TC) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
 		}
 	}
 
-	ticket.Description = common.GenerateDescriptionText(ticket.Description, ticket.FindingID, ticket.TeamID)
+	ticket.Description = GenerateDescriptionText(ticket.Description, ticket.FindingID, ticket.TeamID)
 
 	createdTicket, err := tc.Client.CreateTicket(ticket)
 	if err != nil {
