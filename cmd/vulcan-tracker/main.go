@@ -41,12 +41,7 @@ func main() {
 
 	// Database connection.
 	cfgPSQL := cfg.PSQL
-	cfgPSQLRead := cfg.PSQLRead
-	// If we don't have defined the read replica we use the read write one.
-	if cfgPSQLRead.Host == "" {
-		cfgPSQLRead = cfgPSQL
-	}
-	db, err := postgresql.NewDB(cfgPSQL, cfgPSQLRead, e.Logger)
+	db, err := postgresql.NewDB(cfgPSQL, e.Logger)
 	if err != nil {
 		e.Logger.Fatal(err)
 	}

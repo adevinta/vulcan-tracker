@@ -7,6 +7,7 @@ package postgresql
 import (
 	"context"
 	"database/sql"
+
 	"github.com/adevinta/vulcan-tracker/pkg/model"
 	"github.com/lib/pq"
 )
@@ -19,7 +20,7 @@ type FindingTicket struct {
 
 // CreateFindingTicket inserts a row in the database to store the relation between a finding, a team and a ticket.
 func (db DB) CreateFindingTicket(t model.Ticket) (model.FindingTicket, error) {
-	tx, err := db.DBRw.BeginTxx(context.Background(), nil)
+	tx, err := db.DB.BeginTxx(context.Background(), nil)
 	if err != nil {
 		return model.FindingTicket{}, err
 	}

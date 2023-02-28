@@ -6,18 +6,18 @@ package postgresql
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 	_ "github.com/lib/pq" // Import the PostgreSQL driver.
-	"strings"
 )
 
 type (
 	// DB holds the database connection.
 	DB struct {
 		DB     *sqlx.DB
-		DBRw   *sqlx.DB
 		Logger echo.Logger
 	}
 
@@ -33,40 +33,18 @@ type (
 )
 
 // NewDB instantiates a new PostgreSQL connection.
-func NewDB(cs ConnStr, csRead ConnStr, logger echo.Logger) (*DB, error) {
+func NewDB(cs ConnStr, logger echo.Logger) (*DB, error) {
 	if cs.SSLMode == "" {
 		cs.SSLMode = "disable"
 	}
-
-	if csRead.SSLMode == "" {
-		csRead.SSLMode = "disable"
-	}
-
-	connStrRead := fmt.Sprintf("host=%s port=%s user=%s "+
+	connStr := fmt.Sprintf("host=%s port=%s user=%s "+
 		"password=%s dbname=%s sslmode=%s",
-		csRead.Host, csRead.Port, csRead.User, csRead.Pass, csRead.DB, csRead.SSLMode)
-
-	dbRead, err := sqlx.Connect("postgres", connStrRead)
+		cs.Host, cs.Port, cs.User, cs.Pass, cs.DB, cs.SSLMode)
+	db, err := sqlx.Connect("postgres", connStr)
 	if err != nil {
 		return nil, err
 	}
-
-	var dbReadWrite *sqlx.DB
-	// If the host and the port of the read and the read-write connection
-	// string is the same, the database connection is also the same.
-	if cs.Host != csRead.Host || cs.Port != csRead.Port {
-		connStr := fmt.Sprintf("host=%s port=%s user=%s "+
-			"password=%s dbname=%s sslmode=%s",
-			cs.Host, cs.Port, cs.User, cs.Pass, cs.DB, cs.SSLMode)
-		dbReadWrite, err = sqlx.Connect("postgres", connStr)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		dbReadWrite = dbRead
-	}
-
-	return &DB{DB: dbRead, DBRw: dbReadWrite, Logger: logger}, nil
+	return &DB{DB: db, Logger: logger}, nil
 }
 
 func logQuery(logger echo.Logger, name, query string, args ...interface{}) {

@@ -39,7 +39,6 @@ type Config struct {
 	Projects map[string]Project `toml:"projects"`
 	Log      logConfig          `toml:"log"`
 	PSQL     postgresql.ConnStr `toml:"postgresql"`
-	PSQLRead postgresql.ConnStr `toml:"postgresql_read"`
 }
 
 type apiConfig struct {
