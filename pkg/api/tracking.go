@@ -11,36 +11,15 @@ import (
 
 	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
 	"github.com/adevinta/vulcan-tracker/pkg/model"
-	"github.com/adevinta/vulcan-tracker/pkg/tracking"
 )
 
-// responseError process a correct response.
-func response(c echo.Context, httpStatus int, data interface{}, dataType string, p ...tracking.Pagination) error {
+// response process a correct response.
+func response(c echo.Context, httpStatus int, data interface{}, dataType string) error {
 	if data == nil {
 		return c.NoContent(http.StatusNoContent)
 	}
 
 	resp := map[string]interface{}{}
-
-	// We check if the variadic argument is present.
-	if len(p) > 0 {
-		// We only use the first element, as we expect only one.
-		more := p[0].Total > p[0].Offset+p[0].Limit
-
-		pagination := Pagination{
-			Limit:  p[0].Limit,
-			Offset: p[0].Offset,
-			Total:  p[0].Total,
-			More:   more,
-		}
-
-		if p[0].Offset > p[0].Total {
-			return echo.NewHTTPError(http.StatusNotFound, ErrPageNotFound.Error())
-		}
-
-		resp["pagination"] = pagination
-	}
-
 	resp[dataType] = data
 
 	return c.JSON(httpStatus, resp)
