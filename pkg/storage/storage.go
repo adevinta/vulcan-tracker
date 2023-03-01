@@ -8,8 +8,8 @@ import "github.com/adevinta/vulcan-tracker/pkg/model"
 // TicketServerStorage manages the storage of the ticket trackers configuration.
 type TicketServerStorage interface {
 	ServersConf() ([]model.TrackerConfig, error)
-	ServerConf(serverID string) (*model.TrackerConfig, error)
-	ProjectConfigByTeamID(teamID string) (*model.ProjectConfig, error)
+	ServerConf(serverID string) (model.TrackerConfig, error)
+	ProjectConfigByTeamID(teamID string) (model.ProjectConfig, error)
 }
 
 // Storage manages the storage of the project data.

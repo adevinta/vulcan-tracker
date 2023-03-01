@@ -84,13 +84,13 @@ func TestProjectConfig(t *testing.T) {
 	tests := []struct {
 		name    string
 		teamID  string
-		want    *model.ProjectConfig
+		want    model.ProjectConfig
 		wantErr error
 	}{
 		{
 			name:   "HappyPath",
 			teamID: "example_team",
-			want: &model.ProjectConfig{
+			want: model.ProjectConfig{
 				ID:                     "example_project_id",
 				Name:                   "example_team_name",
 				ServerID:               "example_server_id",
@@ -104,7 +104,7 @@ func TestProjectConfig(t *testing.T) {
 		{
 			name:    "Notfound",
 			teamID:  "noteam",
-			want:    nil,
+			want:    model.ProjectConfig{},
 			wantErr: errors.New("project not found in toml configuration for the team noteam"),
 		},
 	}

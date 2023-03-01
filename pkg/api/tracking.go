@@ -4,6 +4,7 @@ Copyright 2023 Adevinta
 package api
 
 import (
+	"database/sql"
 	"errors"
 	"net/http"
 
@@ -31,6 +32,9 @@ func responseError(err error) error {
 
 	if errors.As(err, &vterror) {
 		return echo.NewHTTPError(vterror.HTTPStatusCode, vterror.Error())
+	}
+	if errors.Is(err, sql.ErrNoRows) {
+		return echo.NewHTTPError(http.StatusNotFound)
 	}
 	return err
 }
@@ -87,7 +91,7 @@ func (api *API) CreateTicket(c echo.Context) error {
 	}
 
 	// Create the ticket in the tracker tool.
-	ticket, err = ttClient.CreateTicket(ticket)
+	*ticket, err = ttClient.CreateTicket(*ticket)
 	if err != nil {
 		return responseError(err)
 	}
@@ -168,7 +172,7 @@ func (api *API) GetFindingTicket(c echo.Context) error {
 
 	findingTicket, err := api.storage.GetFindingTicket(findingID, teamID)
 	if err != nil {
-		return err
+		return responseError(err)
 	}
 	return response(c, http.StatusOK, findingTicket, "ticket")
 }

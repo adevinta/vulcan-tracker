@@ -44,10 +44,10 @@ func (ts *TOMLStore) ServersConf() ([]model.TrackerConfig, error) {
 }
 
 // ServerConf retrieves a server configuration declared in the toml file.
-func (ts *TOMLStore) ServerConf(serverID string) (*model.TrackerConfig, error) {
+func (ts *TOMLStore) ServerConf(serverID string) (model.TrackerConfig, error) {
 	server, ok := ts.servers[serverID]
 	if !ok {
-		return nil, fmt.Errorf("server %s not found in toml configuration", serverID)
+		return model.TrackerConfig{}, fmt.Errorf("server %s not found in toml configuration", serverID)
 	}
 
 	serverConf := model.TrackerConfig{
@@ -58,15 +58,15 @@ func (ts *TOMLStore) ServerConf(serverID string) (*model.TrackerConfig, error) {
 		Kind: server.Kind,
 	}
 
-	return &serverConf, nil
+	return serverConf, nil
 }
 
 // ProjectConfigByTeamID retrieves the configuration for the team teamID.
-func (ts *TOMLStore) ProjectConfigByTeamID(teamID string) (*model.ProjectConfig, error) {
+func (ts *TOMLStore) ProjectConfigByTeamID(teamID string) (model.ProjectConfig, error) {
 
 	for id, project := range ts.projects {
 		if project.TeamID == teamID {
-			projectConfig := &model.ProjectConfig{
+			projectConfig := model.ProjectConfig{
 				ID:                     id,
 				Name:                   project.Name,
 				ServerID:               project.ServerID,
@@ -79,5 +79,5 @@ func (ts *TOMLStore) ProjectConfigByTeamID(teamID string) (*model.ProjectConfig,
 		}
 	}
 
-	return nil, fmt.Errorf("project not found in toml configuration for the team %s", teamID)
+	return model.ProjectConfig{}, fmt.Errorf("project not found in toml configuration for the team %s", teamID)
 }

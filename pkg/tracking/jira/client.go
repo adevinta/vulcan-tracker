@@ -26,7 +26,6 @@ type Issuer interface {
 
 // Client represents a specific Jira client.
 type Client struct {
-	c *gojira.Client
 	Issuer
 }
 
@@ -41,13 +40,12 @@ func NewClient(url, user, token string) (*Client, error) {
 		return nil, err
 	}
 	return &Client{
-		c:      gojiraClient,
 		Issuer: gojiraClient.Issue,
 	}, nil
 }
 
 // fromGoJiraToTicketModel transforms a ticket returned by go-jira into a model.Ticket.
-func fromGoJiraToTicketModel(jiraIssue gojira.Issue, ticket *model.Ticket) {
+func fromGoJiraToTicketModel(jiraIssue gojira.Issue, ticket model.Ticket) model.Ticket {
 
 	ticket.ID = jiraIssue.ID
 	ticket.Key = jiraIssue.Key
@@ -62,11 +60,12 @@ func fromGoJiraToTicketModel(jiraIssue gojira.Issue, ticket *model.Ticket) {
 	if jiraIssue.Fields.Resolution != nil {
 		ticket.Resolution = jiraIssue.Fields.Resolution.Name
 	}
+	return ticket
 }
 
 // fromGoJiraToTransitionModel transforms a transition returned by go-jira into a model.Transition.
-func fromGoJiraToTransitionModel(jiraTransition gojira.Transition) *model.Transition {
-	return &model.Transition{
+func fromGoJiraToTransitionModel(jiraTransition gojira.Transition) model.Transition {
+	return model.Transition{
 		ID:     jiraTransition.ID,
 		ToName: jiraTransition.To.Name,
 	}
@@ -74,22 +73,22 @@ func fromGoJiraToTransitionModel(jiraTransition gojira.Transition) *model.Transi
 
 // GetTicket retrieves a ticket from Jira.
 // Return an empty ticket if not found.
-func (cl *Client) GetTicket(id string) (*model.Ticket, error) {
+func (cl *Client) GetTicket(id string) (model.Ticket, error) {
 	jiraIssue, resp, err := cl.Issuer.Get(id, nil)
 	if err != nil {
 		err = gojira.NewJiraError(resp, err)
 		if strings.Contains(err.Error(), "404") {
-			return nil, &vterrors.TrackingError{
+			return model.Ticket{}, &vterrors.TrackingError{
 				Msg:            fmt.Sprintf("ticket %s not found in Jira", id),
 				Err:            err,
 				HTTPStatusCode: http.StatusNotFound,
 			}
 		}
-		return nil, err
+		return model.Ticket{}, err
 	}
 	var ticket model.Ticket
-	fromGoJiraToTicketModel(*jiraIssue, &ticket)
-	return &ticket, nil
+	ticket = fromGoJiraToTicketModel(*jiraIssue, ticket)
+	return ticket, nil
 
 }
 
@@ -97,7 +96,7 @@ func (cl *Client) GetTicket(id string) (*model.Ticket, error) {
 // The arguments needed to search a ticket are the project key, the issue
 // type and a text that have to be present on the ticket description.
 // Return a nil ticket if not found.
-func (cl *Client) FindTicket(projectKey, vulnerabilityIssueType, text string) (*model.Ticket, error) {
+func (cl *Client) FindTicket(projectKey, vulnerabilityIssueType, text string) (model.Ticket, error) {
 
 	jql := fmt.Sprintf("project=%s AND type=%s AND description~%s",
 		projectKey, vulnerabilityIssueType, text)
@@ -108,18 +107,18 @@ func (cl *Client) FindTicket(projectKey, vulnerabilityIssueType, text string) (*
 	tickets, resp, err := cl.Issuer.Search(jql, searchOptions)
 	if err != nil {
 		err = gojira.NewJiraError(resp, err)
-		return nil, err
+		return model.Ticket{}, err
 	}
 	if len(tickets) == 0 {
-		return nil, nil
+		return model.Ticket{}, nil
 	}
 	var ticket model.Ticket
-	fromGoJiraToTicketModel(tickets[0], &ticket)
-	return &ticket, nil
+	ticket = fromGoJiraToTicketModel(tickets[0], ticket)
+	return ticket, nil
 }
 
 // CreateTicket creates a ticket in Jira.
-func (cl *Client) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
+func (cl *Client) CreateTicket(ticket model.Ticket) (model.Ticket, error) {
 	newTicket := &gojira.Issue{
 		Fields: &gojira.IssueFields{
 			Description: ticket.Description,
@@ -137,16 +136,16 @@ func (cl *Client) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
 	gojiraIssue, resp, err := cl.Issuer.Create(newTicket)
 	if err != nil {
 		err = gojira.NewJiraError(resp, err)
-		return nil, err
+		return model.Ticket{}, err
 	}
 
 	createdTicket, resp, err := cl.Issuer.Get(gojiraIssue.Key, nil)
 	if err != nil {
 		err = gojira.NewJiraError(resp, err)
-		return nil, err
+		return model.Ticket{}, err
 	}
 
-	fromGoJiraToTicketModel(*createdTicket, ticket)
+	ticket = fromGoJiraToTicketModel(*createdTicket, ticket)
 	return ticket, nil
 }
 
@@ -162,7 +161,7 @@ func (cl *Client) GetTicketTransitions(id string) ([]model.Transition, error) {
 
 	for _, transition := range transitions {
 		transformedTransition := fromGoJiraToTransitionModel(transition)
-		result = append(result, *transformedTransition)
+		result = append(result, transformedTransition)
 
 	}
 	return result, nil

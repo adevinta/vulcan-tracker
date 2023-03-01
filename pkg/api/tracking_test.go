@@ -29,7 +29,7 @@ type mockTicketTracker struct {
 }
 
 var (
-	tickets = map[string]*model.Ticket{
+	tickets = map[string]model.Ticket{
 		"TEST-1": {
 			ID:          "1000",
 			Key:         "TEST-1",
@@ -48,19 +48,19 @@ func generateTicketExpected(ticketID string) []byte {
 		Ticket model.Ticket `json:"ticket"`
 	}
 
-	ticket, err := json.Marshal(ticketExpected{Ticket: *tickets[ticketID]})
+	ticket, err := json.Marshal(ticketExpected{Ticket: tickets[ticketID]})
 	if err != nil {
 		panic(err)
 	}
 	return ticket
 }
 
-func (mtt *mockTicketTracker) GetTicket(id string) (*model.Ticket, error) {
+func (mtt *mockTicketTracker) GetTicket(id string) (model.Ticket, error) {
 	value, ok := tickets[id]
 	if ok {
 		return value, nil
 	}
-	return nil, &vterrors.TrackingError{
+	return model.Ticket{}, &vterrors.TrackingError{
 		Msg:            "ticket not found",
 		HTTPStatusCode: http.StatusNotFound,
 	}
@@ -70,14 +70,14 @@ type mockStorage struct {
 	storage.TicketServerStorage
 }
 
-func (ms *mockStorage) ProjectConfigByTeamID(_ string) (*model.ProjectConfig, error) {
-	return &model.ProjectConfig{
+func (ms *mockStorage) ProjectConfigByTeamID(_ string) (model.ProjectConfig, error) {
+	return model.ProjectConfig{
 		ServerID: "test_server",
 	}, nil
 }
 
-func (ms *mockStorage) ServerConf(_ string) (*model.TrackerConfig, error) {
-	return &model.TrackerConfig{
+func (ms *mockStorage) ServerConf(_ string) (model.TrackerConfig, error) {
+	return model.TrackerConfig{
 		ID: "ServerID",
 	}, nil
 }

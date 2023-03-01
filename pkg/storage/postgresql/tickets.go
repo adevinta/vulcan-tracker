@@ -5,8 +5,6 @@ Copyright 2023 Adevinta
 package postgresql
 
 import (
-	"database/sql"
-
 	"github.com/adevinta/vulcan-tracker/pkg/model"
 	"github.com/lib/pq"
 )
@@ -47,9 +45,6 @@ func (db DB) GetFindingTicket(findingID, teamID string) (model.FindingTicket, er
 	query := "SELECT * FROM finding_tickets WHERE finding_id = $1 and team_id = $2"
 	logQuery(db.Logger, "GetFindingTicket", query, findingID, teamID)
 	err := db.DB.Get(&findingTicket, query, findingID, teamID)
-	if err == sql.ErrNoRows {
-		return model.FindingTicket{}, nil
-	}
 	if err != nil {
 		return model.FindingTicket{}, err
 	}

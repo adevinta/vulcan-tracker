@@ -47,9 +47,9 @@ func main() {
 	}
 
 	// Builder for the ticket tracker clients.
-	ticketTrackerBuilder := tracking.TTBuilder{}
+	ticketTrackerBuilder := &tracking.TTBuilder{}
 
-	a := api.New(ticketServerStorage, &ticketTrackerBuilder, db, api.Options{
+	a := api.New(ticketServerStorage, ticketTrackerBuilder, db, api.Options{
 		MaxSize:     cfg.API.MaxSize,
 		DefaultSize: cfg.API.DefaultSize,
 	})

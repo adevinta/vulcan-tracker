@@ -38,18 +38,18 @@ func (l *mockLogger) Errorf(_ string, _ ...interface{}) {
 	// Do nothing logger
 }
 
-func (mj *MockJiraClient) GetTicket(id string) (*model.Ticket, error) {
+func (mj *MockJiraClient) GetTicket(id string) (model.Ticket, error) {
 	value, ok := mj.tickets[id]
 	if ok {
-		return value, nil
+		return *value, nil
 	}
-	return nil, &vterrors.TrackingError{
+	return model.Ticket{}, &vterrors.TrackingError{
 		Msg:            fmt.Sprintf("ticket %s not found", id),
 		HTTPStatusCode: http.StatusNotFound,
 	}
 }
 
-func (mj *MockJiraClient) FindTicket(projectKey, vulnerabilityIssueType, text string) (*model.Ticket, error) {
+func (mj *MockJiraClient) FindTicket(projectKey, vulnerabilityIssueType, text string) (model.Ticket, error) {
 
 	var ticketsFound []model.Ticket
 
@@ -65,26 +65,27 @@ func (mj *MockJiraClient) FindTicket(projectKey, vulnerabilityIssueType, text st
 		}
 	}
 	if len(ticketsFound) == 0 {
-		return nil, nil
+		return model.Ticket{}, nil
 	}
-	return &ticketsFound[0], nil
+	return ticketsFound[0], nil
 }
 
-func (mj *MockJiraClient) CreateTicket(ticket *model.Ticket) (*model.Ticket, error) {
+func (mj *MockJiraClient) CreateTicket(ticket model.Ticket) (model.Ticket, error) {
 	ticket.Key = fmt.Sprintf("%s-%d", ticket.Project, len(mj.tickets)+1)
 	ticket.ID = fmt.Sprintf("%d", 1000+len(mj.tickets)+1)
 	ticket.Status = ToDo
 
-	mj.tickets[ticket.Key] = ticket
+	mj.tickets[ticket.Key] = &ticket
 
 	return ticket, nil
 }
 
 func (mj *MockJiraClient) GetTicketTransitions(id string) ([]model.Transition, error) {
-	ticket, err := mj.GetTicket(id)
+	tempTicket, err := mj.GetTicket(id)
 	if err != nil {
 		return nil, err
 	}
+	ticket, _ := mj.tickets[tempTicket.Key]
 	transitions, ok := mj.transitions[ticket.Status]
 	if ok {
 		return transitions, nil
@@ -93,10 +94,11 @@ func (mj *MockJiraClient) GetTicketTransitions(id string) ([]model.Transition, e
 
 }
 func (mj *MockJiraClient) DoTransition(id, idTransition string) error {
-	ticket, err := mj.GetTicket(id)
+	tempTicket, err := mj.GetTicket(id)
 	if err != nil {
 		return err
 	}
+	ticket, _ := mj.tickets[tempTicket.Key]
 	transitions, ok := mj.transitions[ticket.Status]
 	if !ok {
 		return fmt.Errorf("transitions for %s not found", id)
@@ -112,10 +114,11 @@ func (mj *MockJiraClient) DoTransition(id, idTransition string) error {
 	return nil
 }
 func (mj *MockJiraClient) DoTransitionWithResolution(id, idTransition, resolution string) error {
-	ticket, err := mj.GetTicket(id)
+	tempTicket, err := mj.GetTicket(id)
 	if err != nil {
 		return err
 	}
+	ticket, _ := mj.tickets[tempTicket.Key]
 	transitions, ok := mj.transitions[ticket.Status]
 	if !ok {
 		return fmt.Errorf("transitions for %s not found", id)
@@ -226,13 +229,13 @@ func TestGetTicket(t *testing.T) {
 	tests := []struct {
 		name     string
 		ticketID string
-		want     *model.Ticket
+		want     model.Ticket
 		wantErr  error
 	}{
 		{
 			name:     "HappyPath",
 			ticketID: "TEST-1",
-			want: &model.Ticket{
+			want: model.Ticket{
 				ID:          "1000",
 				Key:         "TEST-1",
 				TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
@@ -250,7 +253,7 @@ func TestGetTicket(t *testing.T) {
 		{
 			name:     "KeyNotFound",
 			ticketID: "NOTFOUND",
-			want:     nil,
+			want:     model.Ticket{},
 			wantErr:  errors.New("ticket NOTFOUND not found"),
 		},
 	}
@@ -311,7 +314,7 @@ func TestCreateTicket(t *testing.T) {
 	tests := []struct {
 		name      string
 		newTicket model.Ticket
-		want      *model.Ticket
+		want      model.Ticket
 		wantErr   error
 	}{
 		{
@@ -324,7 +327,7 @@ func TestCreateTicket(t *testing.T) {
 				Project:     "TEST",
 				TicketType:  "Vulnerability",
 			},
-			want: &model.Ticket{
+			want: model.Ticket{
 				TeamID:      "11c2c999-14a4-434f-ab02-107e2cc14324",
 				FindingID:   "fcafb55e-f8d4-4a10-b073-149b84554b94",
 				Summary:     "Summary New Ticket",
@@ -341,7 +344,7 @@ func TestCreateTicket(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			setupSubTest(t, transitions)
 
-			got, err := tc.CreateTicket(&tt.newTicket)
+			got, err := tc.CreateTicket(tt.newTicket)
 			if errToStr(err) != errToStr(tt.wantErr) {
 				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
@@ -360,7 +363,7 @@ func TestFixTicket(t *testing.T) {
 		ticketID        string
 		fixedWorkflow   []string
 		transitions     map[string][]model.Transition
-		wantTicket      *model.Ticket
+		wantTicket      model.Ticket
 		wantTransitions []string
 		wantErr         error
 	}{
@@ -371,7 +374,7 @@ func TestFixTicket(t *testing.T) {
 				ToDo, InProgress, Resolved,
 			},
 			transitions: transitions,
-			wantTicket: &model.Ticket{
+			wantTicket: model.Ticket{
 				ID:          "1000",
 				Key:         "TEST-1",
 				TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
@@ -394,7 +397,7 @@ func TestFixTicket(t *testing.T) {
 				ToDo, InProgress, Resolved,
 			},
 			transitions: transitions,
-			wantTicket: &model.Ticket{
+			wantTicket: model.Ticket{
 				ID:          "1001",
 				Key:         "TEST-2",
 				TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
@@ -415,7 +418,7 @@ func TestFixTicket(t *testing.T) {
 			ticketID:      "TEST-1",
 			fixedWorkflow: []string{Resolved},
 			transitions:   trResolveFromAnyStatus,
-			wantTicket: &model.Ticket{
+			wantTicket: model.Ticket{
 				ID:          "1000",
 				Key:         "TEST-1",
 				TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
@@ -436,7 +439,7 @@ func TestFixTicket(t *testing.T) {
 			ticketID:      "TEST-2",
 			fixedWorkflow: []string{Resolved},
 			transitions:   trResolveFromAnyStatus,
-			wantTicket: &model.Ticket{
+			wantTicket: model.Ticket{
 				ID:          "1001",
 				Key:         "TEST-2",
 				TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
@@ -459,7 +462,7 @@ func TestFixTicket(t *testing.T) {
 				ToDo, InProgress, Resolved,
 			},
 			transitions:     transitions,
-			wantTicket:      nil,
+			wantTicket:      model.Ticket{},
 			wantTransitions: []string{},
 			wantErr:         errors.New("ticket NOTFOUND not found"),
 		},
@@ -491,7 +494,7 @@ func TestWontFixTicket(t *testing.T) {
 		ticketID          string
 		wontfixedWorkflow []string
 		transitions       map[string][]model.Transition
-		wantTicket        *model.Ticket
+		wantTicket        model.Ticket
 		wantTransitions   []string
 		wantErr           error
 	}{
@@ -502,7 +505,7 @@ func TestWontFixTicket(t *testing.T) {
 				ToDo, InProgress, Resolved,
 			},
 			transitions: transitions,
-			wantTicket: &model.Ticket{
+			wantTicket: model.Ticket{
 				ID:          "1000",
 				Key:         "TEST-1",
 				TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
@@ -525,7 +528,7 @@ func TestWontFixTicket(t *testing.T) {
 				ToDo, InProgress, Resolved,
 			},
 			transitions: transitions,
-			wantTicket: &model.Ticket{
+			wantTicket: model.Ticket{
 				ID:          "1001",
 				Key:         "TEST-2",
 				TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
@@ -546,7 +549,7 @@ func TestWontFixTicket(t *testing.T) {
 			ticketID:          "TEST-1",
 			wontfixedWorkflow: []string{Resolved},
 			transitions:       trResolveFromAnyStatus,
-			wantTicket: &model.Ticket{
+			wantTicket: model.Ticket{
 				ID:          "1000",
 				Key:         "TEST-1",
 				TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
@@ -567,7 +570,7 @@ func TestWontFixTicket(t *testing.T) {
 			ticketID:          "TEST-2",
 			wontfixedWorkflow: []string{Resolved},
 			transitions:       trResolveFromAnyStatus,
-			wantTicket: &model.Ticket{
+			wantTicket: model.Ticket{
 				ID:          "1001",
 				Key:         "TEST-2",
 				TeamID:      "ff9d5142-0eb3-494a-8626-a72b7182cdb2",
@@ -590,7 +593,7 @@ func TestWontFixTicket(t *testing.T) {
 				ToDo, InProgress, Resolved,
 			},
 			transitions:     transitions,
-			wantTicket:      nil,
+			wantTicket:      model.Ticket{},
 			wantTransitions: []string{},
 			wantErr:         errors.New("ticket NOTFOUND not found"),
 		},

@@ -113,27 +113,24 @@ func setupSubTestClient(t *testing.T) {
 		},
 	}
 
-	goJiraClient := &gojira.Client{}
 	jiraClient = &Client{
-		c: goJiraClient,
 		Issuer: &MockIssueService{
 			tickets: tickets,
 		},
 	}
-
 }
 
 func TestClient_Get(t *testing.T) {
 	tests := []struct {
 		name     string
 		ticketID string
-		want     *model.Ticket
+		want     model.Ticket
 		wantErr  error
 	}{
 		{
 			name:     "HappyPath",
 			ticketID: "TEST-1",
-			want: &model.Ticket{
+			want: model.Ticket{
 				ID:          "1000",
 				Key:         "TEST-1",
 				Summary:     "Summary TEST-1",
@@ -147,7 +144,7 @@ func TestClient_Get(t *testing.T) {
 		{
 			name:     "KeyNotFound",
 			ticketID: "NOTFOUND",
-			want:     nil,
+			want:     model.Ticket{},
 			wantErr:  errors.New("ticket NOTFOUND not found in Jira"),
 		},
 	}
@@ -173,7 +170,7 @@ func TestClient_Create(t *testing.T) {
 	tests := []struct {
 		name      string
 		newTicket model.Ticket
-		want      *model.Ticket
+		want      model.Ticket
 		wantErr   error
 	}{
 		{
@@ -185,7 +182,7 @@ func TestClient_Create(t *testing.T) {
 				TicketType:  "Vulnerability",
 				Labels:      []string{"Potential Vulnerability"},
 			},
-			want: &model.Ticket{
+			want: model.Ticket{
 				Summary:     "Summary",
 				Description: "Description",
 				Project:     "TEST",
@@ -201,7 +198,7 @@ func TestClient_Create(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			setupSubTestClient(t)
 
-			got, err := jiraClient.CreateTicket(&tt.newTicket)
+			got, err := jiraClient.CreateTicket(tt.newTicket)
 			if errToStr(err) != errToStr(tt.wantErr) {
 				t.Fatal(err)
 			}
@@ -219,7 +216,7 @@ func TestClient_Find(t *testing.T) {
 		findingID              string
 		projectKey             string
 		vulnerabilityIssueType string
-		want                   *model.Ticket
+		want                   model.Ticket
 		wantErr                error
 	}{
 		{
@@ -227,7 +224,7 @@ func TestClient_Find(t *testing.T) {
 			findingID:              "FindingID-1",
 			projectKey:             "TEST",
 			vulnerabilityIssueType: "Vulnerability",
-			want: &model.Ticket{
+			want: model.Ticket{
 				ID:          "1000",
 				Key:         "TEST-1",
 				Summary:     "Summary TEST-1",
@@ -243,7 +240,7 @@ func TestClient_Find(t *testing.T) {
 			findingID:              "NOTFOUND",
 			projectKey:             "TEST",
 			vulnerabilityIssueType: "Vulnerability",
-			want:                   nil,
+			want:                   model.Ticket{},
 			wantErr:                nil,
 		},
 	}
