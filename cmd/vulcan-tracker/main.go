@@ -66,8 +66,6 @@ func main() {
 
 	e.GET("/:team_id/tickets/:id", a.GetTicket)
 	e.POST("/:team_id/tickets", a.CreateTicket)
-	e.POST("/:team_id/tickets/:id/fix", a.FixTicket)
-	e.POST("/:team_id/tickets/:id/wontfix", a.WontFixTicket)
 
 	e.GET("/:team_id/tickets/findings/:finding_id", a.GetFindingTicket)
 	address := fmt.Sprintf(":%d", cfg.API.Port)
