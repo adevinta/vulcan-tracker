@@ -35,7 +35,7 @@ func TestGenerateServerClients(t *testing.T) {
 			trackerConfig: []model.TrackerConfig{
 				{
 					Name: "JiraServer",
-					Url:  "http://example.com",
+					URL:  "http://example.com",
 					User: "user",
 					Pass: "pass",
 					Kind: "jira",
@@ -45,6 +45,7 @@ func TestGenerateServerClients(t *testing.T) {
 				"JiraServer": &jira.TC{
 					Client: &jira.Client{},
 					Logger: logger,
+					URL:    "http://example.com",
 				},
 			},
 			wantErr: nil,

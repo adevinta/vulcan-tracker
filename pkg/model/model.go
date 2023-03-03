@@ -8,6 +8,8 @@ package model
 type Ticket struct {
 	ID          string   `json:"id"`
 	Key         string   `json:"key"`
+	TeamID      string   `json:"team_id"`
+	FindingID   string   `json:"finding_id"`
 	Summary     string   `json:"summary"`
 	Description string   `json:"description"`
 	Project     string   `json:"project"`
@@ -15,6 +17,15 @@ type Ticket struct {
 	TicketType  string   `json:"ticket_type"`
 	Resolution  string   `json:"resolution"`
 	Labels      []string `json:"labels"`
+	URLTracker  string   `json:"url_tracker"`
+}
+
+// FindingTicket represents a ticket for a finding and a team.
+type FindingTicket struct {
+	ID         string `json:"id" db:"id"`
+	FindingID  string `json:"finding_id" db:"finding_id"`
+	TeamID     string `json:"team_id" db:"team_id"`
+	URLTracker string `json:"url_tracker" db:"url_tracker"`
 }
 
 // Transition represents a state change of a ticket.
@@ -25,8 +36,9 @@ type Transition struct {
 
 // TrackerConfig represents the configuration of a ticket tracker server.
 type TrackerConfig struct {
+	ID   string
 	Name string
-	Url  string
+	URL  string
 	User string
 	Pass string
 	Kind string
@@ -34,8 +46,10 @@ type TrackerConfig struct {
 
 // ProjectConfig represents the configuration of a team.
 type ProjectConfig struct {
+	ID                     string
 	Name                   string
-	ServerName             string
+	TeamID                 string
+	ServerID               string
 	Project                string
 	VulnerabilityIssueType string
 	FixedWorkflow          []string

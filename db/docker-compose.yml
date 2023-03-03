@@ -1,0 +1,30 @@
+# Copyright 2023 Adevinta
+
+version: "3"
+
+services:
+    vultrackerdb:
+        container_name: vultrackerdb
+        image: postgres:15.1-alpine
+        command: "postgres -c log_connections=true -c log_min_duration_statement=0"
+        ports:
+            - "5439:5432"
+        expose:
+            - "5432"
+        volumes:
+            - /var/lib/postgresql/data
+        environment:
+            - POSTGRES_USER=vultrackerdb
+            - POSTGRES_PASSWORD=vultrackerdb
+            - POSTGRES_DB=vultrackerdb
+    pgadmin:
+        container_name: pgadmin
+        image: dpage/pgadmin4
+        ports:
+            - "8000:80"
+            - "8443:443"
+        links:
+            - vultrackerdb
+        environment:
+            - PGADMIN_DEFAULT_EMAIL=vultrackerdb@localhost
+            - PGADMIN_DEFAULT_PASSWORD=vultrackerdb

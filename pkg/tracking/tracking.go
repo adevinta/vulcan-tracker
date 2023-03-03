@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/adevinta/vulcan-tracker/pkg/model"
+	"github.com/adevinta/vulcan-tracker/pkg/storage"
 	"github.com/adevinta/vulcan-tracker/pkg/tracking/jira"
 	"github.com/labstack/echo/v4"
 )
@@ -32,16 +33,17 @@ type Pagination struct {
 
 // TicketTracker defines the interface for high level querying data from ticket tracker.
 type TicketTracker interface {
-	GetTicket(id string) (*model.Ticket, error)
-	CreateTicket(ticket *model.Ticket) (*model.Ticket, error)
+	GetTicket(id string) (model.Ticket, error)
+	FindTicketByFindingAndTeam(projectKey, vulnerabilityIssueType, findingID string, teamID string) (model.Ticket, error)
+	CreateTicket(ticket model.Ticket) (model.Ticket, error)
 	GetTransitions(id string) ([]model.Transition, error)
-	FixTicket(id string, workflow []string) (*model.Ticket, error)
-	WontFixTicket(id string, workflow []string, reason string) (*model.Ticket, error)
+	FixTicket(id string, workflow []string) (model.Ticket, error)
+	WontFixTicket(id string, workflow []string, reason string) (model.Ticket, error)
 }
 
 const jiraKind = "jira"
 
-// GenerateServerClients instanciates a client for every server passed as argument.
+// GenerateServerClients instantiates a client for every server passed as argument.
 func GenerateServerClients(serverConfs []model.TrackerConfig, logger echo.Logger) (map[string]TicketTracker, error) {
 	clients := make(map[string]TicketTracker)
 	for _, server := range serverConfs {
@@ -50,7 +52,7 @@ func GenerateServerClients(serverConfs []model.TrackerConfig, logger echo.Logger
 
 		switch kind := strings.ToLower(server.Kind); kind {
 		case jiraKind:
-			client, err = jira.New(server.Url, server.User, server.Pass, logger)
+			client, err = jira.New(server.URL, server.User, server.Pass, logger)
 		}
 		// TODO: More kind of trackers coming in the future
 		if err != nil {
@@ -61,4 +63,50 @@ func GenerateServerClients(serverConfs []model.TrackerConfig, logger echo.Logger
 
 	}
 	return clients, nil
+}
+
+// newServerClient instantiates a client for every server passed as argument.
+func newServerClient(url, user, pass, kind string, logger echo.Logger) (*TicketTracker, error) {
+	var client TicketTracker
+	var err error
+
+	switch kind := strings.ToLower(kind); kind {
+	case jiraKind:
+		client, err = jira.New(url, user, pass, logger)
+	}
+	// TODO: More kind of trackers coming in the future
+	if err != nil {
+		return nil, err
+	}
+
+	return &client, nil
+}
+
+// TicketTrackerBuilder builds clients to access ticket trackers.
+type TicketTrackerBuilder interface {
+	GenerateTicketTrackerClient(storage storage.TicketServerStorage, teamID string, logger echo.Logger) (TicketTracker, error)
+}
+
+// TTBuilder represents a builder of clients to access ticket trackers.
+type TTBuilder struct {
+}
+
+// GenerateTicketTrackerClient generates a ticket tracker client.
+func (ttb *TTBuilder) GenerateTicketTrackerClient(storage storage.TicketServerStorage, teamID string, logger echo.Logger) (TicketTracker, error) {
+	projectConfig, err := storage.ProjectConfigByTeamID(teamID)
+	if err != nil {
+		return nil, err
+	}
+	var serverConf model.TrackerConfig
+	serverConf, err = storage.ServerConf(projectConfig.ServerID)
+	if err != nil {
+		return nil, err
+	}
+
+	var ttClient *TicketTracker
+	ttClient, err = newServerClient(serverConf.URL, serverConf.User, serverConf.Pass, serverConf.Kind, logger)
+	if err != nil {
+		return nil, err
+	}
+	return *ttClient, nil
 }

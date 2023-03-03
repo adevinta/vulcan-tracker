@@ -11,17 +11,21 @@ import (
 	"github.com/adevinta/vulcan-tracker/pkg/tracking"
 )
 
+// API represents an API services and all the stuff needed to work.
 type API struct {
-	trackingServers map[string]tracking.TicketTracker
-	storage         storage.Storage
-	Options         Options
+	ticketServerStorage  storage.TicketServerStorage
+	ticketTrackerBuilder tracking.TicketTrackerBuilder
+	storage              storage.Storage
+	Options              Options
 }
 
+// Options represents size options for the API requests.
 type Options struct {
 	MaxSize     int
 	DefaultSize int
 }
 
+// Pagination represents the pagination options for the API requests.
 type Pagination struct {
 	Limit  int  `json:"limit"`
 	Offset int  `json:"offset"`
@@ -34,29 +38,31 @@ var (
 	dateFmtRegEx = `^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$`
 
 	// ErrDateMalformed indicates that the date format does not comply with YYYY-MM-DD.
-	ErrDateMalformed = errors.New("Malformed Date")
+	ErrDateMalformed = errors.New("malformed Date")
 
 	// ErrPageMalformed indicates that the page requested is not an integer larger than 0.
-	ErrPageMalformed = errors.New("Malformed Page Number")
+	ErrPageMalformed = errors.New("malformed Page Number")
 
 	// ErrPageNotFound indicates that the page requested does not exist.
-	ErrPageNotFound = errors.New("Page Not Found")
+	ErrPageNotFound = errors.New("page Not Found")
 
 	// ErrSizeMalformed indicates that the size requested is not an integer larger than 0.
-	ErrSizeMalformed = errors.New("Malformed Size Number")
+	ErrSizeMalformed = errors.New("malformed Size Number")
 
 	// ErrSizeTooLarge indicates that the size requested is larger than the maximum allowed.
-	ErrSizeTooLarge = errors.New("Size Number Too Large")
+	ErrSizeTooLarge = errors.New("size Number Too Large")
 
 	// ErrInvalidFilter indicates that there is a conflict between specified params for the filter.
-	ErrInvalidFilter = errors.New("Filter parameters combination is invalid")
+	ErrInvalidFilter = errors.New("filter parameters combination is invalid")
 )
 
 // New instantiates a new API.
-func New(trackingServers map[string]tracking.TicketTracker, storage storage.Storage, options Options) *API {
+func New(ticketServerStorage storage.TicketServerStorage, ticketTrackerBuilder tracking.TicketTrackerBuilder,
+	storage storage.Storage, options Options) *API {
 	return &API{
-		trackingServers: trackingServers,
-		storage:         storage,
-		Options:         options,
+		ticketServerStorage:  ticketServerStorage,
+		ticketTrackerBuilder: ticketTrackerBuilder,
+		storage:              storage,
+		Options:              options,
 	}
 }

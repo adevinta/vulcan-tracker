@@ -1,3 +1,6 @@
+/*
+Copyright 2022 Adevinta
+*/
 package storage
 
 import (
@@ -9,15 +12,15 @@ import (
 
 // TOMLStore holds toml configuration.
 type TOMLStore struct {
-	servers map[string]config.Server
-	teams   map[string]config.Team
+	servers  map[string]config.Server
+	projects map[string]config.Project
 }
 
 // New creates a new instance to red the configuration from a toml file.
-func New(servers map[string]config.Server, teams map[string]config.Team) (*TOMLStore, error) {
+func New(servers map[string]config.Server, projects map[string]config.Project) (*TOMLStore, error) {
 	return &TOMLStore{
-		servers: servers,
-		teams:   teams,
+		servers:  servers,
+		projects: projects,
 	}, nil
 }
 
@@ -25,10 +28,11 @@ func New(servers map[string]config.Server, teams map[string]config.Team) (*TOMLS
 func (ts *TOMLStore) ServersConf() ([]model.TrackerConfig, error) {
 	var trackerConfigs []model.TrackerConfig
 
-	for serverName, server := range ts.servers {
+	for serverID, server := range ts.servers {
 		serverConf := model.TrackerConfig{
-			Name: serverName,
-			Url:  server.Url,
+			ID:   serverID,
+			Name: server.Name,
+			URL:  server.URL,
 			User: server.User,
 			Pass: server.Token,
 			Kind: server.Kind,
@@ -39,41 +43,41 @@ func (ts *TOMLStore) ServersConf() ([]model.TrackerConfig, error) {
 	return trackerConfigs, nil
 }
 
-// ProjectsConfig retrieves a list of all team configurations declared in the toml file.
-func (ts *TOMLStore) ProjectsConfig() ([]model.ProjectConfig, error) {
-	var projectConfigs []model.ProjectConfig
-
-	for teamName, team := range ts.teams {
-		teamConfig := model.ProjectConfig{
-			Name:                   teamName,
-			ServerName:             team.Server,
-			Project:                team.Project,
-			VulnerabilityIssueType: team.VulnerabilityIssueType,
-			FixedWorkflow:          team.FixWorkflow,
-			WontFixWorkflow:        team.WontFixWorkflow,
-		}
-		projectConfigs = append(projectConfigs, teamConfig)
+// ServerConf retrieves a server configuration declared in the toml file.
+func (ts *TOMLStore) ServerConf(serverID string) (model.TrackerConfig, error) {
+	server, ok := ts.servers[serverID]
+	if !ok {
+		return model.TrackerConfig{}, fmt.Errorf("server %s not found in toml configuration", serverID)
 	}
 
-	return projectConfigs, nil
+	serverConf := model.TrackerConfig{
+		Name: server.Name,
+		URL:  server.URL,
+		User: server.User,
+		Pass: server.Token,
+		Kind: server.Kind,
+	}
 
+	return serverConf, nil
 }
 
-// ProjectConfig retrieves the configuration for the team teamId.
-func (ts *TOMLStore) ProjectConfig(teamId string) (*model.ProjectConfig, error) {
-	team, ok := ts.teams[teamId]
-	if !ok {
-		return nil, fmt.Errorf("team %s not found in toml configuration", teamId)
+// ProjectConfigByTeamID retrieves the configuration for the team teamID.
+func (ts *TOMLStore) ProjectConfigByTeamID(teamID string) (model.ProjectConfig, error) {
+
+	for id, project := range ts.projects {
+		if project.TeamID == teamID {
+			projectConfig := model.ProjectConfig{
+				ID:                     id,
+				Name:                   project.Name,
+				ServerID:               project.ServerID,
+				Project:                project.Project,
+				VulnerabilityIssueType: project.VulnerabilityIssueType,
+				FixedWorkflow:          project.FixWorkflow,
+				WontFixWorkflow:        project.WontFixWorkflow,
+			}
+			return projectConfig, nil
+		}
 	}
 
-	projectConfig := &model.ProjectConfig{
-		Name:                   teamId,
-		ServerName:             team.Server,
-		Project:                team.Project,
-		VulnerabilityIssueType: team.VulnerabilityIssueType,
-		FixedWorkflow:          team.FixWorkflow,
-		WontFixWorkflow:        team.WontFixWorkflow,
-	}
-
-	return projectConfig, nil
+	return model.ProjectConfig{}, fmt.Errorf("project not found in toml configuration for the team %s", teamID)
 }

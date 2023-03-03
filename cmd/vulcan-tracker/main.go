@@ -10,12 +10,14 @@ import (
 	"log"
 	"strings"
 
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+
 	"github.com/adevinta/vulcan-tracker/pkg/api"
 	"github.com/adevinta/vulcan-tracker/pkg/config"
 	"github.com/adevinta/vulcan-tracker/pkg/storage"
+	"github.com/adevinta/vulcan-tracker/pkg/storage/postgresql"
 	"github.com/adevinta/vulcan-tracker/pkg/tracking"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -31,24 +33,23 @@ func main() {
 
 	e.Logger.SetLevel(config.ParseLogLvl(cfg.Log.Level))
 
-	// TODO: Decide which is the type of storage.
-	storage, err := storage.New(cfg.Servers, cfg.Teams)
+	// TODO: Decide which is the type of storage for servers configurations.
+	ticketServerStorage, err := storage.New(cfg.Servers, cfg.Projects)
 	if err != nil {
 		e.Logger.Fatalf("Error initializing storage: %w", err)
 	}
 
-	serversConf, err := storage.ServersConf()
+	// Database connection.
+	cfgPSQL := cfg.PSQL
+	db, err := postgresql.NewDB(cfgPSQL, e.Logger)
 	if err != nil {
 		e.Logger.Fatal(err)
 	}
 
-	// Generate a client for each type of tracker.
-	trackerServers, err := tracking.GenerateServerClients(serversConf, e.Logger)
-	if err != nil {
-		e.Logger.Fatal(err)
-	}
+	// Builder for the ticket tracker clients.
+	ticketTrackerBuilder := &tracking.TTBuilder{}
 
-	a := api.New(trackerServers, storage, api.Options{
+	a := api.New(ticketServerStorage, ticketTrackerBuilder, db, api.Options{
 		MaxSize:     cfg.API.MaxSize,
 		DefaultSize: cfg.API.DefaultSize,
 	})
@@ -65,9 +66,8 @@ func main() {
 
 	e.GET("/:team_id/tickets/:id", a.GetTicket)
 	e.POST("/:team_id/tickets", a.CreateTicket)
-	e.POST("/:team_id/tickets/:id/fix", a.FixTicket)
-	e.POST("/:team_id/tickets/:id/wontfix", a.WontFixTicket)
 
+	e.GET("/:team_id/tickets/findings/:finding_id", a.GetFindingTicket)
 	address := fmt.Sprintf(":%d", cfg.API.Port)
 	e.Logger.Fatal(e.Start(address))
 

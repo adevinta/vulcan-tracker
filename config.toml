@@ -6,6 +6,14 @@ port = $PORT
 [log]
 level = "$LOG_LEVEL"
 
+[postgresql]
+host = "$PG_HOST"
+port = "$PG_PORT"
+user = "$PG_USER"
+pass = "$PG_PASSWORD"
+db = "$PG_NAME"
+sslmode = "$PG_SSLMODE"
+
 [jira]
 url = "$JIRA_URL"
 user = "$JIRA_USER"
