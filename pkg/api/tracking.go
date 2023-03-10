@@ -39,6 +39,16 @@ func responseError(err error) error {
 	return err
 }
 
+// Healthcheck performs a simple query and returns an OK response.
+func (api *API) Healthcheck(c echo.Context) error {
+	err := api.storage.Healthcheck()
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, nil)
+}
+
 // GetTicket returns a JSON containing a specific ticket.
 func (api *API) GetTicket(c echo.Context) error {
 	teamID := c.Param("team_id")

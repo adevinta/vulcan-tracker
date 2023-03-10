@@ -16,4 +16,6 @@ type TicketServerStorage interface {
 type Storage interface {
 	CreateFindingTicket(t model.Ticket) (model.FindingTicket, error)
 	GetFindingTicket(findingID, teamID string) (model.FindingTicket, error)
+
+	Healthcheck() error
 }

@@ -84,3 +84,12 @@ func buildQueryWithArgs(query string, args []interface{}) string {
 
 	return query
 }
+
+// Healthcheck simply checks for database connectivity.
+func (db DB) Healthcheck() error {
+	_, err := db.DB.Exec("select 1;")
+	if err != nil {
+		return err
+	}
+	return nil
+}
