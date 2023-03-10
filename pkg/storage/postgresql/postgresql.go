@@ -86,7 +86,7 @@ func buildQueryWithArgs(query string, args []interface{}) string {
 }
 
 // Healthcheck simply checks for database connectivity.
-func (db DB) Healthcheck() error {
+func (db *PostgresStore) Healthcheck() error {
 	_, err := db.DB.Exec("select 1;")
 	if err != nil {
 		return err
