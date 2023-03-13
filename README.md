@@ -7,29 +7,44 @@ Service to register tickets associated to vulnerabilities in a tracker tool.
 This service is under active development and for sure will break compatibility until it gets a stable release.
 
 
-
 ## Running the service in local mode
-
-Firt of all, you will need to build the service locally and run it from your local folder. To do this, run the following command from the root folder of the project:
-
-```bash
-go build ./cmd/vulcan-tracker
-```
-
-
-```sh
-# run the service. This script uses config.toml as configuration file.
-./run.sh
-```
-
-If you want to use a toml file as storage for servers and teams configuration, you will find an example in `./_resources/config/local.toml`.
-
-
-
-## Installing
 
 For running the component locally, clone and run at the root of the repo the following:
 
-```sh
+```bash
 go install ./...
+cd db && source postgres-start.sh && cd -
+cd db && source flyway-migrate.sh && cd -
+vulcan-tracker -c _resources/config/local.toml
+```
+
+To stop the dependencies, run:
+```bash
+docker-compose down --remove-orphans
+```
+
+## Docker execute
+
+Those are the variables you have to use:
+
+|Variable|Description|Sample|
+|---|---|---|
+|PORT||8080|
+|LOG_LEVEL||error|
+|PG_HOST|Database host|localhost|
+|PG_NAME|Database name|vulnerabilitydb|
+|PG_USER|Database user|vulnerabilitydb|
+|PG_PASSWORD|Database password|vulnerabilitydb|
+|PG_PORT|Database port|5432|
+|PG_SSLMODE|One of these (disable,allow,prefer,require,verify-ca,verify-full)|disable|
+
+
+```bash
+docker build . -t vulcantracker
+
+# Use the default config.toml customized with env variables.
+docker run --env-file ./local.env vulcantracker
+
+# Use custom config.toml
+docker run -v `pwd`/custom.toml:/app/config.toml vdba
 ```

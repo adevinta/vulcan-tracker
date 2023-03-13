@@ -14,6 +14,7 @@ import (
 
 	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
 	"github.com/adevinta/vulcan-tracker/pkg/model"
+	"github.com/adevinta/vulcan-tracker/pkg/storage"
 	"github.com/adevinta/vulcan-tracker/pkg/tracking"
 
 	"github.com/google/go-cmp/cmp"
@@ -103,6 +104,7 @@ func (mttb *mockTicketTrackerBuilder) GenerateTicketTrackerClient(_ tracking.Tic
 }
 
 type mockStorage struct {
+	storage.Storage
 	findingTickets []model.FindingTicket
 }
 

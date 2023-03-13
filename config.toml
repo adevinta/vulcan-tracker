@@ -13,10 +13,3 @@ user = "$PG_USER"
 pass = "$PG_PASSWORD"
 db = "$PG_NAME"
 sslmode = "$PG_SSLMODE"
-
-[jira]
-url = "$JIRA_URL"
-user = "$JIRA_USER"
-token = "$JIRA_TOKEN"
-vulnerability_issue_type = "$JIRA_VULNERABILITY_ISSUE_TYPE"
-project = "$JIRA_PROJECT"
