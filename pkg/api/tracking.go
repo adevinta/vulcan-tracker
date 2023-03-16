@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+	"regexp"
 
 	"github.com/labstack/echo/v4"
 
@@ -39,6 +40,11 @@ func responseError(err error) error {
 	return err
 }
 
+func isValidTeam(team string) bool {
+	r := regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
+	return r.MatchString(team)
+}
+
 // Healthcheck performs a simple query and returns an OK response.
 func (api *API) Healthcheck(c echo.Context) error {
 	err := api.storage.Healthcheck()
@@ -53,6 +59,15 @@ func (api *API) Healthcheck(c echo.Context) error {
 func (api *API) GetTicket(c echo.Context) error {
 	teamID := c.Param("team_id")
 	id := c.Param("id")
+
+	// Check if the team is an uuid
+	if !isValidTeam(teamID) {
+		return responseError(
+			&vterrors.TrackingError{
+				Msg:            "the team id should be a UUID",
+				HTTPStatusCode: http.StatusBadRequest,
+			})
+	}
 
 	// Get a ticket tracker client.
 	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServer, teamID, c.Logger())
@@ -72,6 +87,15 @@ func (api *API) GetTicket(c echo.Context) error {
 func (api *API) CreateTicket(c echo.Context) error {
 	teamID := c.Param("team_id")
 	ticket := new(model.Ticket)
+
+	// Check if the team is an uuid
+	if !isValidTeam(teamID) {
+		return responseError(
+			&vterrors.TrackingError{
+				Msg:            "the team id should be a UUID",
+				HTTPStatusCode: http.StatusBadRequest,
+			})
+	}
 
 	if err := c.Bind(ticket); err != nil {
 		return c.String(http.StatusBadRequest, "bad request")
@@ -120,6 +144,15 @@ func (api *API) FixTicket(c echo.Context) error {
 	teamID := c.Param("team_id")
 	id := c.Param("id")
 
+	// Check if the team is an uuid
+	if !isValidTeam(teamID) {
+		return responseError(
+			&vterrors.TrackingError{
+				Msg:            "the team id should be a UUID",
+				HTTPStatusCode: http.StatusBadRequest,
+			})
+	}
+
 	// Get the server and the configuration for the teamID.
 	configuration, err := api.ticketServer.ProjectConfigByTeamID(teamID)
 	if err != nil {
@@ -150,6 +183,16 @@ type WontFixForm struct {
 func (api *API) WontFixTicket(c echo.Context) error {
 	teamID := c.Param("team_id")
 	id := c.Param("id")
+
+	// Check if the team is an uuid
+	if !isValidTeam(teamID) {
+		return responseError(
+			&vterrors.TrackingError{
+				Msg:            "the team id should be a UUID",
+				HTTPStatusCode: http.StatusBadRequest,
+			})
+	}
+
 	form := new(WontFixForm)
 
 	if err := c.Bind(form); err != nil {
@@ -179,6 +222,15 @@ func (api *API) WontFixTicket(c echo.Context) error {
 func (api *API) GetFindingTicket(c echo.Context) error {
 	teamID := c.Param("team_id")
 	findingID := c.Param("finding_id")
+
+	// Check if the team is an uuid
+	if !isValidTeam(teamID) {
+		return responseError(
+			&vterrors.TrackingError{
+				Msg:            "the team id should be a UUID",
+				HTTPStatusCode: http.StatusBadRequest,
+			})
+	}
 
 	findingTicket, err := api.storage.GetFindingTicket(findingID, teamID)
 	if err != nil {
