@@ -20,7 +20,7 @@ vulcan-tracker -c _resources/config/local.toml
 
 To stop the dependencies, run:
 ```bash
-docker-compose down --remove-orphans
+cd db && ./postgres-stop.sh
 ```
 
 ## Docker execute
@@ -37,6 +37,9 @@ Those are the variables you have to use:
 |PG_PASSWORD|Database password|vulnerabilitydb|
 |PG_PORT|Database port|5432|
 |PG_SSLMODE|One of these (disable,allow,prefer,require,verify-ca,verify-full)|disable|
+|AWSSERVERCREDENTIALS_KEY|Parent key in the AWS Secret Manager to store server secrets|/vulcan/k8s/tracker/jira/|
+|AWSREGION||eu-west-1|
+
 
 
 ```bash
