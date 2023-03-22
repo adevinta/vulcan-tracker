@@ -40,7 +40,12 @@ func main() {
 		e.Logger.Fatal(err)
 	}
 
-	ticketServer, err := tracking.New(db, &secrets.AWSSecrets{Logger: e.Logger}, e.Logger)
+	secretsManager, err := secrets.NewAWSSecretManager(cfg.AWS, e.Logger)
+	if err != nil {
+		e.Logger.Fatal(err)
+	}
+
+	ticketServer, err := tracking.New(db, secretsManager, e.Logger)
 	if err != nil {
 		e.Logger.Fatal(err)
 	}

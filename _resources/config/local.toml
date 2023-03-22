@@ -12,3 +12,7 @@ port = "5439"
 user = "vultrackerdb"
 pass = "vultrackerdb"
 db = "vultrackerdb"
+
+[aws]
+server_credentials_key = "/vulcan/k8s/tracker/jira/"
+region ="eu-west-1"

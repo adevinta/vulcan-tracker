@@ -13,3 +13,7 @@ user = "$PG_USER"
 pass = "$PG_PASSWORD"
 db = "$PG_NAME"
 sslmode = "$PG_SSLMODE"
+
+[aws]
+server_credentials_key = "$AWSSERVERCREDENTIALS_KEY"
+region ="$AWSREGION"

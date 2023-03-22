@@ -42,6 +42,7 @@ type Config struct {
 	Projects map[string]Project `toml:"projects"`
 	Log      logConfig          `toml:"log"`
 	PSQL     postgresql.ConnStr `toml:"postgresql"`
+	AWS      AwsConfig          `toml:"aws"`
 }
 
 type apiConfig struct {
@@ -52,6 +53,12 @@ type apiConfig struct {
 
 type logConfig struct {
 	Level string `toml:"level"`
+}
+
+// AwsConfig stores the AWS configuration
+type AwsConfig struct {
+	ServerCredentialsKey string `toml:"server_credentials_key"`
+	Region               string `toml:"region"`
 }
 
 // ParseConfig parses de config file and set default values when it is needed.
@@ -95,6 +102,11 @@ func ParseConfig(cfgFilePath string) (*Config, error) {
 	if envVar := os.Getenv("VULCANTRACKER_DB_NAME"); envVar != "" {
 		conf.PSQL.DB = envVar
 	}
+
+	if envVar := os.Getenv("VULCANTRACKER_AWS_REGION"); envVar != "" {
+		conf.AWS.Region = envVar
+	}
+
 	return &conf, nil
 }
 
