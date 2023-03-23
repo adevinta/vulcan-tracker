@@ -153,12 +153,9 @@ func TestGetTicket(t *testing.T) {
 		ID:                     "projectID1",
 		Name:                   "ProjectName1",
 		TeamID:                 "80287cf6-db31-47f8-a9aa-792f214b1f88",
-		ServerID:               "JiraServerID",
+		TrackerConfigID:        "JiraServerID",
 		Project:                "TEST",
 		VulnerabilityIssueType: "Vulnerability",
-		FixedWorkflow:          nil,
-		WontFixWorkflow:        nil,
-		AutoCreate:             false,
 	}
 
 	p1 := project // make a copy of the project.
@@ -309,12 +306,9 @@ func TestCreateTicket(t *testing.T) {
 		ID:                     "projectID1",
 		Name:                   "ProjectName1",
 		TeamID:                 "80287cf6-db31-47f8-a9aa-792f214b1f88",
-		ServerID:               "JiraServerID",
+		TrackerConfigID:        "JiraServerID",
 		Project:                "TEST",
 		VulnerabilityIssueType: "Vulnerability",
-		FixedWorkflow:          nil,
-		WontFixWorkflow:        nil,
-		AutoCreate:             false,
 	}
 
 	p1 := project // make a copy of the project.

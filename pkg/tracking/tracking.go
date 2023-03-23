@@ -6,7 +6,6 @@ package tracking
 import (
 	"database/sql"
 	"net/http"
-	"strings"
 
 	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
 	"github.com/labstack/echo/v4"
@@ -41,50 +40,6 @@ type TicketTracker interface {
 	GetTicket(id string) (model.Ticket, error)
 	FindTicketByFindingAndTeam(projectKey, vulnerabilityIssueType, findingID string, teamID string) (model.Ticket, error)
 	CreateTicket(ticket model.Ticket) (model.Ticket, error)
-	GetTransitions(id string) ([]model.Transition, error)
-	FixTicket(id string, workflow []string) (model.Ticket, error)
-	WontFixTicket(id string, workflow []string, reason string) (model.Ticket, error)
-}
-
-const jiraKind = "jira"
-
-// GenerateServerClients instantiates a client for every server passed as argument.
-func GenerateServerClients(serverConfs []model.TrackerConfig, logger echo.Logger) (map[string]TicketTracker, error) {
-	clients := make(map[string]TicketTracker)
-	for _, server := range serverConfs {
-		var client TicketTracker
-		var err error
-
-		switch kind := strings.ToLower(server.Kind); kind {
-		case jiraKind:
-			client, err = jira.New(server.URL, server.User, server.Pass, logger)
-		}
-		// TODO: More kind of trackers coming in the future
-		if err != nil {
-			return nil, err
-		}
-
-		clients[server.ID] = client
-
-	}
-	return clients, nil
-}
-
-// newServerClient instantiates a client for every server passed as argument.
-func newServerClient(url, user, pass, kind string, logger echo.Logger) (*TicketTracker, error) {
-	var client TicketTracker
-	var err error
-
-	switch kind := strings.ToLower(kind); kind {
-	case jiraKind:
-		client, err = jira.New(url, user, pass, logger)
-	}
-	// TODO: More kind of trackers coming in the future
-	if err != nil {
-		return nil, err
-	}
-
-	return &client, nil
 }
 
 // TicketTrackerBuilder builds clients to access ticket trackers.
@@ -103,17 +58,18 @@ func (ttb *TTBuilder) GenerateTicketTrackerClient(ticketServer TicketServer, tea
 		return nil, err
 	}
 	var serverConf model.TrackerConfig
-	serverConf, err = ticketServer.ServerConf(projectConfig.ServerID)
+	serverConf, err = ticketServer.ServerConf(projectConfig.TrackerConfigID)
 	if err != nil {
 		return nil, err
 	}
 
-	var ttClient *TicketTracker
-	ttClient, err = newServerClient(serverConf.URL, serverConf.User, serverConf.Pass, serverConf.Kind, logger)
+	var ttClient TicketTracker
+
+	ttClient, err = jira.New(serverConf.URL, serverConf.User, serverConf.Pass, logger)
 	if err != nil {
 		return nil, err
 	}
-	return *ttClient, nil
+	return ttClient, nil
 }
 
 // TicketServer manages the access to a ticket tracker server.

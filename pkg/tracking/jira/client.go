@@ -19,9 +19,6 @@ type Issuer interface {
 	Get(issueID string, options *gojira.GetQueryOptions) (*gojira.Issue, *gojira.Response, error)
 	Search(jql string, options *gojira.SearchOptions) ([]gojira.Issue, *gojira.Response, error)
 	Create(issue *gojira.Issue) (*gojira.Issue, *gojira.Response, error)
-	GetTransitions(id string) ([]gojira.Transition, *gojira.Response, error)
-	DoTransition(ticketID, transitionID string) (*gojira.Response, error)
-	DoTransitionWithPayload(ticketID, payload interface{}) (*gojira.Response, error)
 }
 
 // Client represents a specific Jira client.
@@ -61,14 +58,6 @@ func fromGoJiraToTicketModel(jiraIssue gojira.Issue, ticket model.Ticket) model.
 		ticket.Resolution = jiraIssue.Fields.Resolution.Name
 	}
 	return ticket
-}
-
-// fromGoJiraToTransitionModel transforms a transition returned by go-jira into a model.Transition.
-func fromGoJiraToTransitionModel(jiraTransition gojira.Transition) model.Transition {
-	return model.Transition{
-		ID:     jiraTransition.ID,
-		ToName: jiraTransition.To.Name,
-	}
 }
 
 // GetTicket retrieves a ticket from Jira.
@@ -147,53 +136,4 @@ func (cl *Client) CreateTicket(ticket model.Ticket) (model.Ticket, error) {
 
 	ticket = fromGoJiraToTicketModel(*createdTicket, ticket)
 	return ticket, nil
-}
-
-// GetTicketTransitions retrieves a list of all available transitions of a ticket.
-func (cl *Client) GetTicketTransitions(id string) ([]model.Transition, error) {
-	transitions, resp, err := cl.Issuer.GetTransitions(id)
-	if err != nil {
-		err = gojira.NewJiraError(resp, err)
-		return nil, err
-	}
-
-	var result []model.Transition
-
-	for _, transition := range transitions {
-		transformedTransition := fromGoJiraToTransitionModel(transition)
-		result = append(result, transformedTransition)
-
-	}
-	return result, nil
-}
-
-// DoTransition changes the state of an issue to one of the available ones.
-func (cl *Client) DoTransition(id, idTransition string) error {
-	resp, err := cl.Issuer.DoTransition(id, idTransition)
-	if err != nil {
-		err = gojira.NewJiraError(resp, err)
-		return err
-	}
-	return nil
-}
-
-// DoTransitionWithResolution changes the state of an issue to a resolved one and set the resolution field.
-func (cl *Client) DoTransitionWithResolution(id, idTransition, resolution string) error {
-	customPayload := map[string]interface{}{
-		"transition": gojira.TransitionPayload{
-			ID: idTransition,
-		},
-		"fields": gojira.TransitionPayloadFields{
-			Resolution: &gojira.Resolution{
-				Name: resolution,
-			},
-		},
-	}
-
-	resp, err := cl.Issuer.DoTransitionWithPayload(id, customPayload)
-	if err != nil {
-		err = gojira.NewJiraError(resp, err)
-		return err
-	}
-	return nil
 }

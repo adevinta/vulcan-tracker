@@ -4,8 +4,6 @@ Copyright 2002 Adevinta
 
 package model
 
-import "github.com/lib/pq"
-
 // Ticket represents a vulnerability in a ticket tracker.
 type Ticket struct {
 	ID          string   `json:"id"`
@@ -30,12 +28,6 @@ type FindingTicket struct {
 	URLTracker string `json:"url_tracker" db:"url_tracker"`
 }
 
-// Transition represents a state change of a ticket.
-type Transition struct {
-	ID     string `json:"id"`
-	ToName string `json:"name"`
-}
-
 // TrackerConfig represents the configuration of a ticket tracker server.
 type TrackerConfig struct {
 	ID   string `db:"id"`
@@ -43,18 +35,14 @@ type TrackerConfig struct {
 	URL  string `db:"url"`
 	User string
 	Pass string
-	Kind string `db:"kind"`
 }
 
 // ProjectConfig represents the configuration of a team.
 type ProjectConfig struct {
-	ID                     string         `db:"id"`
-	Name                   string         `db:"name"`
-	TeamID                 string         `db:"team_id"`
-	ServerID               string         `db:"ticket_tracker_servers_id"`
-	Project                string         `db:"project"`
-	VulnerabilityIssueType string         `db:"issue_type"`
-	FixedWorkflow          pq.StringArray `db:"fix_workflow"`
-	WontFixWorkflow        pq.StringArray `db:"wont_fix_workflow"`
-	AutoCreate             bool           `db:"auto_create"`
+	ID                     string `db:"id"`
+	Name                   string `db:"name"`
+	TeamID                 string `db:"team_id"`
+	TrackerConfigID        string `db:"tracker_configuration_id"`
+	Project                string `db:"project"`
+	VulnerabilityIssueType string `db:"issue_type"`
 }

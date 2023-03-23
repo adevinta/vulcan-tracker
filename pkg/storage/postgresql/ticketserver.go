@@ -10,12 +10,12 @@ import (
 
 // FindServerConf retrieves a ticket tracker configuration from a postgres database.
 func (db *PostgresStore) FindServerConf(serverID string) (model.TrackerConfig, error) {
-	query := "SELECT * FROM ticket_tracker_servers where id = $1"
+	query := "SELECT * FROM tracker_configurations where id = $1"
 	logQuery(db.Logger, "ServerConf", query, serverID)
 	result := db.DB.QueryRow(query, serverID)
 
 	var trackerConfig model.TrackerConfig
-	err := result.Scan(&trackerConfig.ID, &trackerConfig.Name, &trackerConfig.URL, &trackerConfig.Kind)
+	err := result.Scan(&trackerConfig.ID, &trackerConfig.Name, &trackerConfig.URL)
 	if err != nil {
 		return model.TrackerConfig{}, err
 	}

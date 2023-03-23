@@ -71,13 +71,11 @@ func setupSubTest(t *testing.T) {
 		ID:   "JiraServerID",
 		Name: "JiraServer",
 		URL:  "http://example.com",
-		Kind: "jira",
 	}
 	servers["JiraServerIDNoCredentials"] = &model.TrackerConfig{
 		ID:   "JiraServerIDNoCredentials",
 		Name: "JiraServer",
 		URL:  "http://example.com",
-		Kind: "jira",
 	}
 
 	projects := make(map[string]*model.ProjectConfig)
@@ -85,12 +83,9 @@ func setupSubTest(t *testing.T) {
 		ID:                     "projectID1",
 		Name:                   "ProjectName1",
 		TeamID:                 "ProjectTeamID1",
-		ServerID:               "JiraServerID",
+		TrackerConfigID:        "JiraServerID",
 		Project:                "TEST-1",
 		VulnerabilityIssueType: "Vulnerability",
-		FixedWorkflow:          nil,
-		WontFixWorkflow:        nil,
-		AutoCreate:             false,
 	}
 
 	credentials := make(map[string]*secrets.Credentials)
@@ -104,56 +99,6 @@ func setupSubTest(t *testing.T) {
 			projects: projects},
 		secretsService: &mockSecrets{credentials: credentials},
 		Logger:         &mockLogger{},
-	}
-}
-
-func TestGenerateServerClients(t *testing.T) {
-	logger := &mockLogger{}
-	tests := []struct {
-		name          string
-		trackerConfig []model.TrackerConfig
-		want          map[string]TicketTracker
-		wantErr       error
-	}{
-		{
-			name: "HappyPath",
-			trackerConfig: []model.TrackerConfig{
-				{
-					ID:   "JiraServerID",
-					Name: "JiraServer",
-					URL:  "http://example.com",
-					User: "user",
-					Pass: "pass",
-					Kind: "jira",
-				},
-			},
-			want: map[string]TicketTracker{
-				"JiraServerID": &jira.TC{
-					Client: &jira.Client{},
-					Logger: logger,
-					URL:    "http://example.com",
-				},
-			},
-			wantErr: nil,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-
-			got, err := GenerateServerClients(tt.trackerConfig, logger)
-
-			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
-			}
-			diff := cmp.Diff(got, tt.want, cmpopts.IgnoreUnexported(jira.TC{}),
-				cmpopts.IgnoreUnexported(jira.Client{}),
-				cmpopts.IgnoreInterfaces(struct{ jira.Issuer }{}),
-			)
-			if diff != "" {
-				t.Fatalf("the generated servers do not match expected ones. diff: %v\n", diff)
-			}
-		})
 	}
 }
 
@@ -173,7 +118,6 @@ func TestServerConf(t *testing.T) {
 				URL:  "http://example.com",
 				User: "user",
 				Pass: "password",
-				Kind: "jira",
 			},
 			wantErr: nil,
 		},
@@ -199,7 +143,7 @@ func TestServerConf(t *testing.T) {
 			if errToStr(err) != errToStr(tt.wantErr) {
 				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
-			diff := cmp.Diff(got, tt.want, cmpopts.IgnoreUnexported(jira.TC{}),
+			diff := cmp.Diff(got, tt.want, cmpopts.IgnoreUnexported(jira.TrackerClient{}),
 				cmpopts.IgnoreUnexported(jira.Client{}),
 				cmpopts.IgnoreInterfaces(struct{ jira.Issuer }{}),
 			)
@@ -224,12 +168,9 @@ func TestProjectConfigByTeamID(t *testing.T) {
 				ID:                     "projectID1",
 				Name:                   "ProjectName1",
 				TeamID:                 "ProjectTeamID1",
-				ServerID:               "JiraServerID",
+				TrackerConfigID:        "JiraServerID",
 				Project:                "TEST-1",
 				VulnerabilityIssueType: "Vulnerability",
-				FixedWorkflow:          nil,
-				WontFixWorkflow:        nil,
-				AutoCreate:             false,
 			},
 			wantErr: nil,
 		},
@@ -249,7 +190,7 @@ func TestProjectConfigByTeamID(t *testing.T) {
 			if errToStr(err) != errToStr(tt.wantErr) {
 				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
-			diff := cmp.Diff(got, tt.want, cmpopts.IgnoreUnexported(jira.TC{}),
+			diff := cmp.Diff(got, tt.want, cmpopts.IgnoreUnexported(jira.TrackerClient{}),
 				cmpopts.IgnoreUnexported(jira.Client{}),
 				cmpopts.IgnoreInterfaces(struct{ jira.Issuer }{}),
 			)

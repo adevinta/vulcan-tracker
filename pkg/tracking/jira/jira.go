@@ -8,8 +8,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// TC represents a ticket tracker client.
-type TC struct {
+// TrackerClient represents a Jira ticket tracker client.
+type TrackerClient struct {
 	Client TicketTrackingClient
 	Logger echo.Logger
 	URL    string
@@ -20,19 +20,16 @@ type TicketTrackingClient interface {
 	GetTicket(id string) (model.Ticket, error)
 	FindTicket(projectKey, vulnerabilityIssueType, text string) (model.Ticket, error)
 	CreateTicket(ticket model.Ticket) (model.Ticket, error)
-	GetTicketTransitions(id string) ([]model.Transition, error)
-	DoTransition(id, idTransition string) error
-	DoTransitionWithResolution(id, idTransition, resolution string) error
 }
 
 // New instantiates a new Jira connection.
-func New(url, user, pass string, logger echo.Logger) (*TC, error) {
+func New(url, user, pass string, logger echo.Logger) (*TrackerClient, error) {
 	jiraClient, err := NewClient(url, user, pass)
 	if err != nil {
 		return nil, err
 	}
 
-	return &TC{
+	return &TrackerClient{
 		Client: jiraClient,
 		Logger: logger,
 		URL:    url,
