@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+	"regexp"
 
 	"github.com/labstack/echo/v4"
 
@@ -39,6 +40,11 @@ func responseError(err error) error {
 	return err
 }
 
+func isValidTeam(team string) bool {
+	r := regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
+	return r.MatchString(team)
+}
+
 // Healthcheck performs a simple query and returns an OK response.
 func (api *API) Healthcheck(c echo.Context) error {
 	err := api.storage.Healthcheck()
@@ -54,8 +60,17 @@ func (api *API) GetTicket(c echo.Context) error {
 	teamID := c.Param("team_id")
 	id := c.Param("id")
 
+	// Check if the team is an uuid
+	if !isValidTeam(teamID) {
+		return responseError(
+			&vterrors.TrackingError{
+				Msg:            "the team id should be a UUID",
+				HTTPStatusCode: http.StatusBadRequest,
+			})
+	}
+
 	// Get a ticket tracker client.
-	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServerStorage, teamID, c.Logger())
+	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServer, teamID, c.Logger())
 	if err != nil {
 		return responseError(err)
 	}
@@ -73,14 +88,23 @@ func (api *API) CreateTicket(c echo.Context) error {
 	teamID := c.Param("team_id")
 	ticket := new(model.Ticket)
 
+	// Check if the team is an uuid
+	if !isValidTeam(teamID) {
+		return responseError(
+			&vterrors.TrackingError{
+				Msg:            "the team id should be a UUID",
+				HTTPStatusCode: http.StatusBadRequest,
+			})
+	}
+
 	if err := c.Bind(ticket); err != nil {
 		return c.String(http.StatusBadRequest, "bad request")
 	}
 
 	// Get the server and the configuration for the teamID.
-	configuration, err := api.ticketServerStorage.ProjectConfigByTeamID(teamID)
+	configuration, err := api.ticketServer.ProjectConfigByTeamID(teamID)
 	if err != nil {
-		return err
+		return responseError(err)
 	}
 
 	// Retrieve the necessary values to create a ticket.
@@ -95,7 +119,7 @@ func (api *API) CreateTicket(c echo.Context) error {
 	}
 
 	// Get a ticket tracker client.
-	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServerStorage, teamID, c.Logger())
+	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServer, teamID, c.Logger())
 	if err != nil {
 		return responseError(err)
 	}
@@ -115,70 +139,19 @@ func (api *API) CreateTicket(c echo.Context) error {
 	return response(c, http.StatusOK, ticket, "ticket")
 }
 
-// FixTicket updates a ticket until a "done" state and returns a JSON containing the new ticket.
-func (api *API) FixTicket(c echo.Context) error {
-	teamID := c.Param("team_id")
-	id := c.Param("id")
-
-	// Get the server and the configuration for the teamID.
-	configuration, err := api.ticketServerStorage.ProjectConfigByTeamID(teamID)
-	if err != nil {
-		return err
-	}
-
-	// Get a ticket tracker client.
-	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServerStorage, teamID, c.Logger())
-	if err != nil {
-		return responseError(err)
-	}
-
-	ticket, err := ttClient.FixTicket(id, configuration.FixedWorkflow)
-	if err != nil {
-		return responseError(err)
-	}
-
-	return response(c, http.StatusOK, ticket, "ticket")
-}
-
-// WontFixForm represents the information associated to a ticket that will be marked as Won't Fix.
-type WontFixForm struct {
-	Reason string `json:"reason"`
-}
-
-// WontFixTicket updates a ticket until a "done" but with a won't fix reason state
-// and returns a JSON containing the new ticket.
-func (api *API) WontFixTicket(c echo.Context) error {
-	teamID := c.Param("team_id")
-	id := c.Param("id")
-	form := new(WontFixForm)
-
-	if err := c.Bind(form); err != nil {
-		return c.String(http.StatusBadRequest, "bad request")
-	}
-
-	// Get the server and the configuration for the teamID.
-	configuration, err := api.ticketServerStorage.ProjectConfigByTeamID(teamID)
-	if err != nil {
-		return err
-	}
-
-	// Get a ticket tracker client.
-	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServerStorage, teamID, c.Logger())
-	if err != nil {
-		return responseError(err)
-	}
-	ticket, err := ttClient.WontFixTicket(id, configuration.WontFixWorkflow, form.Reason)
-	if err != nil {
-		return responseError(err)
-	}
-
-	return response(c, http.StatusOK, ticket, "ticket")
-}
-
 // GetFindingTicket checks if a ticket was created and retrieves it if it is found.
 func (api *API) GetFindingTicket(c echo.Context) error {
 	teamID := c.Param("team_id")
 	findingID := c.Param("finding_id")
+
+	// Check if the team is an uuid
+	if !isValidTeam(teamID) {
+		return responseError(
+			&vterrors.TrackingError{
+				Msg:            "the team id should be a UUID",
+				HTTPStatusCode: http.StatusBadRequest,
+			})
+	}
 
 	findingTicket, err := api.storage.GetFindingTicket(findingID, teamID)
 	if err != nil {

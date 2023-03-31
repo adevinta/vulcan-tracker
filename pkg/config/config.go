@@ -15,33 +15,12 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-// Server represents the credentials to access a ticket tracker server.
-type Server struct {
-	Name  string `toml:"name"`
-	URL   string `toml:"url"`
-	User  string `toml:"user"`
-	Token string `toml:"token"`
-	Kind  string `toml:"kind"`
-}
-
-// Project represents a project in the ticket tracker tool and its relationship with a team.
-type Project struct {
-	Name                   string   `toml:"name"`
-	ServerID               string   `toml:"server_id"`
-	TeamID                 string   `toml:"team_id"`
-	Project                string   `toml:"project"`
-	VulnerabilityIssueType string   `toml:"vulnerability_issue_type"`
-	FixWorkflow            []string `toml:"fix_workflow"`
-	WontFixWorkflow        []string `toml:"wontfix_workflow"`
-}
-
 // Config represents all the configuration needed to run the project.
 type Config struct {
-	API      apiConfig          `toml:"api"`
-	Servers  map[string]Server  `toml:"servers"`
-	Projects map[string]Project `toml:"projects"`
-	Log      logConfig          `toml:"log"`
-	PSQL     postgresql.ConnStr `toml:"postgresql"`
+	API  apiConfig          `toml:"api"`
+	Log  logConfig          `toml:"log"`
+	PSQL postgresql.ConnStr `toml:"postgresql"`
+	AWS  AwsConfig          `toml:"aws"`
 }
 
 type apiConfig struct {
@@ -52,6 +31,12 @@ type apiConfig struct {
 
 type logConfig struct {
 	Level string `toml:"level"`
+}
+
+// AwsConfig stores the AWS configuration
+type AwsConfig struct {
+	ServerCredentialsKey string `toml:"server_credentials_key"`
+	Region               string `toml:"region"`
 }
 
 // ParseConfig parses de config file and set default values when it is needed.
@@ -95,6 +80,11 @@ func ParseConfig(cfgFilePath string) (*Config, error) {
 	if envVar := os.Getenv("VULCANTRACKER_DB_NAME"); envVar != "" {
 		conf.PSQL.DB = envVar
 	}
+
+	if envVar := os.Getenv("VULCANTRACKER_AWS_REGION"); envVar != "" {
+		conf.AWS.Region = envVar
+	}
+
 	return &conf, nil
 }
 

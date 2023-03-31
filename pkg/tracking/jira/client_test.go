@@ -260,5 +260,3 @@ func TestClient_Find(t *testing.T) {
 		})
 	}
 }
-
-// TODO: Pending more testing

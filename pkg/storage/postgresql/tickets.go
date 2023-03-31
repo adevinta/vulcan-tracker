@@ -17,7 +17,7 @@ type FindingTicket struct {
 }
 
 // CreateFindingTicket inserts a row in the database to store the relation between a finding, a team and a ticket.
-func (db DB) CreateFindingTicket(t model.Ticket) (model.FindingTicket, error) {
+func (db *PostgresStore) CreateFindingTicket(t model.Ticket) (model.FindingTicket, error) {
 	query := `
 	    INSERT INTO finding_tickets (finding_id, team_id, url_tracker, created_at)
 			SELECT $1, $2, $3, now() RETURNING *
@@ -39,7 +39,7 @@ func (db DB) CreateFindingTicket(t model.Ticket) (model.FindingTicket, error) {
 
 // GetFindingTicket retrieves a row from the database that contains the link to the ticket tracker for a specific
 // finding and team.
-func (db DB) GetFindingTicket(findingID, teamID string) (model.FindingTicket, error) {
+func (db *PostgresStore) GetFindingTicket(findingID, teamID string) (model.FindingTicket, error) {
 	var findingTicket FindingTicket
 
 	query := "SELECT * FROM finding_tickets WHERE finding_id = $1 and team_id = $2"

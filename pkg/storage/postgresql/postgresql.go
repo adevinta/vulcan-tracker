@@ -14,26 +14,24 @@ import (
 	_ "github.com/lib/pq" // Import the PostgreSQL driver.
 )
 
-type (
-	// DB holds the database connection.
-	DB struct {
-		DB     *sqlx.DB
-		Logger echo.Logger
-	}
+// PostgresStore holds the database connection.
+type PostgresStore struct {
+	DB     *sqlx.DB
+	Logger echo.Logger
+}
 
-	// ConnStr holds the PostgreSQL connection information.
-	ConnStr struct {
-		Host    string `toml:"host"`
-		Port    string `toml:"port"`
-		User    string `toml:"user"`
-		Pass    string `toml:"pass"`
-		DB      string `toml:"db"`
-		SSLMode string `toml:"sslmode"`
-	}
-)
+// ConnStr holds the PostgreSQL connection information.
+type ConnStr struct {
+	Host    string `toml:"host"`
+	Port    string `toml:"port"`
+	User    string `toml:"user"`
+	Pass    string `toml:"pass"`
+	DB      string `toml:"db"`
+	SSLMode string `toml:"sslmode"`
+}
 
 // NewDB instantiates a new PostgreSQL connection.
-func NewDB(cs ConnStr, logger echo.Logger) (*DB, error) {
+func NewDB(cs ConnStr, logger echo.Logger) (*PostgresStore, error) {
 	if cs.SSLMode == "" {
 		cs.SSLMode = "disable"
 	}
@@ -44,7 +42,7 @@ func NewDB(cs ConnStr, logger echo.Logger) (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &DB{DB: db, Logger: logger}, nil
+	return &PostgresStore{DB: db, Logger: logger}, nil
 }
 
 func logQuery(logger echo.Logger, name, query string, args ...interface{}) {
@@ -86,8 +84,8 @@ func buildQueryWithArgs(query string, args []interface{}) string {
 }
 
 // Healthcheck simply checks for database connectivity.
-func (db DB) Healthcheck() error {
-	_, err := db.DB.Exec("select 1;")
+func (db *PostgresStore) Healthcheck() error {
+	err := db.DB.Ping()
 	if err != nil {
 		return err
 	}

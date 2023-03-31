@@ -28,30 +28,21 @@ type FindingTicket struct {
 	URLTracker string `json:"url_tracker" db:"url_tracker"`
 }
 
-// Transition represents a state change of a ticket.
-type Transition struct {
-	ID     string `json:"id"`
-	ToName string `json:"name"`
-}
-
 // TrackerConfig represents the configuration of a ticket tracker server.
 type TrackerConfig struct {
-	ID   string
-	Name string
-	URL  string
+	ID   string `db:"id"`
+	Name string `db:"name"`
+	URL  string `db:"url"`
 	User string
 	Pass string
-	Kind string
 }
 
 // ProjectConfig represents the configuration of a team.
 type ProjectConfig struct {
-	ID                     string
-	Name                   string
-	TeamID                 string
-	ServerID               string
-	Project                string
-	VulnerabilityIssueType string
-	FixedWorkflow          []string
-	WontFixWorkflow        []string
+	ID                     string `db:"id"`
+	Name                   string `db:"name"`
+	TeamID                 string `db:"team_id"`
+	TrackerConfigID        string `db:"tracker_configuration_id"`
+	Project                string `db:"project"`
+	VulnerabilityIssueType string `db:"issue_type"`
 }

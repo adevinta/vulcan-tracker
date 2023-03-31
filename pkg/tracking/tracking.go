@@ -4,12 +4,16 @@ Copyright 2022 Adevinta
 package tracking
 
 import (
-	"strings"
+	"database/sql"
+	"net/http"
+
+	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
+	"github.com/labstack/echo/v4"
 
 	"github.com/adevinta/vulcan-tracker/pkg/model"
+	"github.com/adevinta/vulcan-tracker/pkg/secrets"
 	"github.com/adevinta/vulcan-tracker/pkg/storage"
 	"github.com/adevinta/vulcan-tracker/pkg/tracking/jira"
-	"github.com/labstack/echo/v4"
 )
 
 // Filter holds query filtering information.
@@ -36,55 +40,11 @@ type TicketTracker interface {
 	GetTicket(id string) (model.Ticket, error)
 	FindTicketByFindingAndTeam(projectKey, vulnerabilityIssueType, findingID string, teamID string) (model.Ticket, error)
 	CreateTicket(ticket model.Ticket) (model.Ticket, error)
-	GetTransitions(id string) ([]model.Transition, error)
-	FixTicket(id string, workflow []string) (model.Ticket, error)
-	WontFixTicket(id string, workflow []string, reason string) (model.Ticket, error)
-}
-
-const jiraKind = "jira"
-
-// GenerateServerClients instantiates a client for every server passed as argument.
-func GenerateServerClients(serverConfs []model.TrackerConfig, logger echo.Logger) (map[string]TicketTracker, error) {
-	clients := make(map[string]TicketTracker)
-	for _, server := range serverConfs {
-		var client TicketTracker
-		var err error
-
-		switch kind := strings.ToLower(server.Kind); kind {
-		case jiraKind:
-			client, err = jira.New(server.URL, server.User, server.Pass, logger)
-		}
-		// TODO: More kind of trackers coming in the future
-		if err != nil {
-			return nil, err
-		}
-
-		clients[server.Name] = client
-
-	}
-	return clients, nil
-}
-
-// newServerClient instantiates a client for every server passed as argument.
-func newServerClient(url, user, pass, kind string, logger echo.Logger) (*TicketTracker, error) {
-	var client TicketTracker
-	var err error
-
-	switch kind := strings.ToLower(kind); kind {
-	case jiraKind:
-		client, err = jira.New(url, user, pass, logger)
-	}
-	// TODO: More kind of trackers coming in the future
-	if err != nil {
-		return nil, err
-	}
-
-	return &client, nil
 }
 
 // TicketTrackerBuilder builds clients to access ticket trackers.
 type TicketTrackerBuilder interface {
-	GenerateTicketTrackerClient(storage storage.TicketServerStorage, teamID string, logger echo.Logger) (TicketTracker, error)
+	GenerateTicketTrackerClient(ticketServer TicketServer, teamID string, logger echo.Logger) (TicketTracker, error)
 }
 
 // TTBuilder represents a builder of clients to access ticket trackers.
@@ -92,21 +52,85 @@ type TTBuilder struct {
 }
 
 // GenerateTicketTrackerClient generates a ticket tracker client.
-func (ttb *TTBuilder) GenerateTicketTrackerClient(storage storage.TicketServerStorage, teamID string, logger echo.Logger) (TicketTracker, error) {
-	projectConfig, err := storage.ProjectConfigByTeamID(teamID)
+func (ttb *TTBuilder) GenerateTicketTrackerClient(ticketServer TicketServer, teamID string, logger echo.Logger) (TicketTracker, error) {
+	projectConfig, err := ticketServer.ProjectConfigByTeamID(teamID)
 	if err != nil {
 		return nil, err
 	}
 	var serverConf model.TrackerConfig
-	serverConf, err = storage.ServerConf(projectConfig.ServerID)
+	serverConf, err = ticketServer.ServerConf(projectConfig.TrackerConfigID)
 	if err != nil {
 		return nil, err
 	}
 
-	var ttClient *TicketTracker
-	ttClient, err = newServerClient(serverConf.URL, serverConf.User, serverConf.Pass, serverConf.Kind, logger)
+	var ttClient TicketTracker
+
+	ttClient, err = jira.New(serverConf.URL, serverConf.User, serverConf.Pass, logger)
 	if err != nil {
 		return nil, err
 	}
-	return *ttClient, nil
+	return ttClient, nil
+}
+
+// TicketServer manages the access to a ticket tracker server.
+type TicketServer interface {
+	ServerConf(serverID string) (model.TrackerConfig, error)
+	ProjectConfigByTeamID(teamID string) (model.ProjectConfig, error)
+}
+
+// TS represents a service that manages the access to a ticket tracker server.
+type TS struct {
+	ticketServerStorage storage.TicketServerStorage
+	secretsService      secrets.Secrets
+	Logger              echo.Logger
+}
+
+// New creates a new instance to red the configuration from a toml file.
+func New(ticketServerStorage storage.TicketServerStorage, secretsService secrets.Secrets, logger echo.Logger) (*TS, error) {
+	return &TS{
+		ticketServerStorage: ticketServerStorage,
+		secretsService:      secretsService,
+		Logger:              logger,
+	}, nil
+}
+
+// ServerConf retrieves all the needed configuration to access a ticket tracker server.
+func (ts *TS) ServerConf(serverID string) (model.TrackerConfig, error) {
+	serverConfig, err := ts.ticketServerStorage.FindServerConf(serverID)
+	if err == sql.ErrNoRows {
+		return model.TrackerConfig{}, &vterrors.TrackingError{
+			Msg:            "project not found",
+			HTTPStatusCode: http.StatusNotFound,
+			Err:            err,
+		}
+	}
+	if err != nil {
+		return model.TrackerConfig{}, err
+	}
+	credentials, err := ts.secretsService.GetServerCredentials(serverConfig.ID)
+	if err != nil {
+		return model.TrackerConfig{}, err
+	}
+	serverConfig.User = credentials.User
+	serverConfig.Pass = credentials.Password
+
+	return serverConfig, nil
+}
+
+// ProjectConfigByTeamID retrieves all the needed configuration to access a ticket tracker project for a
+// specific team.
+func (ts *TS) ProjectConfigByTeamID(teamID string) (model.ProjectConfig, error) {
+	// Get the server and the configuration for the teamId.
+	configuration, err := ts.ticketServerStorage.FindProjectConfigByTeamID(teamID)
+	if err == sql.ErrNoRows {
+		return model.ProjectConfig{}, &vterrors.TrackingError{
+			Msg:            "project not found",
+			HTTPStatusCode: http.StatusNotFound,
+			Err:            err,
+		}
+	}
+	if err != nil {
+		return model.ProjectConfig{}, err
+	}
+	return configuration, nil
 }

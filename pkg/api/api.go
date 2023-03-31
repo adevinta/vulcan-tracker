@@ -13,7 +13,7 @@ import (
 
 // API represents an API services and all the stuff needed to work.
 type API struct {
-	ticketServerStorage  storage.TicketServerStorage
+	ticketServer         tracking.TicketServer
 	ticketTrackerBuilder tracking.TicketTrackerBuilder
 	storage              storage.Storage
 	Options              Options
@@ -57,10 +57,10 @@ var (
 )
 
 // New instantiates a new API.
-func New(ticketServerStorage storage.TicketServerStorage, ticketTrackerBuilder tracking.TicketTrackerBuilder,
+func New(ticketServer tracking.TicketServer, ticketTrackerBuilder tracking.TicketTrackerBuilder,
 	storage storage.Storage, options Options) *API {
 	return &API{
-		ticketServerStorage:  ticketServerStorage,
+		ticketServer:         ticketServer,
 		ticketTrackerBuilder: ticketTrackerBuilder,
 		storage:              storage,
 		Options:              options,

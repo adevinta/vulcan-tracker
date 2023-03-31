@@ -8,7 +8,7 @@ envsubst < config.toml > run.toml
 if [ -n "$PG_CA_B64" ]; then
   mkdir /root/.postgresql
   echo "$PG_CA_B64" | base64 -d > /root/.postgresql/root.crt # for flyway
-  echo "$PG_CA_B64" | base64 -d > /etc/ssl/certs/pg.crt # for vulcan-api
+  echo "$PG_CA_B64" | base64 -d > /etc/ssl/certs/pg.crt # for vulcan-tracker
 fi
 
 flyway -user="$PG_USER" -password="$PG_PASSWORD" \
