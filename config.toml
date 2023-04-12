@@ -16,4 +16,4 @@ sslmode = "$PG_SSLMODE"
 
 [aws]
 server_credentials_key = "$AWSSERVERCREDENTIALS_KEY"
-region ="$AWSREGION"
+region ="$AWS_REGION"
