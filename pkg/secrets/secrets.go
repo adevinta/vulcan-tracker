@@ -68,8 +68,8 @@ func (s *AWSSecrets) GetServerCredentials(serverID string) (Credentials, error) 
 	result, err := s.secretCache.GetSecretString(secretName)
 	if err != nil {
 		return Credentials{}, &vterrors.TrackingError{
-			Msg:            fmt.Sprintf("Unable to retrieve the user and password for the server "),
-			Err:            err,
+			Msg:            fmt.Sprintf("Unable to retrieve the user and password for the server"),
+			Err:            fmt.Errorf("unable to retrieve the user and password for the server: %w", err),
 			HTTPStatusCode: http.StatusUnauthorized,
 		}
 	}

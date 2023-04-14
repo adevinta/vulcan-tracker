@@ -12,7 +12,7 @@ type TrackingError struct {
 
 // Error returns an error as string.
 func (te *TrackingError) Error() string {
-	return te.Msg
+	return te.Err.Error()
 }
 
 // Unwrap returns the inner error.
