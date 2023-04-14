@@ -4,14 +4,16 @@ Copyright 2022 Adevinta
 package tracking
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/adevinta/vulcan-tracker/pkg/model"
 	"github.com/adevinta/vulcan-tracker/pkg/secrets"
 	"github.com/adevinta/vulcan-tracker/pkg/storage"
-	testutil "github.com/adevinta/vulcan-tracker/pkg/testutils"
+	testutil "github.com/adevinta/vulcan-tracker/pkg/storage/postgresql"
 	"github.com/adevinta/vulcan-tracker/pkg/tracking/jira"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -37,7 +39,7 @@ type mockTicketServerStorage struct {
 func (mt *mockTicketServerStorage) FindServerConf(serverID string) (model.TrackerConfig, error) {
 	value, ok := mt.servers[serverID]
 	if !ok {
-		return model.TrackerConfig{}, fmt.Errorf("server %s not found in the configuration", serverID)
+		return model.TrackerConfig{}, sql.ErrNoRows
 	}
 	return *value, nil
 }
@@ -49,7 +51,7 @@ func (mt *mockTicketServerStorage) FindProjectConfigByTeamID(teamID string) (mod
 		}
 	}
 
-	return model.ProjectConfig{}, fmt.Errorf("project not found for the team %s", teamID)
+	return model.ProjectConfig{}, sql.ErrNoRows
 }
 
 type mockSecrets struct {
@@ -131,7 +133,7 @@ func TestServerConf(t *testing.T) {
 			name:     "NoServer",
 			serverID: "NoServer",
 			want:     model.TrackerConfig{},
-			wantErr:  errors.New("server NoServer not found in the configuration"),
+			wantErr:  errors.New("server not found"),
 		},
 	}
 
@@ -140,7 +142,7 @@ func TestServerConf(t *testing.T) {
 			setupSubTest(t)
 			got, err := ts.ServerConf(tt.serverID)
 
-			if errToStr(err) != errToStr(tt.wantErr) {
+			if !strings.Contains(testutil.ErrToStr(err), testutil.ErrToStr(tt.wantErr)) {
 				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(got, tt.want, cmpopts.IgnoreUnexported(jira.TrackerClient{}),
@@ -178,7 +180,7 @@ func TestProjectConfigByTeamID(t *testing.T) {
 			name:    "NoProject",
 			teamID:  "NoProjectTeamID",
 			want:    model.ProjectConfig{},
-			wantErr: errors.New("project not found for the team NoProjectTeamID"),
+			wantErr: errors.New("project not found"),
 		},
 	}
 
@@ -187,7 +189,7 @@ func TestProjectConfigByTeamID(t *testing.T) {
 			setupSubTest(t)
 			got, err := ts.ProjectConfigByTeamID(tt.teamID)
 
-			if errToStr(err) != errToStr(tt.wantErr) {
+			if !strings.Contains(testutil.ErrToStr(err), testutil.ErrToStr(tt.wantErr)) {
 				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(got, tt.want, cmpopts.IgnoreUnexported(jira.TrackerClient{}),

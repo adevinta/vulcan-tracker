@@ -5,9 +5,10 @@ go 1.20
 require (
 	github.com/aws/aws-sdk-go v1.44.226
 	github.com/aws/aws-secretsmanager-caching-go v1.1.0
+	github.com/go-testfixtures/testfixtures/v3 v3.8.1
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/labstack/echo/v4 v4.9.0
-	github.com/lib/pq v1.2.0
+	github.com/lib/pq v1.10.6
 )
 
 require (
@@ -19,6 +20,7 @@ require (
 	github.com/trivago/tgo v1.0.7 // indirect
 	golang.org/x/crypto v0.0.0-20220314234659-1baeb1ce4c0b // indirect
 	golang.org/x/net v0.7.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 require (

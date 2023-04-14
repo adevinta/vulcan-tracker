@@ -91,3 +91,8 @@ func (db *PostgresStore) Healthcheck() error {
 	}
 	return nil
 }
+
+// Close closes PostgresStore db connection
+func (db *PostgresStore) Close() error {
+	return db.DB.Close()
+}

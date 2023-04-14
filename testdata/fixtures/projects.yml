@@ -1,0 +1,9 @@
+# Copyright 2023 Adevinta
+
+# projects.yml
+- id: 611aa257-c575-4721-a5ac-57265e75d3b8
+  name: "test project"
+  team_id: 7b54fd77-91f3-46d5-8b08-828655bf076c
+  tracker_configuration_id: 54018792-173f-4457-ab51-953b25d3a448
+  project: TEST
+  issue_type: Vulnerability

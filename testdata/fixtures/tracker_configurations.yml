@@ -1,0 +1,6 @@
+# Copyright 2023 Adevinta
+
+# tracker_configurations.yml
+- id: 54018792-173f-4457-ab51-953b25d3a448
+  name: Jira Server
+  url: https://jira-server.com

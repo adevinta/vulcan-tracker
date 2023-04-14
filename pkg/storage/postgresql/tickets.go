@@ -25,7 +25,7 @@ func (db *PostgresStore) CreateFindingTicket(t model.Ticket) (model.FindingTicke
 	result := db.DB.QueryRow(query, t.FindingID, t.TeamID, t.URLTracker)
 
 	var created FindingTicket
-	err := result.Scan(&created.ID, &created.FindingID, &created.TeamID, &created.URLTracker, &created.CreatedAt, &created.UpdatedAt)
+	err := result.Scan(&created.ID, &created.TeamID, &created.FindingID, &created.URLTracker, &created.CreatedAt, &created.UpdatedAt)
 	if err != nil {
 		return model.FindingTicket{}, err
 	}

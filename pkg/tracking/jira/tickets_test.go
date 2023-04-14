@@ -12,7 +12,7 @@ import (
 
 	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
 	"github.com/adevinta/vulcan-tracker/pkg/model"
-	testutil "github.com/adevinta/vulcan-tracker/pkg/testutils"
+	testutil "github.com/adevinta/vulcan-tracker/pkg/storage/postgresql"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/labstack/echo/v4"
@@ -254,5 +254,4 @@ func TestCreateTicket(t *testing.T) {
 			}
 		})
 	}
-
 }

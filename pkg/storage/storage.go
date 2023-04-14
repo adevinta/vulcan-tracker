@@ -17,4 +17,5 @@ type Storage interface {
 	GetFindingTicket(findingID, teamID string) (model.FindingTicket, error)
 
 	Healthcheck() error
+	Close() error
 }
