@@ -7,12 +7,14 @@ package errors
 type TrackingError struct {
 	Err            error
 	HTTPStatusCode int
-	Msg            string
 }
 
 // Error returns an error as string.
 func (te *TrackingError) Error() string {
-	return te.Msg
+	if te.Err == nil {
+		return ""
+	}
+	return te.Err.Error()
 }
 
 // Unwrap returns the inner error.

@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/adevinta/vulcan-tracker/pkg/model"
+	testutil "github.com/adevinta/vulcan-tracker/pkg/testutils"
 	gojira "github.com/andygrunwald/go-jira"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -154,7 +155,7 @@ func TestClient_Get(t *testing.T) {
 			setupSubTestClient(t)
 
 			got, err := jiraClient.GetTicket(tt.ticketID)
-			if errToStr(err) != errToStr(tt.wantErr) {
+			if !strings.Contains(testutil.ErrToStr(err), testutil.ErrToStr(tt.wantErr)) {
 				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 

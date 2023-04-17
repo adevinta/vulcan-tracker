@@ -50,7 +50,7 @@ func (mtt *mockTicketTrackerClient) GetTicket(id string) (model.Ticket, error) {
 		return value, nil
 	}
 	return model.Ticket{}, &vterrors.TrackingError{
-		Msg:            "ticket not found",
+		Err:            errors.New("ticket not found"),
 		HTTPStatusCode: http.StatusNotFound,
 	}
 }
@@ -72,7 +72,7 @@ func (ms *mockTicketServer) ProjectConfigByTeamID(teamID string) (model.ProjectC
 		return value, nil
 	}
 	return model.ProjectConfig{}, &vterrors.TrackingError{
-		Msg:            "project not found",
+		Err:            errors.New("project not found"),
 		HTTPStatusCode: http.StatusNotFound,
 	}
 
@@ -94,7 +94,7 @@ func (mttb *mockTicketTrackerBuilder) GenerateTicketTrackerClient(_ tracking.Tic
 	value, ok := mttb.projects[teamID]
 	if !ok {
 		return &mockTicketTrackerClient{}, &vterrors.TrackingError{
-			Msg:            "project not found",
+			Err:            errors.New("project not found"),
 			HTTPStatusCode: http.StatusNotFound,
 		}
 	}

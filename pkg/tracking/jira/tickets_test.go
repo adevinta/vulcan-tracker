@@ -43,7 +43,7 @@ func (mj *mockJiraClient) GetTicket(id string) (model.Ticket, error) {
 		return value, nil
 	}
 	return model.Ticket{}, &vterrors.TrackingError{
-		Msg:            fmt.Sprintf("ticket %s not found", id),
+		Err:            fmt.Errorf("ticket %s not found", id),
 		HTTPStatusCode: http.StatusNotFound,
 	}
 }

@@ -5,6 +5,7 @@ package tracking
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 
 	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
@@ -99,9 +100,8 @@ func (ts *TS) ServerConf(serverID string) (model.TrackerConfig, error) {
 	serverConfig, err := ts.ticketServerStorage.FindServerConf(serverID)
 	if err == sql.ErrNoRows {
 		return model.TrackerConfig{}, &vterrors.TrackingError{
-			Msg:            "project not found",
 			HTTPStatusCode: http.StatusNotFound,
-			Err:            err,
+			Err:            fmt.Errorf("project not found: %w", err),
 		}
 	}
 	if err != nil {
@@ -124,9 +124,8 @@ func (ts *TS) ProjectConfigByTeamID(teamID string) (model.ProjectConfig, error) 
 	configuration, err := ts.ticketServerStorage.FindProjectConfigByTeamID(teamID)
 	if err == sql.ErrNoRows {
 		return model.ProjectConfig{}, &vterrors.TrackingError{
-			Msg:            "project not found",
 			HTTPStatusCode: http.StatusNotFound,
-			Err:            err,
+			Err:            fmt.Errorf("project not found: %w", err),
 		}
 	}
 	if err != nil {
