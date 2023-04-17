@@ -83,16 +83,6 @@ func errToStr(err error) string {
 	return testutil.ErrToStr(err)
 }
 
-func isSameError(err1, err2 error) bool {
-	if errToStr(err1) == "" && errToStr(err2) == "" {
-		return true
-	}
-	if strings.Contains(errToStr(err1), errToStr(err2)) {
-		return true
-	}
-	return false
-}
-
 func TestGetTicket(t *testing.T) {
 	t1 := model.Ticket{
 		ID:          "1000",

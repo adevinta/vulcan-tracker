@@ -11,6 +11,9 @@ type TrackingError struct {
 
 // Error returns an error as string.
 func (te *TrackingError) Error() string {
+	if te.Err == nil {
+		return ""
+	}
 	return te.Err.Error()
 }
 
