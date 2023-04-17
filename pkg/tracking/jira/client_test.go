@@ -154,7 +154,7 @@ func TestClient_Get(t *testing.T) {
 			setupSubTestClient(t)
 
 			got, err := jiraClient.GetTicket(tt.ticketID)
-			if errToStr(err) != errToStr(tt.wantErr) {
+			if !isSameError(err, tt.wantErr) {
 				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 

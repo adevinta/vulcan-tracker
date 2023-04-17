@@ -43,7 +43,7 @@ func (mj *mockJiraClient) GetTicket(id string) (model.Ticket, error) {
 		return value, nil
 	}
 	return model.Ticket{}, &vterrors.TrackingError{
-		Msg:            fmt.Sprintf("ticket %s not found", id),
+		Err:            fmt.Errorf("ticket %s not found", id),
 		HTTPStatusCode: http.StatusNotFound,
 	}
 }
@@ -81,6 +81,16 @@ func (mj *mockJiraClient) CreateTicket(ticket model.Ticket) (model.Ticket, error
 
 func errToStr(err error) string {
 	return testutil.ErrToStr(err)
+}
+
+func isSameError(err1, err2 error) bool {
+	if errToStr(err1) == "" && errToStr(err2) == "" {
+		return true
+	}
+	if strings.Contains(errToStr(err1), errToStr(err2)) {
+		return true
+	}
+	return false
 }
 
 func TestGetTicket(t *testing.T) {

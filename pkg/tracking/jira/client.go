@@ -68,8 +68,7 @@ func (cl *Client) GetTicket(id string) (model.Ticket, error) {
 		err = gojira.NewJiraError(resp, err)
 		if strings.Contains(err.Error(), "404") {
 			return model.Ticket{}, &vterrors.TrackingError{
-				Msg:            fmt.Sprintf("ticket %s not found in Jira", id),
-				Err:            err,
+				Err:            fmt.Errorf("ticket %s not found in Jira: %w", id, err),
 				HTTPStatusCode: http.StatusNotFound,
 			}
 		}

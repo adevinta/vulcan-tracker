@@ -7,7 +7,6 @@ package errors
 type TrackingError struct {
 	Err            error
 	HTTPStatusCode int
-	Msg            string
 }
 
 // Error returns an error as string.

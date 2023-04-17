@@ -64,7 +64,7 @@ func (api *API) GetTicket(c echo.Context) error {
 	if !isValidTeam(teamID) {
 		return responseError(
 			&vterrors.TrackingError{
-				Msg:            "the team id should be a UUID",
+				Err:            errors.New("the team id should be a UUID"),
 				HTTPStatusCode: http.StatusBadRequest,
 			})
 	}
@@ -92,7 +92,7 @@ func (api *API) CreateTicket(c echo.Context) error {
 	if !isValidTeam(teamID) {
 		return responseError(
 			&vterrors.TrackingError{
-				Msg:            "the team id should be a UUID",
+				Err:            errors.New("the team id should be a UUID"),
 				HTTPStatusCode: http.StatusBadRequest,
 			})
 	}
@@ -148,7 +148,7 @@ func (api *API) GetFindingTicket(c echo.Context) error {
 	if !isValidTeam(teamID) {
 		return responseError(
 			&vterrors.TrackingError{
-				Msg:            "the team id should be a UUID",
+				Err:            errors.New("the team id should be a UUID"),
 				HTTPStatusCode: http.StatusBadRequest,
 			})
 	}
