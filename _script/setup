@@ -13,7 +13,7 @@ psql -c "CREATE USER vultrackerdb_test WITH PASSWORD 'vultrackerdb_test';" -h lo
 psql -c "ALTER USER vultrackerdb_test WITH SUPERUSER;" -h localhost -U postgres
 
 docker run --net=host -v "$PWD"/db:/scripts flyway/flyway:"${FLYWAY_VERSION:-8}-alpine" \
-    -user=vultrackerdb_test -password=vultrackerdb_test -url=jdbc:postgresql://localhost:5432/vultrackerdb_test \
+    -user=vultrackerdb_test -password=vultrackerdb_test -url=jdbc:postgresql://localhost:5439/vultrackerdb_test \
     -locations=filesystem:/scripts/sql -baselineOnMigrate=true migrate
 
 psql -c "CREATE DATABASE vultrackerdb WITH TEMPLATE vultrackerdb_test OWNER vultrackerdb_test;" -h localhost -U postgres

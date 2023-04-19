@@ -4,7 +4,7 @@
 
 set -e 
 
-docker run --name postgres -p 5432:5432 -e POSTGRES_HOST_AUTH_METHOD=trust --rm -d postgres:15.2-alpine
+docker run --name postgres -p 5439:5439 -e POSTGRES_HOST_AUTH_METHOD=trust -e PGPORT=5439 --rm -d postgres:15.2-alpine
 
 sleep 2
 
