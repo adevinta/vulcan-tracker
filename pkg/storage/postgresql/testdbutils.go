@@ -34,15 +34,6 @@ func (l *mockLogger) Level() log.Lvl {
 	return log.OFF
 }
 
-// ErrToStr returns a string even when it is nil.
-func ErrToStr(err error) string {
-	result := ""
-	if err != nil {
-		result = err.Error()
-	}
-	return result
-}
-
 // FromConnStrToDsn transform a struct with the connection data to a connection string
 func FromConnStrToDsn(cs ConnStr) string {
 	return fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",

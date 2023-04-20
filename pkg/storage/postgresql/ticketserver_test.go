@@ -49,11 +49,11 @@ func TestFindServerConf(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := testStore.FindServerConf(tt.TrackerConfigID)
 			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatal(err)
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(tt.want, got)
 			if diff != "" {
-				t.Errorf("%v\n", diff)
+				t.Fatalf("server config does not match expected one. diff: %s\n", diff)
 			}
 		})
 	}
@@ -98,11 +98,11 @@ func TestFindProjectConfigByTeamID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := testStore.FindProjectConfigByTeamID(tt.teamID)
 			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatal(err)
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(tt.want, got)
 			if diff != "" {
-				t.Errorf("%v\n", diff)
+				t.Fatalf("project config does not match expected one. diff: %s\n", diff)
 			}
 		})
 	}

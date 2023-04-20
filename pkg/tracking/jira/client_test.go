@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/adevinta/vulcan-tracker/pkg/model"
-	testutil "github.com/adevinta/vulcan-tracker/pkg/storage/postgresql"
+	"github.com/adevinta/vulcan-tracker/pkg/testutil"
 	gojira "github.com/andygrunwald/go-jira"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"

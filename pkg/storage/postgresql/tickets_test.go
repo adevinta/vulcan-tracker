@@ -61,11 +61,11 @@ func TestGetFindingTicket(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := testStore.GetFindingTicket(tt.findingID, tt.teamID)
 			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatal(err)
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(tt.want, got)
 			if diff != "" {
-				t.Errorf("%v\n", diff)
+				t.Fatalf("finding ticket does not match expected one. diff: %s\n", diff)
 			}
 		})
 	}
@@ -105,11 +105,11 @@ func TestCreateFindingTicket(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := testStore.CreateFindingTicket(tt.ticket)
 			if errToStr(err) != errToStr(tt.wantErr) {
-				t.Fatal(err)
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 			diff := cmp.Diff(tt.wantFindingTicket, got, ignoreFieldsTeam)
 			if diff != "" {
-				t.Errorf("%v\n", diff)
+				t.Fatalf("ticket does not match expected one. diff: %s\n", diff)
 			}
 		})
 	}

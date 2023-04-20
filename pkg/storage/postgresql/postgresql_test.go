@@ -3,11 +3,12 @@ package postgresql
 import (
 	"testing"
 
+	"github.com/adevinta/vulcan-tracker/pkg/testutil"
 	"github.com/google/go-cmp/cmp"
 )
 
 func errToStr(err error) string {
-	return ErrToStr(err)
+	return testutil.ErrToStr(err)
 }
 
 func TestHealthcheckOk(t *testing.T) {
@@ -34,7 +35,7 @@ func TestHealthcheckOk(t *testing.T) {
 
 			diff := cmp.Diff(errToStr(err), errToStr(tt.wantErr))
 			if diff != "" {
-				t.Fatalf("%v\n", diff)
+				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
 			}
 		})
 	}

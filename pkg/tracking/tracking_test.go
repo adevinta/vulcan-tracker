@@ -13,7 +13,7 @@ import (
 	"github.com/adevinta/vulcan-tracker/pkg/model"
 	"github.com/adevinta/vulcan-tracker/pkg/secrets"
 	"github.com/adevinta/vulcan-tracker/pkg/storage"
-	testutil "github.com/adevinta/vulcan-tracker/pkg/storage/postgresql"
+	"github.com/adevinta/vulcan-tracker/pkg/testutil"
 	"github.com/adevinta/vulcan-tracker/pkg/tracking/jira"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -24,10 +24,6 @@ var ts *TS
 
 type mockLogger struct {
 	echo.Logger
-}
-
-func errToStr(err error) string {
-	return testutil.ErrToStr(err)
 }
 
 type mockTicketServerStorage struct {
