@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Copyright 2021 Adevinta
+# Copyright 2023 Adevinta
 
-set -e 
+set -eu
 
 docker run --name postgres -p ${PG_PORT}:5432 -e POSTGRES_HOST_AUTH_METHOD=trust --rm -d postgres:15.2-alpine
 

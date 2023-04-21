@@ -1,5 +1,5 @@
 /*
-Copyright 2022 Adevinta
+Copyright 2023 Adevinta
 */
 
 package postgresql
@@ -34,7 +34,7 @@ func (l *mockLogger) Level() log.Lvl {
 	return log.OFF
 }
 
-// FromConnStrToDsn transform a struct with the connection data to a connection string
+// FromConnStrToDsn transform a struct with the connection data to a connection string.
 func FromConnStrToDsn(cs ConnStr) string {
 	return fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
 		cs.Host, cs.Port, cs.User, cs.DB, cs.Pass, cs.SSLMode)

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Copyright 2021 Adevinta
+# Copyright 2023 Adevinta
 
-set -e
+set -eu
 
 # run unit and integration tests
 go test -v $(go list ./... | grep -v /vendor/)

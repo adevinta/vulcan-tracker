@@ -20,7 +20,6 @@ var (
 )
 
 func TestGetFindingTicket(t *testing.T) {
-
 	testStore, err := PrepareDatabaseLocal("../../../testdata/fixtures", NewDB)
 	if err != nil {
 		log.Fatal(err)
