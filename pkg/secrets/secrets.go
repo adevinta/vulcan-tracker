@@ -14,7 +14,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
-	"github.com/aws/aws-sdk-go/service/secretsmanager/secretsmanageriface"
 	"github.com/labstack/echo/v4"
 
 	"github.com/aws/aws-secretsmanager-caching-go/secretcache"
@@ -29,7 +28,6 @@ type Secrets interface {
 type AWSSecrets struct {
 	Logger      echo.Logger
 	secretCache *secretcache.Cache
-	c           secretsmanageriface.SecretsManagerAPI
 	config      config.AwsConfig
 }
 
@@ -55,7 +53,6 @@ func NewAWSSecretManager(config config.AwsConfig, logger echo.Logger) (*AWSSecre
 	return &AWSSecrets{
 		Logger:      logger,
 		secretCache: sc,
-		c:           client,
 		config:      config,
 	}, err
 }
