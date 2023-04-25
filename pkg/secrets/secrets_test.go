@@ -34,7 +34,6 @@ func getStrPtr(str string) *string {
 }
 
 func (sm *smMock) DescribeSecretWithContext(_ aws.Context, input *secretsmanager.DescribeSecretInput, _ ...request.Option) (*secretsmanager.DescribeSecretOutput, error) {
-
 	versionID := getStrPtr("uuid")
 	versionStages := []*string{getStrPtr("AWSCURRENT")}
 	versionIdsToStages := make(map[string][]*string)
@@ -84,7 +83,6 @@ type mockLogger struct {
 }
 
 func TestGetServerCredentials(t *testing.T) {
-
 	storedCredentials := map[string]Credentials{
 		"/path/to/key/078b038c-3da5-4694-ba6b-43ef2e52d75c": {
 			User:     "user1",
