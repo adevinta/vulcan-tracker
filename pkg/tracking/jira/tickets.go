@@ -36,19 +36,6 @@ func (tc *TrackerClient) GetTicket(id string) (model.Ticket, error) {
 	return ticket, nil
 }
 
-// FindTicketByFindingAndTeam retrieves a ticket from Jira using the project key, the vulnerability issue type,
-// the finding ID and the team ID.
-// Return an empty ticket if not found.
-func (tc *TrackerClient) FindTicketByFindingAndTeam(projectKey, vulnerabilityIssueType, findingID string, teamID string) (model.Ticket, error) {
-	text := fmt.Sprintf("\"%s\"", GenerateIdentificationText(findingID, teamID))
-
-	ticket, err := tc.Client.FindTicket(projectKey, vulnerabilityIssueType, text)
-	if err != nil {
-		return model.Ticket{}, err
-	}
-	return ticket, nil
-}
-
 // CreateTicket creates a ticket in Jira.
 func (tc *TrackerClient) CreateTicket(ticket model.Ticket) (model.Ticket, error) {
 

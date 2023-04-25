@@ -6,10 +6,11 @@ env:
   - CGO_ENABLED=0
   - GO111MODULE=on
   - FLYWAY_VERSION=9.15.1
+  - PG_PORT=5439
 gobuild_args: -a -tags netgo -ldflags '-w'
 go_import_path: github.com/adevinta/vulcan-tracker
 script:
-  - go install ./...
-  - go test -short -v $(go list ./... | grep -v /vendor/)
+  - _script/start-pg
+  - _script/cibuild
 after_success:
   - bash -c 'source <(curl -s https://raw.githubusercontent.com/adevinta/vulcan-cicd/master/docker.sh)'

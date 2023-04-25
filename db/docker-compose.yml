@@ -5,7 +5,7 @@ version: "3"
 services:
     vultrackerdb:
         container_name: vultrackerdb
-        image: postgres:15.1-alpine
+        image: postgres:15.2-alpine
         command: "postgres -c log_connections=true -c log_min_duration_statement=0"
         ports:
             - "5439:5432"

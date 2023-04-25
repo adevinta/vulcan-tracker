@@ -39,7 +39,6 @@ type Pagination struct {
 // TicketTracker defines the interface for high level querying data from ticket tracker.
 type TicketTracker interface {
 	GetTicket(id string) (model.Ticket, error)
-	FindTicketByFindingAndTeam(projectKey, vulnerabilityIssueType, findingID string, teamID string) (model.Ticket, error)
 	CreateTicket(ticket model.Ticket) (model.Ticket, error)
 }
 
@@ -101,7 +100,7 @@ func (ts *TS) ServerConf(serverID string) (model.TrackerConfig, error) {
 	if err == sql.ErrNoRows {
 		return model.TrackerConfig{}, &vterrors.TrackingError{
 			HTTPStatusCode: http.StatusNotFound,
-			Err:            fmt.Errorf("project not found: %w", err),
+			Err:            fmt.Errorf("server not found: %w", err),
 		}
 	}
 	if err != nil {

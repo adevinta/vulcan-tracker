@@ -1,0 +1,9 @@
+# Copyright 2023 Adevinta
+
+# finding_tickets.yml
+- id: 4bbf6ea1-ba1f-4edb-b6ee-59fa544af0cd
+  team_id: 7b54fd77-91f3-46d5-8b08-828655bf076c
+  finding_id: 89f84d26-9e5c-46ca-886f-9310357aba90
+  url_tracker: https://jira-server.com/browse/TEST-1
+  created_at: "2023-03-14 08:11:51.404 +0100"
+  updated_at:

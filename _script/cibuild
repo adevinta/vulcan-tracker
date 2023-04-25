@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Copyright 2023 Adevinta
+
+set -eu
+
+echo "Building…"
+date "+%H:%M:%S"
+
+_script/setup
+
+echo "Running tests…"
+date "+%H:%M:%S"
+
+_script/test

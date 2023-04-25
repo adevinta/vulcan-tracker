@@ -1,8 +1,7 @@
 /*
 Copyright 2022 Adevinta
 */
-
-package testutils
+package testutil
 
 // ErrToStr returns a string even when it is nil.
 func ErrToStr(err error) string {

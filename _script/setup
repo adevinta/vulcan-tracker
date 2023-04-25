@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Copyright 2023 Adevinta
+
+set -eu
+
+# install binaries
+go install -v $(go list ./... | grep -v /vendor/)
+
+# create test database and apply migrations
+psql -c "CREATE DATABASE vultrackerdb_test;" -h localhost -p ${PG_PORT} -U postgres
+psql -c "CREATE USER vultrackerdb_test WITH PASSWORD 'vultrackerdb_test';" -h localhost -p ${PG_PORT} -U postgres
+psql -c "ALTER USER vultrackerdb_test WITH SUPERUSER;" -h localhost -p ${PG_PORT} -U postgres
+
+docker run --net=host -v "$PWD"/db:/scripts flyway/flyway:"${FLYWAY_VERSION:-9.15.1}-alpine" \
+    -user=vultrackerdb_test -password=vultrackerdb_test -url=jdbc:postgresql://localhost:${PG_PORT}/vultrackerdb_test \
+    -locations=filesystem:/scripts/sql -baselineOnMigrate=true migrate
+
+psql -c "CREATE DATABASE vultrackerdb WITH TEMPLATE vultrackerdb_test OWNER vultrackerdb_test;" -h localhost -p ${PG_PORT} -U postgres
