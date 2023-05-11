@@ -1,0 +1,359 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Vulcan Tracker API",
+    "description": "Public API for Tracker integration with Vulcan ",
+    "version": "0.1"
+  },
+  "paths": {
+    "/healthcheck": {
+      "get": {
+        "tags": [
+          "healthcheck"
+        ],
+        "summary": "show healthcheck",
+        "description": "A simple HTTP healthcheck.",
+        "operationId": "healthcheck#show",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/{team_id}/tickets/{id}": {
+      "get": {
+        "tags": [
+          "tickets"
+        ],
+        "summary": "Get a ticket with the specific id",
+        "description": "Get a ticket with the specific id",
+        "operationId": "getTicketById",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/team_id"
+          },
+          {
+            "$ref": "#/components/parameters/ticket_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ticketResponse"
+                },
+                "examples": {
+                  "ticketResponseExample": {
+                    "$ref": "#/components/examples/ticketResponseExample"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{team_id}/tickets": {
+      "post": {
+        "tags": [
+          "tickets"
+        ],
+        "summary": "Create a ticket associated to a finding for a team",
+        "description": "Create a ticket associated to a finding for a team",
+        "operationId": "createTicket",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/team_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ticketRequest"
+              },
+              "examples": {
+                "ticketRequestExample": {
+                  "$ref": "#/components/examples/ticketRequestExample"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ticketResponse"
+                },
+                "examples": {
+                  "ticketResponseExample": {
+                    "$ref": "#/components/examples/ticketResponseExample"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{team_id}/tickets/findings/{finding_id}": {
+      "get": {
+        "tags": [
+          "tickets"
+        ],
+        "summary": "Get a ticket associated with a specific finding for a team",
+        "description": "Get a ticket associated with a specific finding for a team",
+        "operationId": "getTicketByFindingId",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/team_id"
+          },
+          {
+            "$ref": "#/components/parameters/finding_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/finding_ticket"
+                },
+                "examples": {
+                  "ticketFindingResponseExample": {
+                    "$ref": "#/components/examples/findingTicketResponseExample"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "team_id": {
+        "name": "team_id",
+        "in": "path",
+        "description": "ID of the team in uuid format",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "examples": {
+          "valid team_id": {
+            "value": "470aedfc-07ff-4103-bf9e-14d86ca21afc"
+          }
+        }
+      },
+      "ticket_id": {
+        "name": "id",
+        "in": "path",
+        "description": "ID of the ticket that needs to be fetched",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "examples": {
+          "valid ticket_id": {
+            "value": "PTVUL-1524"
+          }
+        }
+      },
+      "finding_id": {
+        "name": "finding_id",
+        "in": "path",
+        "description": "ID of the finding that needs to be fetched",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "examples": {
+          "valid finding_id": {
+            "value": "7c9c9bc3-f721-40d8-b68b-13950a53fb09"
+          }
+        }
+      }
+    },
+    "schemas": {
+      "ticketRequest": {
+        "type": "object",
+        "required": [
+          "finding_id",
+          "summary",
+          "description",
+          "project",
+          "ticket_type"
+        ],
+        "properties": {
+          "finding_id": {
+            "type": "string",
+            "description": "Finding identification in uuid format"
+          },
+          "summary": {
+            "type": "string",
+            "description": "Summary of the ticket"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the ticket"
+          },
+          "project": {
+            "type": "string",
+            "description": "Project key in Jira"
+          },
+          "ticket_type": {
+            "type": "string",
+            "description": "Issue type of the ticket"
+          }
+        }
+      },
+      "ticketResponse": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Ticket identification in vulcan tracker in uuid format"
+              },
+              "key": {
+                "type": "string",
+                "description": "Ticket key in the Jira server"
+              },
+              "team_id": {
+                "type": "string",
+                "description": "ID of the team in uuid format"
+              },
+              "status": {
+                "type": "string",
+                "description": "Status of the ticket"
+              },
+              "url_tracker": {
+                "type": "string",
+                "description": "URL to access the ticket"
+              },
+              "resolution": {
+                "type": "string",
+                "description": "Type of resolution for tickets in a Resolved state"
+              },
+              "labels": {
+                "type": "array",
+                "items": {
+                  "type": "array"
+                },
+                "description": "ticket labels"
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/ticketRequest"
+          }
+        ]
+      },
+      "finding_ticket": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identification of the relationship between a finding and a ticket for a team in uuid format"
+          },
+          "finding_id": {
+            "type": "string",
+            "description": "Finding identification in uuid format"
+          },
+          "team_id": {
+            "type": "string",
+            "description": "ID of the team in uuid format"
+          },
+          "url_tracker": {
+            "type": "string",
+            "description": "URL to access the ticket"
+          }
+        }
+      },
+      "error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "examples": {
+      "ticketRequestExample": {
+        "value": {
+          "finding_id": "a5131ffc-9fdd-4300-ae75-37c8585294ff",
+          "summary": "Outdated Packages in Docker Image",
+          "description": "Long text with a detailed description of the ticket.",
+          "project": "PTVUL",
+          "ticket_type": "Vulnerability"
+        }
+      },
+      "ticketResponseExample": {
+        "value": {
+          "id": "875abf8c-f9a2-473a-8623-5a85c85a3af9",
+          "key": "PTVUL-1234",
+          "team_id": "0b34e726-ee29-40c3-9b90-ce320951fd3a",
+          "finding_id": "a5131ffc-9fdd-4300-ae75-37c8585294ff",
+          "status": "open",
+          "url_tracker": "https://jiraserver.com/browse/PTVUL-1234",
+          "resolution": "Fixed",
+          "labels": ["potential"],
+          "summary": "Outdated Packages in Docker Image",
+          "description": "Long text with a detailed description of the ticket.",
+          "project": "PTVUL",
+          "ticket_type": "Vulnerability"
+        }
+      },
+      "findingTicketResponseExample": {
+        "value": {
+          "id": "875abf8c-f9a2-473a-8623-5a85c85a3af9",
+          "team_id": "0b34e726-ee29-40c3-9b90-ce320951fd3a",
+          "finding_id": "a5131ffc-9fdd-4300-ae75-37c8585294ff",
+          "url_tracker": "https://jiraserver.com/browse/PTVUL-1234"
+        }
+      }
+    }
+  }
+}
