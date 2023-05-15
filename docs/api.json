@@ -145,7 +145,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/finding_ticket"
+                  "$ref": "#/components/schemas/findingTicket"
                 },
                 "examples": {
                   "ticketFindingResponseExample": {
@@ -279,7 +279,7 @@
               "labels": {
                 "type": "array",
                 "items": {
-                  "type": "array"
+                  "type": "string"
                 },
                 "description": "ticket labels"
               }
@@ -290,7 +290,7 @@
           }
         ]
       },
-      "finding_ticket": {
+      "findingTicket": {
         "type": "object",
         "properties": {
           "id": {
