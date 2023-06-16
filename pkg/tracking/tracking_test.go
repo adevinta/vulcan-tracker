@@ -88,8 +88,7 @@ func setupSubTest(t *testing.T) {
 
 	credentials := make(map[string]*secrets.Credentials)
 	credentials["JiraServerID"] = &secrets.Credentials{
-		User:     "user",
-		Password: "password",
+		Token: "token",
 	}
 	ts = &TS{
 		ticketServerStorage: &mockTicketServerStorage{
@@ -111,11 +110,10 @@ func TestServerConf(t *testing.T) {
 			name:     "HappyPath",
 			serverID: "JiraServerID",
 			want: model.TrackerConfig{
-				ID:   "JiraServerID",
-				Name: "JiraServer",
-				URL:  "http://example.com",
-				User: "user",
-				Pass: "password",
+				ID:    "JiraServerID",
+				Name:  "JiraServer",
+				URL:   "http://example.com",
+				Token: "token",
 			},
 			wantErr: nil,
 		},

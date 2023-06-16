@@ -33,8 +33,7 @@ type AWSSecrets struct {
 
 // Credentials store the credentials of a secret.
 type Credentials struct {
-	User     string `json:"user"`
-	Password string `json:"password"`
+	Token string `json:"token"`
 }
 
 // NewAWSSecretManager instantiates a manager for AWS Secret Manager.

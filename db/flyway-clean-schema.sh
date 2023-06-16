@@ -2,5 +2,5 @@
 
 # Copyright 2023 Adevinta
 
-docker run --net=host flyway/flyway:"${FLYWAY_VERSION:-9.15.1}-alpine" -community \
+docker run --net=host flyway/flyway:"${FLYWAY_VERSION:-9.19.4}-alpine" -community \
     -user=vultrackerdb -password=vultrackerdb -url=jdbc:postgresql://localhost:5439/vultrackerdb -baselineOnMigrate=true -cleanDisabled=false clean

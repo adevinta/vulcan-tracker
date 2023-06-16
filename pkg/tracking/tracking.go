@@ -65,7 +65,7 @@ func (ttb *TTBuilder) GenerateTicketTrackerClient(ticketServer TicketServer, tea
 
 	var ttClient TicketTracker
 
-	ttClient, err = jira.New(serverConf.URL, serverConf.User, serverConf.Pass, logger)
+	ttClient, err = jira.New(serverConf.URL, serverConf.Token, logger)
 	if err != nil {
 		return nil, err
 	}
@@ -110,8 +110,7 @@ func (ts *TS) ServerConf(serverID string) (model.TrackerConfig, error) {
 	if err != nil {
 		return model.TrackerConfig{}, err
 	}
-	serverConfig.User = credentials.User
-	serverConfig.Pass = credentials.Password
+	serverConfig.Token = credentials.Token
 
 	return serverConfig, nil
 }

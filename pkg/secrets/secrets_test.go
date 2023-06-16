@@ -85,8 +85,7 @@ type mockLogger struct {
 func TestGetServerCredentials(t *testing.T) {
 	storedCredentials := map[string]Credentials{
 		"/path/to/key/078b038c-3da5-4694-ba6b-43ef2e52d75c": {
-			User:     "user1",
-			Password: "Password1",
+			Token: "token1",
 		},
 	}
 
@@ -116,8 +115,7 @@ func TestGetServerCredentials(t *testing.T) {
 			name:     "HappyPath",
 			serverID: "078b038c-3da5-4694-ba6b-43ef2e52d75c",
 			want: Credentials{
-				User:     "user1",
-				Password: "Password1",
+				Token: "token1",
 			},
 			wantErr: nil,
 		},

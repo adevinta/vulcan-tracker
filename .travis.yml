@@ -5,7 +5,7 @@ env:
   global:
   - CGO_ENABLED=0
   - GO111MODULE=on
-  - FLYWAY_VERSION=9.15.1
+  - FLYWAY_VERSION=9.19.4
   - PG_PORT=5439
 gobuild_args: -a -tags netgo -ldflags '-w'
 go_import_path: github.com/adevinta/vulcan-tracker
