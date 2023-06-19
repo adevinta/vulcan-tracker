@@ -34,6 +34,15 @@ For every register in `tracker_configuration` we create a secret with the inform
 - Secret name: `AWSSERVERCREDENTIALS_KEY/<id_tracker_configuration>`.
 - Secret value: create key/value pair with the key "token" and the Personal Access Token of the Jira account.
 
+
+Using aws cli;
+```shell
+aws secretsmanager create-secret \
+    --name /path/to/credential/key/f49b0a11-6cb6-47da-9739-21a92d84f4db \
+    --description "Credentials for the account example" \
+    --secret-string "{\"token\":\"7wSIKx=zV6J66E5ng4-Cqj7i-bwk-aGHumyjOkf/4LTeN6RNVT?5ZRdzBYFYNPwx\"}"
+```
+
 At this point, the access with Personal Access Token (PAT) is the only one supported.
 
 
