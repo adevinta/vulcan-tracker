@@ -123,7 +123,7 @@ func TestGetServerCredentials(t *testing.T) {
 			name:     "CredentialNotFound",
 			serverID: "e63c8e02-de5e-4875-8bb6-14975d5cc717",
 			want:     Credentials{},
-			wantErr:  errors.New("unable to retrieve the user and password for the server"),
+			wantErr:  errors.New("unable to retrieve the credentials for the server"),
 		},
 	}
 
