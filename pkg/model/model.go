@@ -30,11 +30,10 @@ type FindingTicket struct {
 
 // TrackerConfig represents the configuration of a ticket tracker server.
 type TrackerConfig struct {
-	ID   string `db:"id"`
-	Name string `db:"name"`
-	URL  string `db:"url"`
-	User string
-	Pass string
+	ID    string `db:"id"`
+	Name  string `db:"name"`
+	URL   string `db:"url"`
+	Token string
 }
 
 // ProjectConfig represents the configuration of a team.

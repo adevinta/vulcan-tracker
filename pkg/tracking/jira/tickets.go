@@ -38,7 +38,6 @@ func (tc *TrackerClient) GetTicket(id string) (model.Ticket, error) {
 
 // CreateTicket creates a ticket in Jira.
 func (tc *TrackerClient) CreateTicket(ticket model.Ticket) (model.Ticket, error) {
-
 	ticket.Description = GenerateDescriptionText(ticket.Description, ticket.FindingID, ticket.TeamID)
 
 	createdTicket, err := tc.Client.CreateTicket(ticket)

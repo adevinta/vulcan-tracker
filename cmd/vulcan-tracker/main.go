@@ -76,5 +76,4 @@ func main() {
 
 	address := fmt.Sprintf(":%d", cfg.API.Port)
 	e.Logger.Fatal(e.Start(address))
-
 }

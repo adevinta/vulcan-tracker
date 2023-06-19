@@ -33,8 +33,7 @@ type AWSSecrets struct {
 
 // Credentials store the credentials of a secret.
 type Credentials struct {
-	User     string `json:"user"`
-	Password string `json:"password"`
+	Token string `json:"token"`
 }
 
 // NewAWSSecretManager instantiates a manager for AWS Secret Manager.
@@ -57,7 +56,7 @@ func NewAWSSecretManager(config config.AwsConfig, logger echo.Logger) (*AWSSecre
 	}, err
 }
 
-// GetServerCredentials return the user and password inside a Credentials type
+// GetServerCredentials return the Jira credentials inside a Credentials type
 // from AWS secret manager for a specific server.
 func (s *AWSSecrets) GetServerCredentials(serverID string) (Credentials, error) {
 	secretName := fmt.Sprintf("%s%s", s.config.ServerCredentialsKey, serverID)
@@ -65,7 +64,7 @@ func (s *AWSSecrets) GetServerCredentials(serverID string) (Credentials, error) 
 	result, err := s.secretCache.GetSecretString(secretName)
 	if err != nil {
 		return Credentials{}, &vterrors.TrackingError{
-			Err:            fmt.Errorf("unable to retrieve the user and password for the server: %w", err),
+			Err:            fmt.Errorf("unable to retrieve the credentials for the server: %w", err),
 			HTTPStatusCode: http.StatusUnauthorized,
 		}
 	}

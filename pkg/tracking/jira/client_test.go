@@ -32,7 +32,6 @@ func (mis *MockIssueService) Get(issueID string, _ *gojira.GetQueryOptions) (*go
 
 // Search tries to find a ticket.
 func (mis *MockIssueService) Search(jql string, _ *gojira.SearchOptions) ([]gojira.Issue, *gojira.Response, error) {
-
 	splitted := strings.Split(jql, " ")
 	project := strings.Split(splitted[0], "=")[1]
 	issueType := strings.Split(splitted[2], "=")[1]
@@ -50,7 +49,6 @@ func (mis *MockIssueService) Search(jql string, _ *gojira.SearchOptions) ([]goji
 		if strings.Contains(ticket.Fields.Description, descriptionText) {
 			ticketsFound = append(ticketsFound, ticket)
 		}
-
 	}
 
 	return ticketsFound, nil, nil
@@ -58,7 +56,6 @@ func (mis *MockIssueService) Search(jql string, _ *gojira.SearchOptions) ([]goji
 
 // Create creates a new ticket.
 func (mis *MockIssueService) Create(issue *gojira.Issue) (*gojira.Issue, *gojira.Response, error) {
-
 	if issue.Fields.Summary == "" {
 		return nil, nil, fmt.Errorf("summary is mandatory. Status code: 400")
 	}

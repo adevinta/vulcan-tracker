@@ -27,10 +27,9 @@ type Client struct {
 }
 
 // NewClient instantiates a client using go-jira library.
-func NewClient(url, user, token string) (*Client, error) {
-	tp := gojira.BasicAuthTransport{
-		Username: user,
-		Password: token,
+func NewClient(url, token string) (*Client, error) {
+	tp := gojira.PATAuthTransport{
+		Token: token,
 	}
 	gojiraClient, err := gojira.NewClient(tp.Client(), url)
 	if err != nil {
@@ -43,7 +42,6 @@ func NewClient(url, user, token string) (*Client, error) {
 
 // fromGoJiraToTicketModel transforms a ticket returned by go-jira into a model.Ticket.
 func fromGoJiraToTicketModel(jiraIssue gojira.Issue, ticket model.Ticket) model.Ticket {
-
 	ticket.ID = jiraIssue.ID
 	ticket.Key = jiraIssue.Key
 	ticket.Summary = jiraIssue.Fields.Summary
@@ -77,7 +75,6 @@ func (cl *Client) GetTicket(id string) (model.Ticket, error) {
 	var ticket model.Ticket
 	ticket = fromGoJiraToTicketModel(*jiraIssue, ticket)
 	return ticket, nil
-
 }
 
 // FindTicket search tickets and return the first one if it exists.
@@ -85,7 +82,6 @@ func (cl *Client) GetTicket(id string) (model.Ticket, error) {
 // type and a text that have to be present on the ticket description.
 // Return a nil ticket if not found.
 func (cl *Client) FindTicket(projectKey, vulnerabilityIssueType, text string) (model.Ticket, error) {
-
 	jql := fmt.Sprintf("project=%s AND type=%s AND description~%s",
 		projectKey, vulnerabilityIssueType, text)
 

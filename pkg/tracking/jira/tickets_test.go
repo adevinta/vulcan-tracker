@@ -49,7 +49,6 @@ func (mj *mockJiraClient) GetTicket(id string) (model.Ticket, error) {
 }
 
 func (mj *mockJiraClient) FindTicket(projectKey, vulnerabilityIssueType, text string) (model.Ticket, error) {
-
 	var ticketsFound []model.Ticket
 
 	for _, ticket := range mj.tickets {
@@ -161,7 +160,6 @@ func TestGetTicket(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			got, err := tt.jiraTicketClient.GetTicket(tt.ticketID)
 			if errToStr(err) != errToStr(tt.wantErr) {
 				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)
@@ -243,7 +241,6 @@ func TestCreateTicket(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			got, err := tt.jiraTicketClient.CreateTicket(tt.newTicket)
 			if errToStr(err) != errToStr(tt.wantErr) {
 				t.Fatalf("expected error: %v but got: %v", tt.wantErr, err)

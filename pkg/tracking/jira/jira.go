@@ -23,8 +23,8 @@ type TicketTrackingClient interface {
 }
 
 // New instantiates a new Jira connection.
-func New(url, user, pass string, logger echo.Logger) (*TrackerClient, error) {
-	jiraClient, err := NewClient(url, user, pass)
+func New(url, token string, logger echo.Logger) (*TrackerClient, error) {
+	jiraClient, err := NewClient(url, token)
 	if err != nil {
 		return nil, err
 	}

@@ -75,7 +75,6 @@ func (ms *mockTicketServer) ProjectConfigByTeamID(teamID string) (model.ProjectC
 		Err:            errors.New("project not found"),
 		HTTPStatusCode: http.StatusNotFound,
 	}
-
 }
 
 func (ms *mockTicketServer) ServerConf(serverID string) (model.TrackerConfig, error) {
@@ -284,7 +283,6 @@ func TestGetTicket(t *testing.T) {
 }
 
 func TestCreateTicket(t *testing.T) {
-
 	ticket := model.Ticket{
 		ID:          "1000",
 		Key:         "TEST-1",
@@ -373,7 +371,6 @@ func TestCreateTicket(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			e := echo.New()
 
 			qsStrData, err := json.Marshal(tt.ticket)

@@ -23,7 +23,6 @@ func TestGetFindingTicket(t *testing.T) {
 	testStore, err := PrepareDatabaseLocal("../../../testdata/fixtures", NewDB)
 	if err != nil {
 		log.Fatal(err)
-
 	}
 	defer testStore.Close()
 
@@ -74,7 +73,6 @@ func TestCreateFindingTicket(t *testing.T) {
 	testStore, err := PrepareDatabaseLocal("../../../testdata/fixtures", NewDB)
 	if err != nil {
 		log.Fatal(err)
-
 	}
 
 	defer testStore.Close()
