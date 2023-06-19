@@ -23,6 +23,20 @@ To stop the dependencies, run:
 cd db && ./postgres-stop.sh
 ```
 
+
+## How to enroll teams manually
+
+To register teams manually in vulcan-tracker, it is necessary to create the corresponding records in the `project` and `tracker_configurations` tables.
+
+Afterwards, the corresponding secrets must be created in the AWS Secret Manager. Under the stored key `AWSSERVERCREDENTIALS_KEY`.
+For every register in `tracker_configuration` we create a secret with the information below:
+- Type of secret: "Other type of secret":
+- Secret name: `AWSSERVERCREDENTIALS_KEY/<id_tracker_configuration>`.
+- Secret value: create key/value pair with the key "token" and the Personal Access Token of the Jira account.
+
+At this point, the access with Personal Access Token (PAT) is the only one supported.
+
+
 ## Docker execute
 
 Those are the variables you have to use:
