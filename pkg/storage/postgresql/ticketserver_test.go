@@ -8,9 +8,10 @@ import (
 	"database/sql"
 	"testing"
 
-	"github.com/adevinta/vulcan-tracker/pkg/model"
 	"github.com/google/go-cmp/cmp"
 	"github.com/labstack/gommon/log"
+
+	"github.com/adevinta/vulcan-tracker/pkg/model"
 )
 
 func TestFindServerConf(t *testing.T) {

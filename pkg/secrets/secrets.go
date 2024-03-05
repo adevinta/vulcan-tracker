@@ -2,6 +2,7 @@
 Copyright 2023 Adevinta
 */
 
+// Package secrets manages the storage of credentials for ticket trackers.
 package secrets
 
 import (
@@ -9,14 +10,14 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/adevinta/vulcan-tracker/pkg/config"
-	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
+	"github.com/aws/aws-secretsmanager-caching-go/secretcache"
 	"github.com/labstack/echo/v4"
 
-	"github.com/aws/aws-secretsmanager-caching-go/secretcache"
+	"github.com/adevinta/vulcan-tracker/pkg/config"
+	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
 )
 
 // Secrets manage the credentials of ticket trackers servers.

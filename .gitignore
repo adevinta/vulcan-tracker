@@ -17,16 +17,9 @@ vulcan-tracker
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
-.vscode/
 out/
 
-
 dist/
-.env
-.DS_Store
-.history
-.idea
-
 
 # generated run toml config
 run.toml

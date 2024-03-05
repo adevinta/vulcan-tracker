@@ -1,6 +1,7 @@
 /*
 Copyright 2022 Adevinta
 */
+
 package tracking
 
 import (
@@ -10,14 +11,15 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/labstack/echo/v4"
+
 	"github.com/adevinta/vulcan-tracker/pkg/model"
 	"github.com/adevinta/vulcan-tracker/pkg/secrets"
 	"github.com/adevinta/vulcan-tracker/pkg/storage"
 	"github.com/adevinta/vulcan-tracker/pkg/testutil"
 	"github.com/adevinta/vulcan-tracker/pkg/tracking/jira"
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/labstack/echo/v4"
 )
 
 var ts *TS

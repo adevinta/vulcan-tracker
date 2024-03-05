@@ -1,6 +1,7 @@
 /*
 Copyright 2022 Adevinta
 */
+
 package jira
 
 import (
@@ -8,10 +9,10 @@ import (
 	"net/http"
 	"strings"
 
+	gojira "github.com/andygrunwald/go-jira"
+
 	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
 	"github.com/adevinta/vulcan-tracker/pkg/model"
-
-	gojira "github.com/andygrunwald/go-jira"
 )
 
 // Issuer manages all the operations related with the ticket tracker issues.

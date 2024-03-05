@@ -1,11 +1,14 @@
 /*
 Copyright 2022 Adevinta
 */
+
+// Package jira manages the communication with a Jira server.
 package jira
 
 import (
-	"github.com/adevinta/vulcan-tracker/pkg/model"
 	"github.com/labstack/echo/v4"
+
+	"github.com/adevinta/vulcan-tracker/pkg/model"
 )
 
 // TrackerClient represents a Jira ticket tracker client.

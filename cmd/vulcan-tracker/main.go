@@ -2,6 +2,7 @@
 Copyright 2022 Adevinta
 */
 
+// Package main start a vulcan-tracker server.
 package main
 
 import (

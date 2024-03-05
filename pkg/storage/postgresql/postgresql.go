@@ -2,6 +2,7 @@
 Copyright 2023 Adevinta
 */
 
+// Package postgresql manage the storage in a PostgreSQL database.
 package postgresql
 
 import (
@@ -92,7 +93,7 @@ func (db *PostgresStore) Healthcheck() error {
 	return nil
 }
 
-// Close closes PostgresStore db connection
+// Close closes PostgresStore db connection.
 func (db *PostgresStore) Close() error {
 	return db.DB.Close()
 }
