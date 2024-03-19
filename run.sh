@@ -2,6 +2,8 @@
 
 # Copyright 2022 Adevinta
 
+set -e
+
 # Apply env variables
 envsubst < config.toml > run.toml
 
