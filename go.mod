@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go v1.44.284
 	github.com/aws/aws-secretsmanager-caching-go v1.1.0
 	github.com/go-testfixtures/testfixtures/v3 v3.8.1
-	github.com/google/go-cmp v0.5.9
+	github.com/google/go-cmp v0.6.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/labstack/echo/v4 v4.9.0
 	github.com/labstack/gommon v0.3.1
