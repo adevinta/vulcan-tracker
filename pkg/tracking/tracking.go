@@ -1,26 +1,24 @@
 /*
 Copyright 2022 Adevinta
 */
+
+// Package tracking manages a ticket tracker server.
 package tracking
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 
-	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
 	"github.com/labstack/echo/v4"
 
+	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
 	"github.com/adevinta/vulcan-tracker/pkg/model"
 	"github.com/adevinta/vulcan-tracker/pkg/secrets"
 	"github.com/adevinta/vulcan-tracker/pkg/storage"
 	"github.com/adevinta/vulcan-tracker/pkg/tracking/jira"
 )
-
-// Filter holds query filtering information.
-type Filter struct {
-	// TODO: Not specified yet
-}
 
 // SortBy holds information for the
 // query sorting criteria.
@@ -97,7 +95,7 @@ func New(ticketServerStorage storage.TicketServerStorage, secretsService secrets
 // ServerConf retrieves all the needed configuration to access a ticket tracker server.
 func (ts *TS) ServerConf(serverID string) (model.TrackerConfig, error) {
 	serverConfig, err := ts.ticketServerStorage.FindServerConf(serverID)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return model.TrackerConfig{}, &vterrors.TrackingError{
 			HTTPStatusCode: http.StatusNotFound,
 			Err:            fmt.Errorf("server not found: %w", err),
@@ -120,7 +118,7 @@ func (ts *TS) ServerConf(serverID string) (model.TrackerConfig, error) {
 func (ts *TS) ProjectConfigByTeamID(teamID string) (model.ProjectConfig, error) {
 	// Get the server and the configuration for the teamId.
 	configuration, err := ts.ticketServerStorage.FindProjectConfigByTeamID(teamID)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return model.ProjectConfig{}, &vterrors.TrackingError{
 			HTTPStatusCode: http.StatusNotFound,
 			Err:            fmt.Errorf("project not found: %w", err),

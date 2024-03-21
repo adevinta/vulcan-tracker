@@ -1,6 +1,8 @@
 /*
 Copyright 2022 Adevinta
 */
+
+// Package errors manage the errors for vulcan-tracker.
 package errors
 
 // TrackingError represents a custom error for this project.

@@ -5,11 +5,12 @@ Copyright 2023 Adevinta
 package postgresql
 
 import (
-	"github.com/adevinta/vulcan-tracker/pkg/model"
 	"github.com/lib/pq"
+
+	"github.com/adevinta/vulcan-tracker/pkg/model"
 )
 
-// FindingTicket represents
+// FindingTicket represents a relation between tickets and findings.
 type FindingTicket struct {
 	model.FindingTicket
 	CreatedAt pq.NullTime `db:"created_at"`

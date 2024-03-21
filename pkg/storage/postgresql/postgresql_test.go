@@ -1,10 +1,15 @@
+/*
+Copyright 2023 Adevinta
+*/
+
 package postgresql
 
 import (
 	"testing"
 
-	"github.com/adevinta/vulcan-tracker/pkg/testutil"
 	"github.com/google/go-cmp/cmp"
+
+	"github.com/adevinta/vulcan-tracker/pkg/testutil"
 )
 
 func errToStr(err error) string {

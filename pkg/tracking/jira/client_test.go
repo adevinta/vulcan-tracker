@@ -1,6 +1,7 @@
 /*
 Copyright 2022 Adevinta
 */
+
 package jira
 
 import (
@@ -9,11 +10,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/adevinta/vulcan-tracker/pkg/model"
-	"github.com/adevinta/vulcan-tracker/pkg/testutil"
 	gojira "github.com/andygrunwald/go-jira"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+
+	"github.com/adevinta/vulcan-tracker/pkg/model"
+	"github.com/adevinta/vulcan-tracker/pkg/testutil"
 )
 
 type MockIssueService struct {

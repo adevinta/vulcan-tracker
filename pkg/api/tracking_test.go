@@ -1,6 +1,7 @@
 /*
 Copyright 2022 Adevinta
 */
+
 package api
 
 import (
@@ -12,12 +13,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/labstack/echo/v4"
+
 	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
 	"github.com/adevinta/vulcan-tracker/pkg/model"
 	"github.com/adevinta/vulcan-tracker/pkg/storage"
 	"github.com/adevinta/vulcan-tracker/pkg/tracking"
-	"github.com/google/go-cmp/cmp"
-	"github.com/labstack/echo/v4"
 )
 
 const (

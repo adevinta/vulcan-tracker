@@ -1,6 +1,7 @@
 /*
 Copyright 2022 Adevinta
 */
+
 package jira
 
 import (
@@ -10,12 +11,13 @@ import (
 	"strings"
 	"testing"
 
-	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
-	"github.com/adevinta/vulcan-tracker/pkg/model"
-	"github.com/adevinta/vulcan-tracker/pkg/testutil"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/labstack/echo/v4"
+
+	vterrors "github.com/adevinta/vulcan-tracker/pkg/errors"
+	"github.com/adevinta/vulcan-tracker/pkg/model"
+	"github.com/adevinta/vulcan-tracker/pkg/testutil"
 )
 
 const (

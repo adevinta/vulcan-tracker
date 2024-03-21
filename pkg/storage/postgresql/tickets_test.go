@@ -8,10 +8,11 @@ import (
 	"database/sql"
 	"testing"
 
-	"github.com/adevinta/vulcan-tracker/pkg/model"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/labstack/gommon/log"
+
+	"github.com/adevinta/vulcan-tracker/pkg/model"
 )
 
 var (

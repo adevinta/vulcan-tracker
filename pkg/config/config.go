@@ -2,6 +2,8 @@
 Copyright 2022 Adevinta
 */
 
+// Package config parses and validates the configuration
+// needed to run vulcan-tracker.
 package config
 
 import (
@@ -9,10 +11,10 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/adevinta/vulcan-tracker/pkg/storage/postgresql"
-
 	"github.com/BurntSushi/toml"
 	"github.com/labstack/gommon/log"
+
+	"github.com/adevinta/vulcan-tracker/pkg/storage/postgresql"
 )
 
 // Config represents all the configuration needed to run the project.
@@ -33,7 +35,7 @@ type logConfig struct {
 	Level string `toml:"level"`
 }
 
-// AwsConfig stores the AWS configuration
+// AwsConfig stores the AWS configuration.
 type AwsConfig struct {
 	ServerCredentialsKey string `toml:"server_credentials_key"`
 	Region               string `toml:"region"`

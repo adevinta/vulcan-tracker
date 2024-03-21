@@ -1,6 +1,7 @@
 /*
 Copyright 2023 Adevinta
 */
+
 package api
 
 import (
@@ -113,7 +114,7 @@ func (api *API) CreateTicket(c echo.Context) error {
 	ticket.TicketType = configuration.VulnerabilityIssueType
 
 	// Check if the ticket exists.
-	findingTicket, err := api.storage.GetFindingTicket(ticket.FindingID, ticket.TeamID)
+	findingTicket, _ := api.storage.GetFindingTicket(ticket.FindingID, ticket.TeamID)
 	if findingTicket.ID != "" {
 		return echo.NewHTTPError(http.StatusConflict, "The ticket for this finding and team already exists.")
 	}

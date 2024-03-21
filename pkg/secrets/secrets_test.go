@@ -12,8 +12,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/adevinta/vulcan-tracker/pkg/config"
-	"github.com/adevinta/vulcan-tracker/pkg/testutil"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
@@ -21,6 +19,9 @@ import (
 	"github.com/aws/aws-secretsmanager-caching-go/secretcache"
 	"github.com/google/go-cmp/cmp"
 	"github.com/labstack/echo/v4"
+
+	"github.com/adevinta/vulcan-tracker/pkg/config"
+	"github.com/adevinta/vulcan-tracker/pkg/testutil"
 )
 
 type smMock struct {

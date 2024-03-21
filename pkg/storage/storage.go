@@ -1,6 +1,8 @@
 /*
 Copyright 2022 Adevinta
 */
+
+// Package storage manage the data storage in a database.
 package storage
 
 import "github.com/adevinta/vulcan-tracker/pkg/model"

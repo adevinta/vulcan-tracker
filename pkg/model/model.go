@@ -2,6 +2,7 @@
 Copyright 2002 Adevinta
 */
 
+// Package model represents the data model for vulcan-tracker.
 package model
 
 // Ticket represents a vulnerability in a ticket tracker.
