@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/andygrunwald/go-jira v1.16.0
-	github.com/aws/aws-sdk-go v1.44.284
+	github.com/aws/aws-sdk-go v1.51.4
 	github.com/aws/aws-secretsmanager-caching-go v1.1.0
 	github.com/go-testfixtures/testfixtures/v3 v3.8.1
 	github.com/google/go-cmp v0.6.0
