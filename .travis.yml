@@ -1,6 +1,6 @@
 language: go
 go:
-  - 1.20.x
+  - 1.21.x
 env:
   global:
   - CGO_ENABLED=0
