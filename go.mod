@@ -1,6 +1,8 @@
 module github.com/adevinta/vulcan-tracker
 
-go 1.20
+go 1.21
+
+toolchain go1.22.1
 
 require (
 	github.com/BurntSushi/toml v1.3.2
