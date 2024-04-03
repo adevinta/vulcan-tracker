@@ -38,6 +38,7 @@ type logConfig struct {
 // AwsConfig stores the AWS configuration.
 type AwsConfig struct {
 	ServerCredentialsKey string `toml:"server_credentials_key"`
+	Endpoint             string `toml:"endpoint"`
 	Region               string `toml:"region"`
 }
 

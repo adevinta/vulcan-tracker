@@ -15,4 +15,5 @@ db = "vultrackerdb"
 
 [aws]
 server_credentials_key = "/vulcan/k8s/tracker/jira/"
+endpoint = ""
 region ="eu-west-1"

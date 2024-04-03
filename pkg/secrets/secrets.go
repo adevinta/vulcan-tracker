@@ -46,7 +46,9 @@ func NewAWSSecretManager(config config.AwsConfig, logger echo.Logger) (*AWSSecre
 	}
 	awsCfg := aws.NewConfig()
 	awsCfg = awsCfg.WithRegion(config.Region)
-
+	if config.Endpoint != "" {
+		awsCfg = awsCfg.WithEndpoint(config.Endpoint)
+	}
 	// Create Secrets Manager client.
 	client := secretsmanager.New(sess, awsCfg)
 	sc, err := secretcache.New(func(c *secretcache.Cache) { c.Client = client })

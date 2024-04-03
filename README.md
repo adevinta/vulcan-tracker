@@ -61,8 +61,8 @@ Those are the variables you have to use:
 |PG_PORT|Database port|5432|
 |PG_SSLMODE|One of these (disable,allow,prefer,require,verify-ca,verify-full)|disable|
 |AWSSERVERCREDENTIALS_KEY|Parent key in the AWS Secret Manager to store server secrets|/vulcan/k8s/tracker/jira/|
+|AWSSERVERCREDENTIALS_ENDPOINT|Optional AWS endpoint|http://locacalstack/|
 |AWS_REGION||eu-west-1|
-
 
 
 ```bash
