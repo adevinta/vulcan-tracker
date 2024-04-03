@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"path/filepath"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -60,8 +61,7 @@ func NewAWSSecretManager(config config.AwsConfig, logger echo.Logger) (*AWSSecre
 // GetServerCredentials return the Jira credentials inside a Credentials type
 // from AWS secret manager for a specific server.
 func (s *AWSSecrets) GetServerCredentials(serverID string) (Credentials, error) {
-	secretName := fmt.Sprintf("%s%s", s.config.ServerCredentialsKey, serverID)
-
+	secretName := filepath.Join(s.config.ServerCredentialsKey, serverID)
 	result, err := s.secretCache.GetSecretString(secretName)
 	if err != nil {
 		return Credentials{}, &vterrors.TrackingError{
