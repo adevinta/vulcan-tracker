@@ -19,7 +19,7 @@ FROM alpine:3.19.1
 
 WORKDIR /flyway
 
-RUN apk add --no-cache --update openjdk17-jre bash gettext libc6-compat
+RUN apk add --no-cache --update openjdk17-jre-headless bash gettext libc6-compat
 
 ARG FLYWAY_VERSION=10.10.0
 
