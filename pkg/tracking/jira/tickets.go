@@ -6,6 +6,8 @@ package jira
 
 import (
 	"fmt"
+	"net/url"
+	"path"
 
 	"github.com/adevinta/vulcan-tracker/pkg/model"
 )
@@ -32,7 +34,9 @@ func (tc *TrackerClient) GetTicket(id string) (model.Ticket, error) {
 	if err != nil {
 		return model.Ticket{}, err
 	}
-	ticket.URLTracker = fmt.Sprintf("%s/browse/%s", tc.URL, ticket.Key)
+	if ticket.URLTracker, err = url.JoinPath(tc.URL, path.Join("browse", ticket.Key)); err != nil {
+		return model.Ticket{}, err
+	}
 
 	return ticket, nil
 }
@@ -46,7 +50,9 @@ func (tc *TrackerClient) CreateTicket(ticket model.Ticket) (model.Ticket, error)
 		return model.Ticket{}, err
 	}
 
-	createdTicket.URLTracker = fmt.Sprintf("%s/browse/%s", tc.URL, createdTicket.Key)
+	if createdTicket.URLTracker, err = url.JoinPath(tc.URL, path.Join("browse", createdTicket.Key)); err != nil {
+		return model.Ticket{}, err
+	}
 
 	return createdTicket, nil
 }
