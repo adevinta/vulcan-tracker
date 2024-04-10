@@ -7,6 +7,7 @@ package api
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/http"
 	"regexp"
 
@@ -87,6 +88,7 @@ func (api *API) GetTicket(c echo.Context) error {
 // CreateTicket creates a ticket and returns a JSON containing the new ticket.
 func (api *API) CreateTicket(c echo.Context) error {
 	teamID := c.Param("team_id")
+	projectTeamID := teamID
 	ticket := new(model.Ticket)
 
 	// Check if the team is an uuid
@@ -105,7 +107,14 @@ func (api *API) CreateTicket(c echo.Context) error {
 	// Get the server and the configuration for the teamID.
 	configuration, err := api.ticketServer.ProjectConfigByTeamID(teamID)
 	if err != nil {
-		return responseError(err)
+		if api.Options.DefaultTeamProject == "" {
+			return responseError(err)
+		}
+		configuration, err = api.ticketServer.ProjectConfigByTeamID(api.Options.DefaultTeamProject)
+		if err != nil {
+			return responseError(fmt.Errorf("unable to find config for default team %s: %w", api.Options.DefaultTeamProject, err))
+		}
+		projectTeamID = api.Options.DefaultTeamProject
 	}
 
 	// Retrieve the necessary values to create a ticket.
@@ -120,7 +129,7 @@ func (api *API) CreateTicket(c echo.Context) error {
 	}
 
 	// Get a ticket tracker client.
-	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServer, teamID, c.Logger())
+	ttClient, err := api.ticketTrackerBuilder.GenerateTicketTrackerClient(api.ticketServer, projectTeamID, c.Logger())
 	if err != nil {
 		return responseError(err)
 	}

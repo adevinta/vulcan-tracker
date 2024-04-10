@@ -2,6 +2,7 @@
 max_size = 100
 default_size = 20
 port = $PORT
+default_team_project = "$DEFAULT_TEAM_PROJECT"
 
 [log]
 level = "$LOG_LEVEL"

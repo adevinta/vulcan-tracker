@@ -369,6 +369,30 @@ func TestCreateTicket(t *testing.T) {
 				Message: "project not found",
 			},
 		},
+		{
+			name:   "TeamDefault",
+			teamID: "c99fed50-c612-4f99-863f-6d3274e2b2b6",
+			ticket: model.Ticket{
+				Summary:     "Summary TEST-2",
+				Description: "Description TEST-2",
+				FindingID:   "12345678",
+			},
+			api: &API{
+				ticketServer: &mockTicketServer{
+					projects: projects,
+				},
+				ticketTrackerBuilder: &mockTicketTrackerBuilder{
+					tickets:  tickets,
+					projects: projects,
+				},
+				storage: &mockStorage{},
+				Options: Options{
+					DefaultTeamProject: "80287cf6-db31-47f8-a9aa-792f214b1f88",
+				},
+			},
+			wantStatusCode: http.StatusOK,
+			wantTicket:     "TEST-3",
+		},
 	}
 
 	for _, tt := range tests {

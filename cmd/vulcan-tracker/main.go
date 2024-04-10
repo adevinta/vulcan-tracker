@@ -55,8 +55,9 @@ func main() {
 	ticketTrackerBuilder := &tracking.TTBuilder{}
 
 	a := api.New(ticketServer, ticketTrackerBuilder, db, api.Options{
-		MaxSize:     cfg.API.MaxSize,
-		DefaultSize: cfg.API.DefaultSize,
+		DefaultTeamProject: cfg.API.DefaultTeamProject,
+		MaxSize:            cfg.API.MaxSize,
+		DefaultSize:        cfg.API.DefaultSize,
 	})
 
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{

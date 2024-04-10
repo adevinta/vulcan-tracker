@@ -26,9 +26,10 @@ type Config struct {
 }
 
 type apiConfig struct {
-	MaxSize     int `toml:"max_size"`
-	DefaultSize int `toml:"default_size"`
-	Port        int `toml:"port"`
+	MaxSize            int    `toml:"max_size"`
+	DefaultSize        int    `toml:"default_size"`
+	Port               int    `toml:"port"`
+	DefaultTeamProject string `toml:"default_team_project"`
 }
 
 type logConfig struct {
