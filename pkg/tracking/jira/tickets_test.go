@@ -130,6 +130,7 @@ func TestGetTicket(t *testing.T) {
 					tickets: tickets,
 				},
 				Logger: &mockLogger{},
+				URL:    "https://www.example.com/jira/",
 			},
 			want: model.Ticket{
 				ID:          "1000",
@@ -142,7 +143,7 @@ func TestGetTicket(t *testing.T) {
 				Status:      ToDo,
 				TicketType:  "Vulnerability",
 				Labels:      []string{"Vulnerability"},
-				URLTracker:  "/browse/TEST-1",
+				URLTracker:  "https://www.example.com/jira/browse/TEST-1",
 			},
 			wantErr: nil,
 		},

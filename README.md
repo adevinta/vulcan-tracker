@@ -62,6 +62,7 @@ Those are the variables you have to use:
 |PG_SSLMODE|One of these (disable,allow,prefer,require,verify-ca,verify-full)|disable|
 |AWSSERVERCREDENTIALS_KEY|Parent key in the AWS Secret Manager to store server secrets|/vulcan/k8s/tracker/jira/|
 |AWSSERVERCREDENTIALS_ENDPOINT|Optional AWS endpoint|http://locacalstack/|
+|DEFAULT_TEAM_PROJECT|team id with a project that will be used as project for all the non explicit declared teams|
 |AWS_REGION||eu-west-1|
 
 

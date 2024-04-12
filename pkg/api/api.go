@@ -20,8 +20,9 @@ type API struct {
 
 // Options represents size options for the API requests.
 type Options struct {
-	MaxSize     int
-	DefaultSize int
+	DefaultTeamProject string
+	MaxSize            int
+	DefaultSize        int
 }
 
 // New instantiates a new API.
