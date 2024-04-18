@@ -157,6 +157,11 @@ components:
         ticket_type:
           type: string
           description: Issue type of the ticket
+        labels:
+          type: array
+          items:
+            type: string
+            description: Jira labels
     ticketResponse:
       allOf:
         - type: object
@@ -190,9 +195,7 @@ components:
       properties:
         id:
           type: string
-          description: >-
-            Identification of the relationship between a finding and a ticket
-            for a team in uuid format
+          description: Identification of the relationship between a finding and a ticket for a team in uuid format
         finding_id:
           type: string
           description: Finding identification in uuid format
@@ -215,6 +218,8 @@ components:
         description: Long text with a detailed description of the ticket.
         project: PTVUL
         ticket_type: Vulnerability
+        labels:
+          - potential
     ticketResponseExample:
       value:
         id: 875abf8c-f9a2-473a-8623-5a85c85a3af9

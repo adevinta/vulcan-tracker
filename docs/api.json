@@ -244,6 +244,13 @@
           "ticket_type": {
             "type": "string",
             "description": "Issue type of the ticket"
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Jira labels"
+            }
           }
         }
       },
@@ -327,7 +334,10 @@
           "summary": "Outdated Packages in Docker Image",
           "description": "Long text with a detailed description of the ticket.",
           "project": "PTVUL",
-          "ticket_type": "Vulnerability"
+          "ticket_type": "Vulnerability",
+          "labels": [
+            "potential"
+          ]
         }
       },
       "ticketResponseExample": {
