@@ -405,7 +405,7 @@ func TestCreateTicket(t *testing.T) {
 			}
 
 			req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(qsStrData))
-			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
 
 			c := e.NewContext(req, rec)
