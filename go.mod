@@ -11,7 +11,7 @@ require (
 	github.com/aws/aws-secretsmanager-caching-go v1.1.3
 	github.com/go-testfixtures/testfixtures/v3 v3.10.0
 	github.com/google/go-cmp v0.6.0
-	github.com/jmoiron/sqlx v1.3.5
+	github.com/jmoiron/sqlx v1.4.0
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/labstack/gommon v0.4.2
 	github.com/lib/pq v1.10.9
