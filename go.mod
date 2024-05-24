@@ -5,7 +5,7 @@ go 1.21
 toolchain go1.22.1
 
 require (
-	github.com/BurntSushi/toml v1.3.2
+	github.com/BurntSushi/toml v1.4.0
 	github.com/andygrunwald/go-jira v1.16.0
 	github.com/aws/aws-sdk-go v1.53.0
 	github.com/aws/aws-secretsmanager-caching-go v1.1.3
