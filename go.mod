@@ -8,7 +8,7 @@ require (
 	github.com/BurntSushi/toml v1.4.0
 	github.com/andygrunwald/go-jira v1.16.0
 	github.com/aws/aws-sdk-go v1.53.0
-	github.com/aws/aws-secretsmanager-caching-go v1.1.3
+	github.com/aws/aws-secretsmanager-caching-go v1.2.0
 	github.com/go-testfixtures/testfixtures/v3 v3.11.0
 	github.com/google/go-cmp v0.6.0
 	github.com/jmoiron/sqlx v1.4.0
