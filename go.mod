@@ -12,7 +12,7 @@ require (
 	github.com/go-testfixtures/testfixtures/v3 v3.13.0
 	github.com/google/go-cmp v0.6.0
 	github.com/jmoiron/sqlx v1.4.0
-	github.com/labstack/echo/v4 v4.13.0
+	github.com/labstack/echo/v4 v4.13.1
 	github.com/labstack/gommon v0.4.2
 	github.com/lib/pq v1.10.9
 )
