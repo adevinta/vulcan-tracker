@@ -1,6 +1,6 @@
 # Copyright 2023 Adevinta
 
-FROM golang:1.24-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS builder
 
 ARG TARGETOS TARGETARCH
 
