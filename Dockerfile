@@ -1,8 +1,8 @@
 # Copyright 2023 Adevinta
 
-FROM golang:1.23.4-alpine3.19 as builder
+FROM golang:1.24-alpine AS builder
 
-ARG ARCH=amd64
+ARG TARGETOS TARGETARCH
 
 WORKDIR /app
 
@@ -13,9 +13,9 @@ RUN go mod download
 
 COPY . .
 
-RUN cd cmd/vulcan-tracker && GOOS=linux GOARCH=$ARCH go build -tags musl . && cd -
+RUN cd cmd/vulcan-tracker && GOOS=$TARGETOS GOARCH=$TARGETARCH go build -tags musl . && cd -
 
-FROM alpine:3.21.2
+FROM alpine:3.21
 
 WORKDIR /flyway
 
@@ -29,12 +29,6 @@ RUN wget -q https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/${FLY
     && find ./drivers/ -type f | grep -Ev '(postgres|jackson)' | xargs rm \
     && chown -R root:root . \
     && ln -s /flyway/flyway /bin/flyway
-
-ARG BUILD_RFC3339="1970-01-01T00:00:00Z"
-ARG COMMIT="local"
-
-ENV BUILD_RFC3339 "$BUILD_RFC3339"
-ENV COMMIT "$COMMIT"
 
 WORKDIR /app
 

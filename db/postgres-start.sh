@@ -2,4 +2,4 @@
 
 # Copyright 2023 Adevinta
 
-docker-compose up -d
+docker compose up -d

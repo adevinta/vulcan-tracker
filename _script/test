@@ -5,4 +5,4 @@
 set -eu
 
 # run unit and integration tests
-go test -v $(go list ./... | grep -v /vendor/)
+go test -race ./...
