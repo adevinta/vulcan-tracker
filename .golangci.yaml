@@ -1,38 +1,50 @@
+version: "2"
 linters:
   enable:
-    - gci
     - godot
-    - gofmt
     - goheader
     - misspell
     - revive
-    - whitespace
     - unparam
-linters-settings:
-  gci:
-    sections:
-      - standard
-      - default
-      - prefix(github.com/adevinta/vulcan-tracker)
-    custom-order: true
-  goheader:
-    values:
-      const:
-        COMPANY: Adevinta
-      regexp:
-        ANY-YEAR: \d{4}
-    template: |-
-      Copyright {{ ANY-YEAR }} {{ COMPANY }}
+    - whitespace
+  settings:
+    goheader:
+      values:
+        const:
+          COMPANY: Adevinta
+        regexp:
+          ANY-YEAR: \d{4}
+      template: Copyright {{ ANY-YEAR }} {{ COMPANY }}
+  exclusions:
+    generated: lax
+    rules:
+      - linters:
+          - errcheck
+        text: Error return value of .((os\.)?std(out|err)\..*|.*Close|.*Flush|os\.Remove(All)?|.*print(f|ln)?|os\.(Un)?Setenv). is not checked
+      - linters:
+          - revive
+        text: 'unused-parameter: parameter ''.*'' seems to be unused'
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
-  exclude-use-default: false
-  exclude-rules:
-    - linters:
-        - errcheck
-      text: 'Error return value of .((os\.)?std(out|err)\..*|.*Close|.*Flush|os\.Remove(All)?|.*print(f|ln)?|os\.(Un)?Setenv). is not checked'
-    - linters:
-        - revive
-      text: 'unused-parameter: parameter ''.*'' seems to be unused'
-run:
-  timeout: 5m
+formatters:
+  enable:
+    - gci
+    - gofmt
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/adevinta/vulcan-tracker)
+      custom-order: true
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
