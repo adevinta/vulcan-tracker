@@ -79,8 +79,8 @@ func CreateTestDatabase(name string) (ConnStr, error) {
 // function will return the following name: vultrackerdb_FuncA_test.
 func DBNameForFunc(depth int) string {
 	pc, _, _, _ := runtime.Caller(depth)
-	callerName := strings.Replace(runtime.FuncForPC(pc).Name(), ".", "_", -1)
-	callerName = strings.Replace(callerName, "-", "_", -1)
+	callerName := strings.ReplaceAll(runtime.FuncForPC(pc).Name(), ".", "_")
+	callerName = strings.ReplaceAll(callerName, "-", "_")
 	parts := strings.Split(callerName, "/")
 	return strings.ToLower(fmt.Sprintf("vultrackerdb_%s_test", parts[len(parts)-1]))
 }

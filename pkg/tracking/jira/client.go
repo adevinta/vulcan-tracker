@@ -62,7 +62,7 @@ func fromGoJiraToTicketModel(jiraIssue gojira.Issue, ticket model.Ticket) model.
 // GetTicket retrieves a ticket from Jira.
 // Return an empty ticket if not found.
 func (cl *Client) GetTicket(id string) (model.Ticket, error) {
-	jiraIssue, resp, err := cl.Issuer.Get(id, nil)
+	jiraIssue, resp, err := cl.Get(id, nil)
 	if err != nil {
 		err = gojira.NewJiraError(resp, err)
 		if strings.Contains(err.Error(), "404") {
@@ -89,7 +89,7 @@ func (cl *Client) FindTicket(projectKey, vulnerabilityIssueType, text string) (m
 	searchOptions := &gojira.SearchOptions{
 		MaxResults: 1,
 	}
-	tickets, resp, err := cl.Issuer.Search(jql, searchOptions)
+	tickets, resp, err := cl.Search(jql, searchOptions)
 	if err != nil {
 		err = gojira.NewJiraError(resp, err)
 		return model.Ticket{}, err
@@ -118,13 +118,13 @@ func (cl *Client) CreateTicket(ticket model.Ticket) (model.Ticket, error) {
 		},
 	}
 
-	gojiraIssue, resp, err := cl.Issuer.Create(newTicket)
+	gojiraIssue, resp, err := cl.Create(newTicket)
 	if err != nil {
 		err = gojira.NewJiraError(resp, err)
 		return model.Ticket{}, err
 	}
 
-	createdTicket, resp, err := cl.Issuer.Get(gojiraIssue.Key, nil)
+	createdTicket, resp, err := cl.Get(gojiraIssue.Key, nil)
 	if err != nil {
 		err = gojira.NewJiraError(resp, err)
 		return model.Ticket{}, err

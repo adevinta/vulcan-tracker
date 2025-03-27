@@ -37,14 +37,14 @@ func getStrPtr(str string) *string {
 func (sm *smMock) DescribeSecretWithContext(_ aws.Context, input *secretsmanager.DescribeSecretInput, _ ...request.Option) (*secretsmanager.DescribeSecretOutput, error) {
 	versionID := getStrPtr("uuid")
 	versionStages := []*string{getStrPtr("AWSCURRENT")}
-	versionIdsToStages := make(map[string][]*string)
-	versionIdsToStages[*versionID] = versionStages
+	versionIDsToStages := make(map[string][]*string)
+	versionIDsToStages[*versionID] = versionStages
 
 	mockedDescribeResult := secretsmanager.DescribeSecretOutput{
 		ARN:                getStrPtr("dummy-arn"),
 		Name:               getStrPtr(*input.SecretId),
 		Description:        getStrPtr("secret description description"),
-		VersionIdsToStages: versionIdsToStages,
+		VersionIdsToStages: versionIDsToStages,
 	}
 	return &mockedDescribeResult, nil
 }
@@ -52,8 +52,8 @@ func (sm *smMock) DescribeSecretWithContext(_ aws.Context, input *secretsmanager
 func (sm *smMock) GetSecretValueWithContext(_ aws.Context, input *secretsmanager.GetSecretValueInput, _ ...request.Option) (*secretsmanager.GetSecretValueOutput, error) {
 	versionID := getStrPtr("uuid")
 	versionStages := []*string{getStrPtr("AWSCURRENT")}
-	versionIdsToStages := make(map[string][]*string)
-	versionIdsToStages[*versionID] = versionStages
+	versionIDsToStages := make(map[string][]*string)
+	versionIDsToStages[*versionID] = versionStages
 
 	createDate := time.Now().Add(-time.Hour * 12) // 12 hours ago.
 	value, ok := sm.storedCredentials[*input.SecretId]
