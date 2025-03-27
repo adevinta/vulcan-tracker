@@ -1,7 +1,12 @@
 name: Go Build & Test
 on:
   push:
+    branches:
+      - master
+    tags:
+      - '**'
   pull_request:
+  workflow_dispatch:
 
 jobs:
   build-and-test:
@@ -16,7 +21,7 @@ jobs:
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
-        if: github.event_name == 'push'
+        if: github.event_name != 'pull_request'
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -30,7 +35,7 @@ jobs:
         uses: golangci/golangci-lint-action@v7
         with:
           version: v2.0
-  
+
       - name: Build and run tests
         env:
           PG_PORT: "5439"
@@ -63,6 +68,6 @@ jobs:
         with:
           build-args: FLYWAY_VERSION=${{ env.FLYWAY_VERSION }}
           platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name == 'push' }}
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
