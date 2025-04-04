@@ -12,6 +12,10 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+
     env:
       FLYWAY_VERSION: "10.10.0"
 
@@ -54,7 +58,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            docker.io/adevinta/vulcan-tracker
+            docker.io/${{ github.repository }}
           tags: |
             type=edge
             type=ref,event=branch
