@@ -15,7 +15,7 @@ COPY . .
 
 RUN GOOS=$TARGETOS GOARCH=$TARGETARCH go build -tags musl ./cmd/vulcan-tracker
 
-FROM alpine:3.21
+FROM alpine:3.22
 
 WORKDIR /flyway
 
