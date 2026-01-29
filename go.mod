@@ -14,7 +14,7 @@ require (
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/labstack/gommon v0.4.2
-	github.com/lib/pq v1.10.9
+	github.com/lib/pq v1.11.0
 )
 
 require (
